@@ -25,7 +25,7 @@
         </activity>
 
         <service
-            android:name="com.curryplayer.quicksettingssoundprofile.services.SoundProfileService"
+            android:name="com.curryplayer.quicksettingssoundprofile.services.SoundProfileTileService"
             android:exported="true"
             android:icon="@drawable/ic_round_volume_up_24"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">

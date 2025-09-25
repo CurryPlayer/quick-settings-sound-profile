@@ -4,7 +4,7 @@ import android.media.AudioManager
 import android.service.quicksettings.TileService
 import android.util.Log
 
-class SoundProfileService: TileService() {
+class SoundProfileTileService: TileService() {
 
     // Called when the user adds your tile.
     override fun onTileAdded() {
