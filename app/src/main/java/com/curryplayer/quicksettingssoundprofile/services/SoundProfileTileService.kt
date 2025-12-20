@@ -130,7 +130,7 @@ class SoundProfileTileService: TileService(){
                 qsTile.icon = Icon.createWithResource(this, R.drawable.ic_round_volume_up_24)
             }
             AudioManager.RINGER_MODE_VIBRATE -> {
-                qsTile.state = Tile.STATE_ACTIVE
+                qsTile.state = Tile.STATE_INACTIVE
                 qsTile.label = "Vibrate"
                 qsTile.icon = Icon.createWithResource(this, R.drawable.ic_round_vibration_24)
             }
