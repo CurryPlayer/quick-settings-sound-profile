@@ -20,13 +20,13 @@ import com.curryplayer.quicksettingssoundprofile.composables.RenderSettingsToggl
 //fun RenderSettingsPage(modifier: Modifier = Modifier.Companion) {
 fun RenderSettingsPage(ctx: Context, hasPermission: Boolean, modifier: Modifier = Modifier.Companion) {
     Scaffold(
-        modifier = Modifier.Companion
+        modifier = Modifier
             .fillMaxSize()
-            .background(color = Color.Companion.DarkGray),
+            .background(color = Color.DarkGray),
         topBar = { RenderTopAppBar() },
         content = { contentPadding ->
             Column(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .padding(contentPadding)
             ) {
                 if (!hasPermission) {
