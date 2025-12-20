@@ -18,7 +18,11 @@ import com.curryplayer.quicksettingssoundprofile.composables.RenderSettingsToggl
 //@Preview(showBackground = true)
 @Composable
 //fun RenderSettingsPage(modifier: Modifier = Modifier.Companion) {
-fun RenderSettingsPage(ctx: Context, hasPermission: Boolean, modifier: Modifier = Modifier.Companion) {
+fun RenderSettingsPage(
+    ctx: Context,
+    hasPermission: Boolean,
+    modifier: Modifier = Modifier.Companion
+) {
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -37,12 +41,14 @@ fun RenderSettingsPage(ctx: Context, hasPermission: Boolean, modifier: Modifier 
                 RenderSettingsToggleItem(
                     "Activate 'Do not disturb' mode on mute",
                     "If enabled, 'Do not disturb' mode will be activated when the device is muted",
-                    false
+                    false,
+                    hasPermission
                 )
                 RenderSettingsToggleItem(
                     "Also mute media",
                     "If enabled, media will be muted when the device is muted",
-                    false
+                    false,
+                    hasPermission
                 )
             }
         }

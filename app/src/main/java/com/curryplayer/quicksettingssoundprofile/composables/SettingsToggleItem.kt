@@ -1,5 +1,6 @@
 package com.curryplayer.quicksettingssoundprofile.composables
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,7 +18,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun RenderSettingsToggleItem(title: String, subtitle: String?, initialChecked: Boolean) {
+fun RenderSettingsToggleItem(
+    title: String,
+    subtitle: String?,
+    initialChecked: Boolean,
+    hasPermission: Boolean
+) {
     val checkedState: MutableState<Boolean> = remember { mutableStateOf(initialChecked) }
     Row(
         modifier = Modifier
@@ -30,7 +36,8 @@ fun RenderSettingsToggleItem(title: String, subtitle: String?, initialChecked: B
         ) {
             Text(
                 text = title,
-                fontSize = 20.sp
+                fontSize = 20.sp,
+                color = if (hasPermission) (if (isSystemInDarkTheme()) Color.White else Color.Black) else Color.Gray
             )
             if (!subtitle.isNullOrBlank()) {
                 Text(
@@ -43,7 +50,8 @@ fun RenderSettingsToggleItem(title: String, subtitle: String?, initialChecked: B
         Switch(
             checked = checkedState.value,
             onCheckedChange = { newValue -> checkedState.value = newValue },
-            modifier = Modifier.padding(start = 16.dp)
+            modifier = Modifier.padding(start = 16.dp),
+            enabled = hasPermission
         )
     }
 }

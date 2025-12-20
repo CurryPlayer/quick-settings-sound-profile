@@ -1,6 +1,6 @@
 package com.curryplayer.quicksettingssoundprofile.composables
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,12 +14,12 @@ import androidx.compose.ui.unit.dp
 fun RenderNewCategoryName(title: String) {
     Text(
         text = title,
+        color = if (isSystemInDarkTheme()) Color.White else Color.Black,
         modifier = Modifier.padding(16.dp)
     )
     Spacer(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .background(color = Color.LightGray)
     )
 }
