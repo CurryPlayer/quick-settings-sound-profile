@@ -14,6 +14,12 @@ import com.curryplayer.quicksettingssoundprofile.utils.Utils
 
 class SoundProfileTileService: TileService(){
 
+    /**
+     * A [BroadcastReceiver] that listens for changes in the device's ringer mode.
+     * When a change is detected (e.g., 'Sound' -> 'Vibrate' or 'Vibrate' -> 'Silent'), it triggers
+     * an update to the Quick Settings tile to reflect the new state. This ensures the tile
+     * is always in sync with the actual system sound profile.
+     */
     private val ringerModeChangedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
 
         override fun onReceive(context: Context?, intent: Intent?) {
