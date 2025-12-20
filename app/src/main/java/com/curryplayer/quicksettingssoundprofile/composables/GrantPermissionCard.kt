@@ -3,6 +3,7 @@ package com.curryplayer.quicksettingssoundprofile.composables
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -54,7 +55,7 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Please grant the 'Do not disturb' permission",
+                text = "Please grant the 'Do Not Disturb' permission",
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold
             )
@@ -62,7 +63,7 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Starting with Android 7, the \"Do Not Disturb\" permission is required to set the phone to silent mode. Please allow the app to use this permission.",
+                text = "The 'Do Not Disturb' permission is required to set the phone to silent mode. Please allow the app to use this permission.",
                 textAlign = TextAlign.Center
             )
 
@@ -70,6 +71,12 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier) {
 
             Button(
                 onClick = {
+                    Toast.makeText(
+                        ctx,
+                        "Select 'Quick Settings Sound Profile' in the app list and grant the permission.",
+                        Toast.LENGTH_LONG
+                    ).show()
+
                     val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     ctx.startActivity(intent)
