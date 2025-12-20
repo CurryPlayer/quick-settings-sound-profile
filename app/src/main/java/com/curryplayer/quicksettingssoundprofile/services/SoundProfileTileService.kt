@@ -89,6 +89,7 @@ class SoundProfileTileService: TileService(){
         if (!Utils.isDoNotDisturbPermissionGranted(this)) {
             Log.i("SoundProfileTileService", "Not allowed to toggle sound profile")
             if (qsTile != null) {
+                qsTile.icon = Icon.createWithResource(this, R.drawable.ic_round_warning_24)
                 qsTile.state = Tile.STATE_UNAVAILABLE
                 qsTile.label = "Permission required"
                 qsTile.updateTile()
@@ -98,14 +99,9 @@ class SoundProfileTileService: TileService(){
 
         val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         when (audioManager.ringerMode) {
-            AudioManager.RINGER_MODE_NORMAL -> audioManager.ringerMode =
-                AudioManager.RINGER_MODE_VIBRATE
-
-            AudioManager.RINGER_MODE_VIBRATE -> audioManager.ringerMode =
-                AudioManager.RINGER_MODE_SILENT
-
-            AudioManager.RINGER_MODE_SILENT -> audioManager.ringerMode =
-                AudioManager.RINGER_MODE_NORMAL
+            AudioManager.RINGER_MODE_NORMAL -> audioManager.ringerMode = AudioManager.RINGER_MODE_VIBRATE
+            AudioManager.RINGER_MODE_VIBRATE -> audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+            AudioManager.RINGER_MODE_SILENT -> audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
         }
         updateTileState()
     }
@@ -116,16 +112,16 @@ class SoundProfileTileService: TileService(){
      */
     private fun updateTileState() {
 
+        if (qsTile == null) {
+            return
+        }
+
         val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         val currentMode = audioManager.ringerMode
         Log.i("Current Sound Mode", currentMode.toString())
 
         val isQsTileNull = (qsTile == null)
         Log.i("State of qsTile", isQsTileNull.toString())
-
-        if (qsTile == null) {
-            return
-        }
 
         when(currentMode) {
             AudioManager.RINGER_MODE_NORMAL -> {
