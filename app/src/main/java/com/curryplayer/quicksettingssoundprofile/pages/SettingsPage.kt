@@ -10,6 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.curryplayer.quicksettingssoundprofile.composables.RenderAllSetCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderGrantPermissionCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderTopAppBar
 import com.curryplayer.quicksettingssoundprofile.composables.RenderNewCategoryName
@@ -36,6 +37,9 @@ fun RenderSettingsPage(
                 if (!hasPermission) {
                     Log.i("Permission", "Not granted")
                     RenderGrantPermissionCard(ctx)
+                } else {
+                    Log.i("Permission", "Granted")
+                    RenderAllSetCard()
                 }
                 RenderNewCategoryName("Mute Settings")
                 RenderSettingsToggleItem(
