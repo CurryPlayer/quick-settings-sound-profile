@@ -16,13 +16,15 @@ import com.curryplayer.quicksettingssoundprofile.composables.RenderTopAppBar
 import com.curryplayer.quicksettingssoundprofile.composables.RenderNewCategoryName
 import com.curryplayer.quicksettingssoundprofile.composables.RenderSettingsToggleItem
 
-//@Preview(showBackground = true)
 @Composable
-//fun RenderSettingsPage(modifier: Modifier = Modifier.Companion) {
 fun RenderSettingsPage(
     ctx: Context,
     hasPermission: Boolean,
-    modifier: Modifier = Modifier.Companion
+    activateDnd: Boolean,
+    onActivateDndChange: (Boolean) -> Unit,
+    muteMedia: Boolean,
+    onMuteMediaChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Scaffold(
         modifier = Modifier
@@ -45,13 +47,15 @@ fun RenderSettingsPage(
                 RenderSettingsToggleItem(
                     "Activate 'Do not disturb' mode on mute",
                     "If enabled, 'Do not disturb' mode will be activated when the device is muted",
-                    false,
+                    activateDnd,
+                    onActivateDndChange,
                     hasPermission
                 )
                 RenderSettingsToggleItem(
                     "Also mute media",
                     "If enabled, media will be muted when the device is muted",
-                    false,
+                    muteMedia,
+                    onMuteMediaChange,
                     hasPermission
                 )
             }

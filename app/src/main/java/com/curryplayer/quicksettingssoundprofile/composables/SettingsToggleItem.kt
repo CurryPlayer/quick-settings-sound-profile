@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,10 +18,10 @@ import androidx.compose.ui.unit.sp
 fun RenderSettingsToggleItem(
     title: String,
     subtitle: String?,
-    initialChecked: Boolean,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
     hasPermission: Boolean
 ) {
-    val checkedState: MutableState<Boolean> = remember { mutableStateOf(initialChecked) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -48,8 +45,8 @@ fun RenderSettingsToggleItem(
             }
         }
         Switch(
-            checked = checkedState.value,
-            onCheckedChange = { newValue -> checkedState.value = newValue },
+            checked = checked,
+            onCheckedChange = onCheckedChange,
             modifier = Modifier.padding(start = 16.dp),
             enabled = hasPermission
         )

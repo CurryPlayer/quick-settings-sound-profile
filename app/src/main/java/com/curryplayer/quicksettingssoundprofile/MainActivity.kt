@@ -1,49 +1,59 @@
 package com.curryplayer.quicksettingssoundprofile
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.pages.RenderSettingsPage
 import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProfileTheme
 import com.curryplayer.quicksettingssoundprofile.utils.Utils
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
-    private var dndPermissionGrantedState = mutableStateOf(false)
+    private var dndPermissionGrantedState by mutableStateOf(false)
+    private lateinit var dataStoreManager: DataStoreManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i("MainActivity", "onCreate")
         enableEdgeToEdge()
 
-        dndPermissionGrantedState.value = Utils.isDoNotDisturbPermissionGranted(this)
+        dataStoreManager = DataStoreManager(this)
+        dndPermissionGrantedState = Utils.isDoNotDisturbPermissionGranted(this)
 
-        setAppContent(this, dndPermissionGrantedState.value)
+        setContent {
+            QuickSettingsSoundProfileTheme {
+                val isDnDActive by dataStoreManager.activateDnd.collectAsState(initial = false)
+                val isMediaMuted by dataStoreManager.muteMedia.collectAsState(initial = false)
+                val scope = rememberCoroutineScope()
+
+                RenderSettingsPage(
+                    ctx = this,
+                    hasPermission = dndPermissionGrantedState,
+                    activateDnd = isDnDActive,
+                    onActivateDndChange = { newValue ->
+                        scope.launch { dataStoreManager.setActivateDnd(newValue) }
+                    },
+                    muteMedia = isMediaMuted,
+                    onMuteMediaChange = { newValue ->
+                        scope.launch { dataStoreManager.setMuteMedia(newValue) }
+                    }
+                )
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
         Log.i("MainActivity", "onResume")
-
-        dndPermissionGrantedState.value = Utils.isDoNotDisturbPermissionGranted(this)
-
-        setAppContent(this, dndPermissionGrantedState.value)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        Log.i("MainActivity", "onStart")
-    }
-
-    private fun setAppContent(ctx: Context, hasPermission: Boolean) {
-        setContent {
-            QuickSettingsSoundProfileTheme {
-                RenderSettingsPage(ctx, hasPermission)
-            }
-        }
+        dndPermissionGrantedState = Utils.isDoNotDisturbPermissionGranted(this)
     }
 }
