@@ -45,19 +45,20 @@ fun RenderSettingsPage(
                 }
                 RenderNewCategoryName("Mute Settings")
                 RenderSettingsToggleItem(
-                    "Activate 'Do not disturb' mode on mute",
-                    "If enabled, 'Do not disturb' mode will be activated when the device is muted",
-                    activateDnd,
-                    onActivateDndChange,
-                    hasPermission
-                )
-                RenderSettingsToggleItem(
                     "Also mute media",
-                    "If enabled, media will be muted when the device is muted",
+                    "If enabled, media will be muted when the device gets muted. Media level will be restored to its original volume when the device is unmuted.",
                     muteMedia,
                     onMuteMediaChange,
                     hasPermission
                 )
+//                TODO: See if it is possible to look for the current mode (maybe AutomaticZenRule >= Android 15)
+//                RenderSettingsToggleItem(
+//                    "Restore previous mode",
+//                    "If enabled, the system tries to retore the last set mode after 'Do not disturb' mode is disabled. The system activates this mode automatically when the device gets muted.",
+//                    activateDnd,
+//                    onActivateDndChange,
+//                    hasPermission
+//                )
             }
         }
     )
