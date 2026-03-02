@@ -1,6 +1,5 @@
 package com.curryplayer.quicksettingssoundprofile.services
 
-import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -92,9 +91,8 @@ class SoundProfileTileService : TileService() {
     private fun unregisterRingerModeChangedReceiver() {
         try {
             unregisterReceiver(ringerModeChangedReceiver)
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             // Receiver previously not registered or already unregistered
-            Log.i("SoundProfileTileService", e.toString())
         }
     }
 
@@ -102,7 +100,6 @@ class SoundProfileTileService : TileService() {
 
         // disable tile if user has no permission to change sound profile
         if (!Utils.isDoNotDisturbPermissionGranted(this)) {
-            Log.i("SoundProfileTileService", "Not allowed to toggle sound profile")
             if (qsTile != null) {
                 qsTile.icon = Icon.createWithResource(this, R.drawable.ic_round_warning_24)
                 qsTile.state = Tile.STATE_UNAVAILABLE
@@ -113,12 +110,9 @@ class SoundProfileTileService : TileService() {
         }
 
         val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
-        // Use runBlocking to get the settings synchronously for the immediate action
-        val shouldActivateDnd = runBlocking { dataStoreManager.activateDnd.first() }
         val shouldMuteMedia = runBlocking { dataStoreManager.muteMedia.first() }
-        val lastVolumeLevel = runBlocking { dataStoreManager.volumeLevel.first() }
+        val savedVolume = runBlocking { dataStoreManager.volumeLevel.first() }
 
         when (audioManager.ringerMode) {
             AudioManager.RINGER_MODE_NORMAL -> {
@@ -126,25 +120,19 @@ class SoundProfileTileService : TileService() {
             }
             AudioManager.RINGER_MODE_VIBRATE -> {
                 audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
-                if (shouldActivateDnd) {
-                    Log.i("RingerMode", "DND is set to active for switching to silent mode")
-                    notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE)
-                }
                 if (shouldMuteMedia) {
+                    val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
                     audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0)
                     serviceScope.launch {
-                        dataStoreManager.setVolumeLevel(lastVolumeLevel)
+                        dataStoreManager.setVolumeLevel(currentVolume)
                     }
                 }
             }
             AudioManager.RINGER_MODE_SILENT -> {
                 audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
-                if (shouldActivateDnd) {
-                    Log.i("RingerMode", "DND is set to active for switching to normal mode")
-                    notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
-                }
-                if (shouldMuteMedia) {
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, lastVolumeLevel, 0)
+                // only restore volume if it was muted previously and has not been adjusted in the meantime
+                if (shouldMuteMedia && audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, savedVolume, 0)
                 }
             }
         }
@@ -158,13 +146,8 @@ class SoundProfileTileService : TileService() {
         }
 
         val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-        val currentMode = audioManager.ringerMode
-        Log.i("Current Sound Mode", currentMode.toString())
 
-        val isQsTileNull = (qsTile == null)
-        Log.i("State of qsTile", isQsTileNull.toString())
-
-        when (currentMode) {
+        when (audioManager.ringerMode) {
             AudioManager.RINGER_MODE_NORMAL -> {
                 qsTile.state = Tile.STATE_ACTIVE
                 qsTile.label = "Sound"
