@@ -103,7 +103,7 @@ class SoundProfileTileService : TileService() {
             if (qsTile != null) {
                 qsTile.icon = Icon.createWithResource(this, R.drawable.ic_round_warning_24)
                 qsTile.state = Tile.STATE_UNAVAILABLE
-                qsTile.label = "Permission required"
+                qsTile.label = getString(R.string.permission_required)
                 qsTile.updateTile()
             }
             return
@@ -150,17 +150,17 @@ class SoundProfileTileService : TileService() {
         when (audioManager.ringerMode) {
             AudioManager.RINGER_MODE_NORMAL -> {
                 qsTile.state = Tile.STATE_ACTIVE
-                qsTile.label = "Sound"
+                qsTile.label = getString(R.string.profile_sound_label)
                 qsTile.icon = Icon.createWithResource(this, R.drawable.ic_round_volume_up_24)
             }
             AudioManager.RINGER_MODE_VIBRATE -> {
                 qsTile.state = Tile.STATE_INACTIVE
-                qsTile.label = "Vibrate"
+                qsTile.label = getString(R.string.profile_vibrate_label)
                 qsTile.icon = Icon.createWithResource(this, R.drawable.ic_round_vibration_24)
             }
             AudioManager.RINGER_MODE_SILENT -> {
                 qsTile.state = Tile.STATE_INACTIVE
-                qsTile.label = "Silent"
+                qsTile.label = getString(R.string.profile_silent_label)
                 qsTile.icon = Icon.createWithResource(this, R.drawable.ic_round_volume_off_24)
             }
 

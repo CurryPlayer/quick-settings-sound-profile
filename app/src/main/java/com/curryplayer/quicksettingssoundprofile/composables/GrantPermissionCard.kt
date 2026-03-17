@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.curryplayer.quicksettingssoundprofile.R
 
 @Composable
 fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier) {
@@ -47,7 +48,7 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.Center
         ) {
             Image(
-                painter = painterResource(id = com.curryplayer.quicksettingssoundprofile.R.drawable.ic_round_warning_24),
+                painter = painterResource(id = R.drawable.ic_round_warning_24),
                 contentDescription = null,
                 modifier = Modifier.size(75.dp)
             )
@@ -55,7 +56,7 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Please grant the 'Do Not Disturb' permission",
+                text = ctx.getString(R.string.grant_do_not_disturb_permission_title),
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold
             )
@@ -63,7 +64,7 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "The 'Do Not Disturb' permission is required to set the phone to silent mode. Please allow the app to use this permission.",
+                text = ctx.getString(R.string.grant_do_not_disturb_permission_desc),
                 textAlign = TextAlign.Center
             )
 
@@ -73,7 +74,7 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier) {
                 onClick = {
                     Toast.makeText(
                         ctx,
-                        "Select 'Quick Settings Sound Profile' in the app list and grant the permission.",
+                        ctx.getString(R.string.toast_intent_text),
                         Toast.LENGTH_LONG
                     ).show()
 
@@ -85,7 +86,7 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier) {
                     containerColor = MaterialTheme.colorScheme.primary
                 )
             ) {
-                Text(text = "Grant Permission")
+                Text(text = ctx.getString(R.string.button_grant_permission))
             }
         }
     }

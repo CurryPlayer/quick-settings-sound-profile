@@ -15,6 +15,7 @@ import com.curryplayer.quicksettingssoundprofile.composables.RenderGrantPermissi
 import com.curryplayer.quicksettingssoundprofile.composables.RenderTopAppBar
 import com.curryplayer.quicksettingssoundprofile.composables.RenderNewCategoryName
 import com.curryplayer.quicksettingssoundprofile.composables.RenderSettingsToggleItem
+import com.curryplayer.quicksettingssoundprofile.R
 
 @Composable
 fun RenderSettingsPage(
@@ -30,7 +31,7 @@ fun RenderSettingsPage(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color.DarkGray),
-        topBar = { RenderTopAppBar() },
+        topBar = { RenderTopAppBar(ctx) },
         content = { contentPadding ->
             Column(
                 modifier = Modifier
@@ -41,12 +42,12 @@ fun RenderSettingsPage(
                     RenderGrantPermissionCard(ctx)
                 } else {
                     Log.i("Permission", "Granted")
-                    RenderAllSetCard()
+                    RenderAllSetCard(ctx)
                 }
-                RenderNewCategoryName("Mute Settings")
+                RenderNewCategoryName(ctx.getString(R.string.mute_settings_category))
                 RenderSettingsToggleItem(
-                    "Also mute media",
-                    "If enabled, media will be muted when the device gets muted. Media level will be restored to its original volume when the device is unmuted.",
+                    ctx.getString(R.string.mute_media_title),
+                    ctx.getString(R.string.mute_media_subtitle),
                     muteMedia,
                     onMuteMediaChange,
                     hasPermission

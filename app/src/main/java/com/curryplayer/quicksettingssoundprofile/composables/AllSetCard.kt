@@ -1,5 +1,6 @@
 package com.curryplayer.quicksettingssoundprofile.composables
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.R
 
 @Composable
-fun RenderAllSetCard(modifier: Modifier = Modifier) {
+fun RenderAllSetCard(ctx: Context, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -50,7 +51,7 @@ fun RenderAllSetCard(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "You're all set and ready to go!",
+                text = ctx.getString(R.string.all_set),
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold
             )
@@ -58,7 +59,7 @@ fun RenderAllSetCard(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Place the sound tile in your quick settings panel and toggle between the different sound profiles.",
+                text = ctx.getString(R.string.tile_placement_manual),
                 textAlign = TextAlign.Center
             )
         }
