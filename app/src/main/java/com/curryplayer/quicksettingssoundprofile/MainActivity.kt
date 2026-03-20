@@ -1,7 +1,6 @@
 package com.curryplayer.quicksettingssoundprofile
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -23,7 +22,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i("MainActivity", "onCreate")
         enableEdgeToEdge()
 
         dataStoreManager = DataStoreManager(this)
@@ -53,7 +51,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        Log.i("MainActivity", "onResume")
         dndPermissionGrantedState = Utils.isDoNotDisturbPermissionGranted(this)
     }
 }

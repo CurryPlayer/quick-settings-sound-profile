@@ -1,7 +1,6 @@
 package com.curryplayer.quicksettingssoundprofile.pages
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,10 +37,8 @@ fun RenderSettingsPage(
                     .padding(contentPadding)
             ) {
                 if (!hasPermission) {
-                    Log.i("Permission", "Not granted")
                     RenderGrantPermissionCard(ctx)
                 } else {
-                    Log.i("Permission", "Granted")
                     RenderAllSetCard(ctx)
                 }
                 RenderNewCategoryName(ctx.getString(R.string.mute_settings_category))

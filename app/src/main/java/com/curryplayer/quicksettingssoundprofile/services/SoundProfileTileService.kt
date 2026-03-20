@@ -8,7 +8,6 @@ import android.graphics.drawable.Icon
 import android.media.AudioManager
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import android.util.Log
 import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.utils.Utils
@@ -35,7 +34,6 @@ class SoundProfileTileService : TileService() {
 
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == AudioManager.RINGER_MODE_CHANGED_ACTION) {
-                Log.i("SoundProfileTileService", "Ringer mode changed event received. Updating tile.")
                 updateTileState()
             }
         }
@@ -48,13 +46,11 @@ class SoundProfileTileService : TileService() {
 
     override fun onTileAdded() {
         super.onTileAdded()
-        Log.i("SoundProfileService", "Tile added")
         updateTileState()
     }
 
     override fun onTileRemoved() {
         super.onTileRemoved()
-        Log.i("SoundProfileService", "Tile removed")
         if (qsTile != null) {
             qsTile.state = Tile.STATE_UNAVAILABLE
             qsTile.updateTile()
@@ -63,7 +59,6 @@ class SoundProfileTileService : TileService() {
 
     override fun onStartListening() {
         super.onStartListening()
-        Log.i("SoundProfileService", "Tile start listening")
         val filter = IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION)
         registerReceiver(ringerModeChangedReceiver, filter)
         updateTileState()
@@ -71,19 +66,16 @@ class SoundProfileTileService : TileService() {
 
     override fun onStopListening() {
         super.onStopListening()
-        Log.i("SoundProfileService", "Tile stop listening")
         unregisterRingerModeChangedReceiver()
     }
 
     override fun onClick() {
         super.onClick()
-        Log.i("SoundProfileService", "Tile clicked")
         changeSoundProfileAndUpdateTileState()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.i("SoundProfileService", "onDestroy was called")
         unregisterRingerModeChangedReceiver()
         serviceScope.cancel()
     }

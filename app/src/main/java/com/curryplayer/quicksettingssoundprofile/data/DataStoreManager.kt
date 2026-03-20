@@ -3,7 +3,6 @@ package com.curryplayer.quicksettingssoundprofile.data
 import android.content.Context
 import android.content.Context.AUDIO_SERVICE
 import android.media.AudioManager
-import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -38,21 +37,18 @@ class DataStoreManager(private val context: Context) {
     }
 
     suspend fun setActivateDnd(value: Boolean) {
-        Log.i("DataStore", "Setting DnD now to $value")
         context.dataStore.edit { preferences ->
             preferences[ACTIVATE_DND] = value
         }
     }
 
     suspend fun setMuteMedia(value: Boolean) {
-        Log.i("DataStore", "Setting muteMedia now to $value")
         context.dataStore.edit { preferences ->
             preferences[MUTE_MEDIA] = value
         }
     }
 
     suspend fun setVolumeLevel(value: Int) {
-        Log.i("DataStore", "Setting volumeLevel now to $value")
         context.dataStore.edit { preferences ->
             preferences[VOLUME_LEVEL] = value
         }
