@@ -14,4 +14,5 @@
     <string name="profile_sound_label">Sound</string>
     <string name="profile_vibrate_label">Vibrate</string>
     <string name="profile_silent_label">Silent</string>
+    <string name="toast_intent_failed">Could not open intent. Please try again.</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.curryplayer.quicksettingssoundprofile.composables
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
@@ -80,7 +81,17 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier) {
 
                     val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    ctx.startActivity(intent)
+
+                    try {
+                        ctx.startActivity(intent)
+                    } catch (_ : ActivityNotFoundException) {
+                        Toast.makeText(
+                            ctx,
+                            ctx.getString(R.string.toast_intent_failed),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary
