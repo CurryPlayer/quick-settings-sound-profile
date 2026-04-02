@@ -41,14 +41,15 @@ fun RenderSettingsPage(
                 } else {
                     RenderAllSetCard(ctx)
                 }
-                RenderNewCategoryName(ctx.getString(R.string.mute_settings_category))
-                RenderSettingsToggleItem(
-                    ctx.getString(R.string.mute_media_title),
-                    ctx.getString(R.string.mute_media_subtitle),
-                    muteMedia,
-                    onMuteMediaChange,
-                    hasPermission
-                )
+//                TODO: Maybe enable in a future version when AutomaticZenRule is applied. For now, make phone completely silent (including media)
+//                RenderNewCategoryName(ctx.getString(R.string.mute_settings_category))
+//                RenderSettingsToggleItem(
+//                    ctx.getString(R.string.mute_media_title),
+//                    ctx.getString(R.string.mute_media_subtitle),
+//                    muteMedia,
+//                    onMuteMediaChange,
+//                    hasPermission
+//                )
 //                TODO: See if it is possible to look for the current mode (maybe AutomaticZenRule >= Android 15)
 //                RenderSettingsToggleItem(
 //                    "Restore previous mode",

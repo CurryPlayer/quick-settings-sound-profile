@@ -1,5 +1,6 @@
 package com.curryplayer.quicksettingssoundprofile.services
 
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -15,9 +16,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class SoundProfileTileService : TileService() {
 
@@ -25,15 +23,16 @@ class SoundProfileTileService : TileService() {
     private lateinit var dataStoreManager: DataStoreManager
 
     /**
-     * A [BroadcastReceiver] that listens for changes in the device's ringer mode.
-     * When a change is detected (e.g., 'Sound' -> 'Vibrate' or 'Vibrate' -> 'Silent'), it triggers
-     * an update to the Quick Settings tile to reflect the new state. This ensures the tile
-     * is always in sync with the actual system sound profile.
+     * A [BroadcastReceiver] that listens for changes in the device's ringer mode and DnD
+     * interruption filter. When a change is detected (e.g., 'Sound' -> 'Vibrate',
+     * 'Vibrate' -> 'Silent', or a DnD filter change), it triggers an update to the Quick Settings
+     * tile to reflect the new state. This ensures the tile is always in sync with the actual
+     * system sound profile, including changes made via Android's native switches.
      */
     private val ringerModeChangedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == AudioManager.RINGER_MODE_CHANGED_ACTION) {
+            if (intent?.action == AudioManager.RINGER_MODE_CHANGED_ACTION ||
+                intent?.action == NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED) {
                 updateTileState()
             }
         }
@@ -59,7 +58,10 @@ class SoundProfileTileService : TileService() {
 
     override fun onStartListening() {
         super.onStartListening()
-        val filter = IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION)
+        val filter = IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION).apply {
+            // it seems that an interruption filter also has an effect on the audioManager.ringerMode to change its behavior
+            addAction(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED)
+        }
         registerReceiver(ringerModeChangedReceiver, filter)
         updateTileState()
     }
@@ -102,9 +104,7 @@ class SoundProfileTileService : TileService() {
         }
 
         val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-
-        val shouldMuteMedia = runBlocking { dataStoreManager.muteMedia.first() }
-        val savedVolume = runBlocking { dataStoreManager.volumeLevel.first() }
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
         when (audioManager.ringerMode) {
             AudioManager.RINGER_MODE_NORMAL -> {
@@ -112,20 +112,12 @@ class SoundProfileTileService : TileService() {
             }
             AudioManager.RINGER_MODE_VIBRATE -> {
                 audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
-                if (shouldMuteMedia) {
-                    val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0)
-                    serviceScope.launch {
-                        dataStoreManager.setVolumeLevel(currentVolume)
-                    }
-                }
+                // >= Android 15 should use an AutomaticZenRule for more control
+                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE)
             }
             AudioManager.RINGER_MODE_SILENT -> {
                 audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
-                // only restore volume if it was muted previously and has not been adjusted in the meantime
-                if (shouldMuteMedia && audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, savedVolume, 0)
-                }
+                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
             }
         }
         updateTileState()
