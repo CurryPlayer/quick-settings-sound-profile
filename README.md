@@ -10,7 +10,5 @@ The app is written 100% in Kotlin. One of the reasons I developed the functional
 
 Furthermore, I wanted to explore Kotlin as a language and saw this as a great opportunity to get hands-on experience with Android development.
 
-Currently, there is also an option to mute the media volume when switching to silent mode—similar to how the physical alert slider works on OnePlus smartphones.
-
 ## Credits
 For the implementation, I drew inspiration from the already existing [project](https://github.com/Alfio010/sound-quick-settings) by [Alfio010](https://github.com/Alfio010).
