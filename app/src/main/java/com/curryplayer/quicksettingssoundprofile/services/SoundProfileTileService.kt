@@ -1,5 +1,6 @@
 package com.curryplayer.quicksettingssoundprofile.services
 
+import android.app.AutomaticZenRule
 import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -7,8 +8,11 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.drawable.Icon
 import android.media.AudioManager
+import android.os.Build
+import android.service.notification.Condition
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
+import android.util.Log
 import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.utils.Utils
@@ -16,8 +20,17 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import androidx.core.net.toUri
 
 class SoundProfileTileService : TileService() {
+
+    // TODO:
+    /*
+    It seems that the Logic of switching between modes currently does not work properly. Multiple mode updates are sent.
+     */
 
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private lateinit var dataStoreManager: DataStoreManager
@@ -104,20 +117,38 @@ class SoundProfileTileService : TileService() {
         }
 
         val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+
+        val savedRuleId = runBlocking { dataStoreManager.zenRuleId.first() }
+        Log.d("SoundProfileTileService", "Saved Rule ID: $savedRuleId")
 
         when (audioManager.ringerMode) {
             AudioManager.RINGER_MODE_NORMAL -> {
                 audioManager.ringerMode = AudioManager.RINGER_MODE_VIBRATE
             }
             AudioManager.RINGER_MODE_VIBRATE -> {
-                audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
-                // >= Android 15 should use an AutomaticZenRule for more control
-                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE)
+
+                // TODO: maybe update rule here if changes were made to it (or directly in MainActivity)
+                // something like:
+                /*
+                val ruleIdToUse = if (savedRuleId.isNotEmpty()) {
+                    notificationManager.updateAutomaticZenRule(savedRuleId, zenRule)
+                    savedRuleId
+                } else {
+                    val newId = notificationManager.addAutomaticZenRule(zenRule)
+                    onNewRuleId(newId) // Callback um ID im DataStore zu speichern
+                    newId
+                }
+                 */
+
+                val ruleId = if (!isAutomaticZenRuleRegistered(savedRuleId)) {
+                    addAutomaticZenRule()
+                } else {
+                    savedRuleId
+                }
+                activateAutomaticZenRule(ruleId)
             }
             AudioManager.RINGER_MODE_SILENT -> {
-                audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
-                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+                deactivateAutomaticZenRule(savedRuleId)
             }
         }
         updateTileState()
@@ -150,6 +181,81 @@ class SoundProfileTileService : TileService() {
 
         }
         qsTile.updateTile()
+    }
+
+    private fun isAutomaticZenRuleRegistered(ruleId: String): Boolean {
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        return notificationManager.getAutomaticZenRule(ruleId) != null
+    }
+
+    /**
+     * Adds an AutomaticZenRule to the device and returns the ruleId if successful.
+     * If the ZenRule was successfully created, the rule ID will also be stored in DataStore.
+     */
+    private fun addAutomaticZenRule(): String {
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        val zenRule = generateAutomaticZenRule()
+        val newRuleId = notificationManager.addAutomaticZenRule(zenRule)
+
+        if (newRuleId != null) {
+            Log.i("SoundProfileTileService", "New Rule created with ID: $newRuleId")
+            activateAutomaticZenRule(newRuleId)
+            serviceScope.launch {
+                dataStoreManager.setZenRuleId(newRuleId)
+            }
+            return newRuleId
+        } else {
+            Log.e("SoundProfileTileService", "Failed to add Automatic Zen Rule.")
+            return ""
+        }
+    }
+
+    private fun generateAutomaticZenRule(): AutomaticZenRule {
+        val zenRule = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            Utils.generateAutomaticZenRuleForAndroidVanillaIceCreamAndAbove(this)
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Utils.generateAutomaticZenRuleForAndroidQAndAbove(this)
+        } else {
+            Utils.generateAutomaticZenRuleForAndroidNAndAbove(this)
+        }
+        return zenRule
+    }
+
+    private fun activateAutomaticZenRule(ruleId: String) {
+        /*
+        The ZenRule already includes the "INTERRUPTION_FILTER_PRIORITY" interruption filter, which (most likely) automatically sets the ring mode to "SILENT".
+        It is therefore (probably) not necessary to set the ringer mode manually on Android 10 and above. If it were set to “SILENT” again, this would simultaneously activate the ZenRule provided by this app and the default (already existing) Do Not Disturb mode.
+         */
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        // requires Android 10 / API 29 and higher
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && ruleId.isNotEmpty()) {
+            val conditionId = Utils.SILENT_CONDITION_DND_AND_MODE_URI.toUri()
+            val condition = Condition(conditionId, "Active", Condition.STATE_TRUE)
+            notificationManager.setAutomaticZenRuleState(ruleId, condition)
+        } else {
+            // fallback for older Android versions
+            val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+            audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
+        }
+    }
+
+    private fun deactivateAutomaticZenRule(ruleId: String) {
+        /*
+        It appears that disabling the interruption filter does not reset RingerMode to Normal, which is why it is set to Normal in any case.
+         */
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+        // requires Android 10 / API 29 and higher
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && ruleId.isNotEmpty()) {
+            val conditionId = Utils.SILENT_CONDITION_DND_AND_MODE_URI.toUri()
+            val condition = Condition(conditionId, "Inaktiv", Condition.STATE_FALSE)
+            notificationManager.setAutomaticZenRuleState(ruleId, condition)
+        } else {
+            // fallback for older Android versions
+            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+        }
+        audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
     }
 
 }
