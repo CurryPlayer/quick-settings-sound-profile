@@ -12,10 +12,10 @@ import com.curryplayer.quicksettingssoundprofile.MainActivity
 
 object Utils {
 
-    private const val SILENT_CONDITION_DND_AND_MODE_URI = "condition://com.curryplayer.quicksettingssoundprofile/silent_profile_active"
+    const val SILENT_CONDITION_DND_AND_MODE_URI = "condition://com.curryplayer.quicksettingssoundprofile/silent_profile_active"
 
     // TODO: make name dynamic for multiple languages
-    private const val RULE_NAME = "Silence Profile Settings"
+    const val RULE_NAME = "Silence Profile Settings"
 
     /**
      * Checks if the ACCESS_NOTIFICATION_POLICY (Do Not Disturb access) permission is granted.
