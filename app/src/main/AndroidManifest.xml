@@ -18,8 +18,12 @@
             android:theme="@style/Theme.QuickSettingsSoundProfile">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- filter for the configuration of the DnD / mode rule -->
+            <intent-filter>
+                <action android:name="android.app.action.AUTOMATIC_ZEN_RULE" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
