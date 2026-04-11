@@ -145,10 +145,14 @@ class SoundProfileTileService : TileService() {
                 } else {
                     savedRuleId
                 }
+                // The ZenRule must (presumably) be activated before setting the RingerMode
                 activateAutomaticZenRule(ruleId)
+                audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
             }
             AudioManager.RINGER_MODE_SILENT -> {
+                // The ZenRule must (presumably) be deactivated before setting the RingerMode
                 deactivateAutomaticZenRule(savedRuleId)
+                audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
             }
         }
         updateTileState()
@@ -234,8 +238,6 @@ class SoundProfileTileService : TileService() {
             notificationManager.setAutomaticZenRuleState(ruleId, condition)
         } else {
             // fallback for older Android versions
-            val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-            audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
             notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
         }
     }
@@ -245,7 +247,6 @@ class SoundProfileTileService : TileService() {
         It appears that disabling the interruption filter does not reset RingerMode to Normal, which is why it is set to Normal in any case.
          */
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         // requires Android 10 / API 29 and higher
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && ruleId.isNotEmpty()) {
             val conditionId = Utils.SILENT_CONDITION_DND_AND_MODE_URI.toUri()
@@ -255,7 +256,6 @@ class SoundProfileTileService : TileService() {
             // fallback for older Android versions
             notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
         }
-        audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
     }
 
 }
