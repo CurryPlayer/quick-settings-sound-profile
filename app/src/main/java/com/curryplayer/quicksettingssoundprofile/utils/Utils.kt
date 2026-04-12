@@ -9,6 +9,7 @@ import android.service.notification.ZenPolicy
 import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import com.curryplayer.quicksettingssoundprofile.MainActivity
+import com.curryplayer.quicksettingssoundprofile.R
 
 object Utils {
 
@@ -118,6 +119,7 @@ object Utils {
             .setZenPolicy(zenPolicy)
             .setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
             .setEnabled(true)
+            .setIconResId(R.drawable.ic_round_volume_off_24)
             .build()
 
         return zenRule
