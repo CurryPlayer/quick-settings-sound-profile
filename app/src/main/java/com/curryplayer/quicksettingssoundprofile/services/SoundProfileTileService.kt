@@ -16,6 +16,7 @@ import android.util.Log
 import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.utils.Utils
+import com.curryplayer.quicksettingssoundprofile.utils.ZenRuleUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -216,11 +217,11 @@ class SoundProfileTileService : TileService() {
 
     private fun generateAutomaticZenRule(): AutomaticZenRule {
         val zenRule = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            Utils.generateAutomaticZenRuleForAndroidVanillaIceCreamAndAbove(this)
+            ZenRuleUtils.generateAutomaticZenRuleForAndroidVanillaIceCreamAndAbove(this)
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Utils.generateAutomaticZenRuleForAndroidQAndAbove(this)
+            ZenRuleUtils.generateAutomaticZenRuleForAndroidQAndAbove(this)
         } else {
-            Utils.generateAutomaticZenRuleForAndroidNAndAbove(this)
+            ZenRuleUtils.generateAutomaticZenRuleForAndroidNAndAbove(this)
         }
         return zenRule
     }
@@ -233,7 +234,7 @@ class SoundProfileTileService : TileService() {
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         // requires Android 10 / API 29 and higher
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && ruleId.isNotEmpty()) {
-            val conditionId = Utils.SILENT_CONDITION_DND_AND_MODE_URI.toUri()
+            val conditionId = ZenRuleUtils.SILENT_CONDITION_DND_AND_MODE_URI.toUri()
             val condition = Condition(conditionId, "Active", Condition.STATE_TRUE)
             notificationManager.setAutomaticZenRuleState(ruleId, condition)
         } else {
@@ -249,7 +250,7 @@ class SoundProfileTileService : TileService() {
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         // requires Android 10 / API 29 and higher
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && ruleId.isNotEmpty()) {
-            val conditionId = Utils.SILENT_CONDITION_DND_AND_MODE_URI.toUri()
+            val conditionId = ZenRuleUtils.SILENT_CONDITION_DND_AND_MODE_URI.toUri()
             val condition = Condition(conditionId, "Inaktiv", Condition.STATE_FALSE)
             notificationManager.setAutomaticZenRuleState(ruleId, condition)
         } else {
