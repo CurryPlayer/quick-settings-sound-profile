@@ -17,6 +17,12 @@ object ZenRuleUtils {
     // TODO: make name dynamic for multiple languages
     const val RULE_NAME = "Silence Profile Settings"
 
+
+    fun isAutomaticZenRuleRegistered(applicationContext: Context, ruleId: String): Boolean {
+        val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        return notificationManager.getAutomaticZenRule(ruleId) != null
+    }
+
     // set baseline for Android 7 / API 24
     fun generateAutomaticZenRuleForAndroidNAndAbove(applicationContext: Context): AutomaticZenRule {
         // constructor is deprecated in API 35 but works for API 24

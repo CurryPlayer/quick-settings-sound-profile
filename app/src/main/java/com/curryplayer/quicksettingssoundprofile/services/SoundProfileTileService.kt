@@ -141,7 +141,7 @@ class SoundProfileTileService : TileService() {
                 }
                  */
 
-                val ruleId = if (!isAutomaticZenRuleRegistered(savedRuleId)) {
+                val ruleId = if (!ZenRuleUtils.isAutomaticZenRuleRegistered(this, savedRuleId)) {
                     addAutomaticZenRule()
                 } else {
                     savedRuleId
@@ -186,11 +186,6 @@ class SoundProfileTileService : TileService() {
 
         }
         qsTile.updateTile()
-    }
-
-    private fun isAutomaticZenRuleRegistered(ruleId: String): Boolean {
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        return notificationManager.getAutomaticZenRule(ruleId) != null
     }
 
     /**
