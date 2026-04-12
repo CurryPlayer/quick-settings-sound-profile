@@ -58,7 +58,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.service.zen.automatic.ruleType"
-                android:value="Silence Profile Settings">
+                android:value="Silence Profile Settings">   <!-- TODO: localize string -->
             </meta-data>
             <meta-data
                 android:name="android.service.zen.automatic.configurationActivity"
