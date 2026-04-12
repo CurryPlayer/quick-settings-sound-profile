@@ -20,7 +20,10 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- filter for the configuration of the DnD / mode rule -->
+            <!--
+            Add the filter for the configuration of the DnD / modes rule.
+            This activity is allowed to edit the DnD / modes rule on Android 10 and above.
+            -->
             <intent-filter>
                 <action android:name="android.app.action.AUTOMATIC_ZEN_RULE" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -38,6 +41,29 @@
             <meta-data
                 android:name="android.service.quicksettings.ACTIVE_TILE"
                 android:value="false" />
+        </service>
+
+        <!--
+        This deprecated service is required for Android versions older than 10 to
+        enable the addition of an AutomaticZenRule via a ConditionProviderService.
+        It ensures backward compatibility despite its deprecated status.
+        -->
+        <service
+            android:name="com.curryplayer.quicksettingssoundprofile.services.SoundProfileConditionProviderService"
+            android:label="Sound Profile Rule Provider"
+            android:permission="android.permission.BIND_CONDITION_PROVIDER_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.notification.ConditionProviderService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.zen.automatic.ruleType"
+                android:value="Silence Profile Settings">
+            </meta-data>
+            <meta-data
+                android:name="android.service.zen.automatic.configurationActivity"
+                android:value="com.curryplayer.quicksettingssoundprofile.MainActivity">
+            </meta-data>
         </service>
     </application>
 

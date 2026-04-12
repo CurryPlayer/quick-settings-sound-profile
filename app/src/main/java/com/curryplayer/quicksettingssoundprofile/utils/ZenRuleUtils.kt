@@ -10,6 +10,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import com.curryplayer.quicksettingssoundprofile.MainActivity
 import com.curryplayer.quicksettingssoundprofile.R
+import com.curryplayer.quicksettingssoundprofile.services.SoundProfileConditionProviderService
 
 object ZenRuleUtils {
 
@@ -28,7 +29,7 @@ object ZenRuleUtils {
         // constructor is deprecated in API 35 but works for API 24
         val zenRule = AutomaticZenRule(
             RULE_NAME,
-            ComponentName(applicationContext, MainActivity::class.java),
+            ComponentName(applicationContext, SoundProfileConditionProviderService::class.java),
             SILENT_CONDITION_DND_AND_MODE_URI.toUri(),
             NotificationManager.INTERRUPTION_FILTER_PRIORITY,
             true
