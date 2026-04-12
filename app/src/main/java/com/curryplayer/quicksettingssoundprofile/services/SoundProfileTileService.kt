@@ -227,13 +227,26 @@ class SoundProfileTileService : TileService() {
         It is therefore (probably) not necessary to set the ringer mode manually on Android 10 and above. If it were set to “SILENT” again, this would simultaneously activate the ZenRule provided by this app and the default (already existing) Do Not Disturb mode.
          */
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        // requires Android 10 / API 29 and higher
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && ruleId.isNotEmpty()) {
-            val conditionId = ZenRuleUtils.SILENT_CONDITION_DND_AND_MODE_URI.toUri()
-            val condition = Condition(conditionId, "Active", Condition.STATE_TRUE)
-            notificationManager.setAutomaticZenRuleState(ruleId, condition)
+        if (ruleId.isNotEmpty()) {
+            // requires Android 10 / API 29 and higher
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val conditionId = ZenRuleUtils.SILENT_CONDITION_DND_AND_MODE_URI.toUri()
+                val condition = Condition(conditionId, "Active", Condition.STATE_TRUE)
+                notificationManager.setAutomaticZenRuleState(ruleId, condition)
+            } else {
+                // fallback for older Android versions
+                // ensure the ZenRule is enabled
+                val zenRule = notificationManager.getAutomaticZenRule(ruleId)
+                if (zenRule != null && !zenRule.isEnabled) {
+                    zenRule.isEnabled = true
+                    val result = notificationManager.updateAutomaticZenRule(ruleId, zenRule)
+                    Log.i("SoundProfileTileService", "Activated Automatic Zen Rule with status: ${result}.")
+                }
+                // directly set the interruption filter as fallback
+                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
+            }
         } else {
-            // fallback for older Android versions
+            // fallback to set the default interruption filter if rule does not exist
             notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
         }
     }
@@ -243,13 +256,26 @@ class SoundProfileTileService : TileService() {
         It appears that disabling the interruption filter does not reset RingerMode to Normal, which is why it is set to Normal in any case.
          */
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        // requires Android 10 / API 29 and higher
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && ruleId.isNotEmpty()) {
-            val conditionId = ZenRuleUtils.SILENT_CONDITION_DND_AND_MODE_URI.toUri()
-            val condition = Condition(conditionId, "Inaktiv", Condition.STATE_FALSE)
-            notificationManager.setAutomaticZenRuleState(ruleId, condition)
+        if (ruleId.isNotEmpty()) {
+            // requires Android 10 / API 29 and higher
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val conditionId = ZenRuleUtils.SILENT_CONDITION_DND_AND_MODE_URI.toUri()
+                val condition = Condition(conditionId, "Inactive", Condition.STATE_FALSE)
+                notificationManager.setAutomaticZenRuleState(ruleId, condition)
+            } else {
+                // fallback for older Android versions
+                // ensure the ZenRule is disabled
+                val zenRule = notificationManager.getAutomaticZenRule(ruleId)
+                if (zenRule != null && zenRule.isEnabled) {
+                    zenRule.isEnabled = false
+                    val result = notificationManager.updateAutomaticZenRule(ruleId, zenRule)
+                    Log.i("SoundProfileTileService", "Deactivated Automatic Zen Rule with status: ${result}.")
+                }
+                // directly set the interruption filter as fallback
+                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+            }
         } else {
-            // fallback for older Android versions
+            // fallback to set the default interruption filter if rule does not exist
             notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
         }
     }
