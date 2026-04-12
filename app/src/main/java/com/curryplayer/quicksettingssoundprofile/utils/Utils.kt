@@ -51,24 +51,7 @@ object Utils {
         val owner = ComponentName(applicationContext, MainActivity::class.java)
         val conditionId = SILENT_CONDITION_DND_AND_MODE_URI.toUri()
 
-        val zenPolicy: ZenPolicy = ZenPolicy.Builder()
-            .disallowAllSounds()
-            .allowMedia(true)
-            .allowAlarms(true)
-            .allowSystem(false)
-            .allowReminders(false)
-            .allowEvents(false)
-            .allowCalls(ZenPolicy.PEOPLE_TYPE_NONE)
-            .allowMessages(ZenPolicy.PEOPLE_TYPE_NONE)
-            .allowRepeatCallers(false)
-            .showFullScreenIntent(false)
-            .showLights(false)
-            .showPeeking(false)
-            .showStatusBarIcons(true)
-            .showBadges(true)
-            .showInAmbientDisplay(false)
-            .showInNotificationList(true)
-            .build()
+        val zenPolicy: ZenPolicy = buildZenPolicy()
 
         val zenRule = AutomaticZenRule(
             ruleName,
@@ -92,7 +75,23 @@ object Utils {
         val owner = ComponentName(applicationContext, MainActivity::class.java)
         val conditionId = SILENT_CONDITION_DND_AND_MODE_URI.toUri()
 
-        val zenPolicy: ZenPolicy = ZenPolicy.Builder()
+        val zenPolicy: ZenPolicy = buildZenPolicy()
+
+        val zenRule = AutomaticZenRule.Builder(ruleName, conditionId)
+            .setConfigurationActivity(owner)
+            .setOwner(owner)
+            .setZenPolicy(zenPolicy)
+            .setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
+            .setEnabled(true)
+            .setIconResId(R.drawable.ic_round_volume_off_24)
+            .build()
+
+        return zenRule
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun buildZenPolicy(): ZenPolicy {
+        val zenPolicyBuilder: ZenPolicy.Builder = ZenPolicy.Builder()
             .disallowAllSounds()
             .allowMedia(true)
             .allowAlarms(true)
@@ -109,20 +108,14 @@ object Utils {
             .showBadges(true)
             .showInAmbientDisplay(false)
             .showInNotificationList(true)
-            .allowConversations(ZenPolicy.CONVERSATION_SENDERS_NONE)
-            .allowPriorityChannels(false)
-            .build()
 
-        val zenRule = AutomaticZenRule.Builder(ruleName, conditionId)
-            .setConfigurationActivity(owner)
-            .setOwner(owner)
-            .setZenPolicy(zenPolicy)
-            .setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
-            .setEnabled(true)
-            .setIconResId(R.drawable.ic_round_volume_off_24)
-            .build()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            zenPolicyBuilder
+                .allowConversations(ZenPolicy.CONVERSATION_SENDERS_NONE)
+                .allowPriorityChannels(false)
+        }
 
-        return zenRule
+        return zenPolicyBuilder.build()
     }
 
 }
