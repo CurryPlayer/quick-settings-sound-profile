@@ -165,28 +165,6 @@ class SoundProfileTileService : TileService() {
         qsTile.updateTile()
     }
 
-    /**
-     * Adds an AutomaticZenRule to the device and returns the ruleId if successful.
-     * If the ZenRule was successfully created, the rule ID will also be stored in DataStore.
-     */
-    private fun addAutomaticZenRule(): String {
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        val zenRule = ZenRuleUtils.generateDefaultAutomaticZenRule(this)
-        val newRuleId = notificationManager.addAutomaticZenRule(zenRule)
-
-        if (newRuleId != null) {
-            Log.i("SoundProfileTileService", "New Rule created with ID: $newRuleId")
-            activateAutomaticZenRule(newRuleId)
-            serviceScope.launch {
-                dataStoreManager.setZenRuleId(newRuleId)
-            }
-            return newRuleId
-        } else {
-            Log.e("SoundProfileTileService", "Failed to add Automatic Zen Rule.")
-            return ""
-        }
-    }
-
     private fun activateAutomaticZenRule(ruleId: String) {
         /*
         The ZenRule already includes the "INTERRUPTION_FILTER_PRIORITY" interruption filter, which (most likely) automatically sets the ring mode to "SILENT".
