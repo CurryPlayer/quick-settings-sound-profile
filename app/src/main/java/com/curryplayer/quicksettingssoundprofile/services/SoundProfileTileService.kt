@@ -20,9 +20,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import androidx.core.net.toUri
 
 class SoundProfileTileService : TileService() {
@@ -116,46 +114,26 @@ class SoundProfileTileService : TileService() {
             return
         }
 
-        val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+        serviceScope.launch {
+            val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+            // val muteMedia = dataStoreManager.muteMedia.first()
+            val ruleId = ZenRuleUtils.syncAutomaticZenRule(this@SoundProfileTileService, dataStoreManager)
 
-        val savedRuleId = runBlocking { dataStoreManager.zenRuleId.first() }
-        Log.d("SoundProfileTileService", "Saved Rule ID: $savedRuleId")
-
-        when (audioManager.ringerMode) {
-            AudioManager.RINGER_MODE_NORMAL -> {
-                audioManager.ringerMode = AudioManager.RINGER_MODE_VIBRATE
-            }
-            AudioManager.RINGER_MODE_VIBRATE -> {
-
-                // TODO: maybe update rule here if changes were made to it (or directly in MainActivity)
-                // something like:
-                /*
-                val ruleIdToUse = if (savedRuleId.isNotEmpty()) {
-                    notificationManager.updateAutomaticZenRule(savedRuleId, zenRule)
-                    savedRuleId
-                } else {
-                    val newId = notificationManager.addAutomaticZenRule(zenRule)
-                    onNewRuleId(newId) // Callback um ID im DataStore zu speichern
-                    newId
+            when (audioManager.ringerMode) {
+                AudioManager.RINGER_MODE_NORMAL -> {
+                    audioManager.ringerMode = AudioManager.RINGER_MODE_VIBRATE
                 }
-                 */
-
-                val ruleId = if (!ZenRuleUtils.isAutomaticZenRuleRegistered(this, savedRuleId)) {
-                    addAutomaticZenRule()
-                } else {
-                    savedRuleId
+                AudioManager.RINGER_MODE_VIBRATE -> {
+                    activateAutomaticZenRule(ruleId)
+                    audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
                 }
-                // The ZenRule must (presumably) be activated before setting the RingerMode
-                activateAutomaticZenRule(ruleId)
-                audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+                AudioManager.RINGER_MODE_SILENT -> {
+                    deactivateAutomaticZenRule(ruleId)
+                    audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+                }
             }
-            AudioManager.RINGER_MODE_SILENT -> {
-                // The ZenRule must (presumably) be deactivated before setting the RingerMode
-                deactivateAutomaticZenRule(savedRuleId)
-                audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
-            }
+            updateTileState()
         }
-        updateTileState()
     }
 
     private fun updateTileState() {
