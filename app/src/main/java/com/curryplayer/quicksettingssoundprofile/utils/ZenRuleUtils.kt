@@ -24,8 +24,19 @@ object ZenRuleUtils {
         return notificationManager.getAutomaticZenRule(ruleId) != null
     }
 
+    fun generateDefaultAutomaticZenRule(applicationContext: Context): AutomaticZenRule {
+        val zenRule = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            generateDefaultAutomaticZenRuleForAndroidVanillaIceCreamAndAbove(applicationContext)
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            generateDefaultAutomaticZenRuleForAndroidQAndAbove(applicationContext)
+        } else {
+            generateDefaultAutomaticZenRuleForAndroidNAndAbove(applicationContext)
+        }
+        return zenRule
+    }
+
     // set baseline for Android 7 / API 24
-    fun generateAutomaticZenRuleForAndroidNAndAbove(applicationContext: Context): AutomaticZenRule {
+    private fun generateDefaultAutomaticZenRuleForAndroidNAndAbove(applicationContext: Context): AutomaticZenRule {
         // constructor is deprecated in API 35 but works for API 24
         val zenRule = AutomaticZenRule(
             RULE_NAME,
@@ -39,13 +50,13 @@ object ZenRuleUtils {
 
     // requires Android 10 / API 29
     @RequiresApi(Build.VERSION_CODES.Q)
-    fun generateAutomaticZenRuleForAndroidQAndAbove(applicationContext: Context): AutomaticZenRule {
+    private fun generateDefaultAutomaticZenRuleForAndroidQAndAbove(applicationContext: Context): AutomaticZenRule {
 
         val ruleName = RULE_NAME
         val owner = ComponentName(applicationContext, MainActivity::class.java)
         val conditionId = SILENT_CONDITION_DND_AND_MODE_URI.toUri()
 
-        val zenPolicy: ZenPolicy = buildZenPolicy()
+        val zenPolicy: ZenPolicy = buildDefaultZenPolicy()
 
         val zenRule = AutomaticZenRule(
             ruleName,
@@ -62,13 +73,13 @@ object ZenRuleUtils {
 
     // requires Android 15 / API 35
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    fun generateAutomaticZenRuleForAndroidVanillaIceCreamAndAbove(applicationContext: Context): AutomaticZenRule {
+    private fun generateDefaultAutomaticZenRuleForAndroidVanillaIceCreamAndAbove(applicationContext: Context): AutomaticZenRule {
 
         val ruleName = RULE_NAME
         val owner = ComponentName(applicationContext, MainActivity::class.java)
         val conditionId = SILENT_CONDITION_DND_AND_MODE_URI.toUri()
 
-        val zenPolicy: ZenPolicy = buildZenPolicy()
+        val zenPolicy: ZenPolicy = buildDefaultZenPolicy()
 
         val zenRule = AutomaticZenRule.Builder(ruleName, conditionId)
             .setConfigurationActivity(owner)
@@ -86,7 +97,7 @@ object ZenRuleUtils {
 
     // TODO: make zenPolicy adjustable
     @RequiresApi(Build.VERSION_CODES.Q)
-    private fun buildZenPolicy(): ZenPolicy {
+    private fun buildDefaultZenPolicy(): ZenPolicy {
         val zenPolicyBuilder: ZenPolicy.Builder = ZenPolicy.Builder()
             .disallowAllSounds()
             .allowMedia(true)

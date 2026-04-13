@@ -1,6 +1,5 @@
 package com.curryplayer.quicksettingssoundprofile.services
 
-import android.app.AutomaticZenRule
 import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -194,7 +193,7 @@ class SoundProfileTileService : TileService() {
      */
     private fun addAutomaticZenRule(): String {
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        val zenRule = generateAutomaticZenRule()
+        val zenRule = ZenRuleUtils.generateDefaultAutomaticZenRule(this)
         val newRuleId = notificationManager.addAutomaticZenRule(zenRule)
 
         if (newRuleId != null) {
@@ -208,17 +207,6 @@ class SoundProfileTileService : TileService() {
             Log.e("SoundProfileTileService", "Failed to add Automatic Zen Rule.")
             return ""
         }
-    }
-
-    private fun generateAutomaticZenRule(): AutomaticZenRule {
-        val zenRule = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            ZenRuleUtils.generateAutomaticZenRuleForAndroidVanillaIceCreamAndAbove(this)
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ZenRuleUtils.generateAutomaticZenRuleForAndroidQAndAbove(this)
-        } else {
-            ZenRuleUtils.generateAutomaticZenRuleForAndroidNAndAbove(this)
-        }
-        return zenRule
     }
 
     private fun activateAutomaticZenRule(ruleId: String) {
