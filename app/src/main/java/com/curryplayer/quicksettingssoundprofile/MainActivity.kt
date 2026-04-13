@@ -1,8 +1,6 @@
 package com.curryplayer.quicksettingssoundprofile
 
-import android.app.NotificationManager
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -17,7 +15,6 @@ import com.curryplayer.quicksettingssoundprofile.pages.RenderSettingsPage
 import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProfileTheme
 import com.curryplayer.quicksettingssoundprofile.utils.Utils
 import com.curryplayer.quicksettingssoundprofile.utils.ZenRuleUtils
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -63,46 +60,8 @@ class MainActivity : ComponentActivity() {
         if (dndPermissionGrantedState) {
             lifecycleScope.launch {
                 // val muteMedia = dataStoreManager.muteMedia.first()
-                syncAutomaticZenRule()
+                ZenRuleUtils.syncAutomaticZenRule(this@MainActivity, dataStoreManager)
             }
         }
     }
-
-    /**
-     * Create the rule if necessary or updates it.
-     */
-    private suspend fun syncAutomaticZenRule() {
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        var savedRuleId = dataStoreManager.zenRuleId.first()
-
-        // check if there is already an existing rule with the same name
-        if (savedRuleId.isEmpty()) {
-            val allRules = notificationManager.automaticZenRules
-            val existingRuleEntry = allRules.entries.find { it.value.name == ZenRuleUtils.RULE_NAME }
-            if (existingRuleEntry != null) {
-                savedRuleId = existingRuleEntry.key
-                dataStoreManager.setZenRuleId(savedRuleId)
-                Log.i("MainActivity", "Found existing rule: $savedRuleId")
-            }
-        }
-
-        // check if valid rule exists
-        val existingRule = if (savedRuleId.isNotEmpty()) notificationManager.getAutomaticZenRule(savedRuleId) else null
-
-        if (existingRule == null) {
-            val newRule = ZenRuleUtils.generateDefaultAutomaticZenRule(this)
-            val newId = notificationManager.addAutomaticZenRule(newRule)
-            if (newId != null) {
-                dataStoreManager.setZenRuleId(newId)
-                Log.i("MainActivity", "New ZenRule created: $newId")
-            }
-        } else {
-            // TODO: maybe update the rule here if changes were made to it
-            // Unfortunately it is currently not possible to set individual values of a ZenRule while keeping the other values the same
-            val updatedRule = existingRule
-            val success = notificationManager.updateAutomaticZenRule(savedRuleId, updatedRule)
-            Log.i("MainActivity", "ZenRule updated: $success")
-        }
-    }
-
 }
