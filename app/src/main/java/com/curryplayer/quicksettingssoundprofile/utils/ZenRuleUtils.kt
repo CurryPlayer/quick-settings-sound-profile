@@ -22,11 +22,6 @@ object ZenRuleUtils {
     const val RULE_NAME = "Silence Profile Settings"
 
 
-    fun isAutomaticZenRuleRegistered(applicationContext: Context, ruleId: String): Boolean {
-        val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        return notificationManager.getAutomaticZenRule(ruleId) != null
-    }
-
     suspend fun syncAutomaticZenRule(
         applicationContext: Context,
         dataStoreManager: DataStoreManager
