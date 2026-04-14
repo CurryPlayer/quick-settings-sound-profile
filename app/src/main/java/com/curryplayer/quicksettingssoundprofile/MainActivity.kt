@@ -32,6 +32,7 @@ class MainActivity : ComponentActivity() {
             QuickSettingsSoundProfileTheme {
                 val isDnDActive by dataStoreManager.activateDnd.collectAsState(initial = false)
                 val isMediaMuted by dataStoreManager.muteMedia.collectAsState(initial = false)
+                val savedZenRuleId by dataStoreManager.zenRuleId.collectAsState(initial = "")
                 val scope = rememberCoroutineScope()
 
                 RenderSettingsPage(
@@ -44,7 +45,8 @@ class MainActivity : ComponentActivity() {
                     muteMedia = isMediaMuted,
                     onMuteMediaChange = { newValue ->
                         scope.launch { dataStoreManager.setMuteMedia(newValue) }
-                    }
+                    },
+                    ruleId = savedZenRuleId
                 )
             }
         }

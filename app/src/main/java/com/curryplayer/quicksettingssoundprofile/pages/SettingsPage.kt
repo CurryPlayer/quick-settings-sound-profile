@@ -15,6 +15,7 @@ import com.curryplayer.quicksettingssoundprofile.composables.RenderTopAppBar
 import com.curryplayer.quicksettingssoundprofile.composables.RenderNewCategoryName
 import com.curryplayer.quicksettingssoundprofile.composables.RenderSettingsToggleItem
 import com.curryplayer.quicksettingssoundprofile.R
+import com.curryplayer.quicksettingssoundprofile.composables.RenderOpenZenModeSettings
 
 @Composable
 fun RenderSettingsPage(
@@ -24,6 +25,7 @@ fun RenderSettingsPage(
     onActivateDndChange: (Boolean) -> Unit,
     muteMedia: Boolean,
     onMuteMediaChange: (Boolean) -> Unit,
+    ruleId: String,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -58,6 +60,8 @@ fun RenderSettingsPage(
 //                    onActivateDndChange,
 //                    hasPermission
 //                )
+                // TODO: investigate if only Android 15 and higher can use this feature
+                RenderOpenZenModeSettings(ctx, ruleId, hasPermission)
             }
         }
     )
