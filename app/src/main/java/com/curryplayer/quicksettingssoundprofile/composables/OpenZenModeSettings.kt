@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.R
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RenderOpenZenModeSettings(
     ctx: Context,
@@ -56,16 +58,20 @@ fun RenderOpenZenModeSettings(
     }
 }
 
-// TODO: update to work with all android versions >= 10
+// requires Android 8 / API 26
+@RequiresApi(Build.VERSION_CODES.O)
 fun openZenRuleSettings(context: Context, ruleId: String) {
     try {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val intent = Intent(Settings.ACTION_AUTOMATIC_ZEN_RULE_SETTINGS).apply {
+        val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            Intent(Settings.ACTION_AUTOMATIC_ZEN_RULE_SETTINGS).apply {
                 putExtra(Settings.EXTRA_AUTOMATIC_ZEN_RULE_ID, ruleId)
             }
-            context.startActivity(intent)
+        } else {
+            Intent(Settings.ACTION_ZEN_MODE_PRIORITY_SETTINGS)
         }
+        context.startActivity(intent)
     } catch (_: Exception) {
-        Toast.makeText(context, context.getString(R.string.toast_intent_failed), Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, context.getString(R.string.toast_intent_failed), Toast.LENGTH_SHORT)
+            .show()
     }
 }

@@ -1,6 +1,7 @@
 package com.curryplayer.quicksettingssoundprofile.pages
 
 import android.content.Context
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -61,7 +62,9 @@ fun RenderSettingsPage(
 //                    hasPermission
 //                )
                 // TODO: investigate if only Android 15 and higher can use this feature
-                RenderOpenZenModeSettings(ctx, ruleId, hasPermission)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    RenderOpenZenModeSettings(ctx, ruleId, hasPermission)
+                }
             }
         }
     )
