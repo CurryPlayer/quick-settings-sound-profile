@@ -17,8 +17,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.curryplayer.quicksettingssoundprofile.R
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -54,13 +56,23 @@ fun RenderOpenZenModeSettings(
             ) {
                 Text(text = ctx.getString(R.string.open_mode_button))
             }
+
+            if (!hasPermission) {
+                Text(
+                    text = ctx.getString(R.string.open_mode_grant_permission_first),
+                    textAlign = TextAlign.Center,
+                    fontSize = 14.sp,
+                    fontStyle = FontStyle.Italic,
+                )
+            }
+
         }
     }
 }
 
 // requires Android 8 / API 26
 @RequiresApi(Build.VERSION_CODES.O)
-fun openZenRuleSettings(context: Context, ruleId: String) {
+private fun openZenRuleSettings(context: Context, ruleId: String) {
     try {
         val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             Intent(Settings.ACTION_AUTOMATIC_ZEN_RULE_SETTINGS).apply {
