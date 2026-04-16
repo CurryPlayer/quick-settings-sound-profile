@@ -138,6 +138,7 @@ object ZenRuleUtils {
     private fun buildDefaultZenPolicy(): ZenPolicy {
         val zenPolicyBuilder: ZenPolicy.Builder = ZenPolicy.Builder()
             .disallowAllSounds()
+            .showAllVisualEffects()
             .allowMedia(true)
             .allowAlarms(true)
             .allowSystem(false)
@@ -146,12 +147,12 @@ object ZenRuleUtils {
             .allowCalls(ZenPolicy.PEOPLE_TYPE_NONE)
             .allowMessages(ZenPolicy.PEOPLE_TYPE_NONE)
             .allowRepeatCallers(false)
-            .showFullScreenIntent(false)
-            .showLights(false)
-            .showPeeking(false)
+            .showFullScreenIntent(true)
+            .showLights(true)
+            .showPeeking(true)
             .showStatusBarIcons(true)
             .showBadges(true)
-            .showInAmbientDisplay(false)
+            .showInAmbientDisplay(true)
             .showInNotificationList(true)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
