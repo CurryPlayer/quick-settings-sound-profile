@@ -5,6 +5,7 @@ import android.content.Context
 
 object Utils {
 
+
     /**
      * Checks if the ACCESS_NOTIFICATION_POLICY (Do Not Disturb access) permission is granted.
      *

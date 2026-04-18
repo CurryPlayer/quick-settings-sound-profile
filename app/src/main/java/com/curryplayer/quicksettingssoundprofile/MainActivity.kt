@@ -9,10 +9,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.lifecycleScope
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.pages.RenderSettingsPage
 import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProfileTheme
 import com.curryplayer.quicksettingssoundprofile.utils.Utils
+import com.curryplayer.quicksettingssoundprofile.utils.ZenRuleUtils
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -25,12 +27,12 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         dataStoreManager = DataStoreManager(this)
-        dndPermissionGrantedState = Utils.isDoNotDisturbPermissionGranted(this)
 
         setContent {
             QuickSettingsSoundProfileTheme {
                 val isDnDActive by dataStoreManager.activateDnd.collectAsState(initial = false)
                 val isMediaMuted by dataStoreManager.muteMedia.collectAsState(initial = false)
+                val savedZenRuleId by dataStoreManager.zenRuleId.collectAsState(initial = "")
                 val scope = rememberCoroutineScope()
 
                 RenderSettingsPage(
@@ -43,7 +45,8 @@ class MainActivity : ComponentActivity() {
                     muteMedia = isMediaMuted,
                     onMuteMediaChange = { newValue ->
                         scope.launch { dataStoreManager.setMuteMedia(newValue) }
-                    }
+                    },
+                    ruleId = savedZenRuleId
                 )
             }
         }
@@ -51,6 +54,16 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        checkPermissionAndSyncRule()
+    }
+
+    private fun checkPermissionAndSyncRule() {
         dndPermissionGrantedState = Utils.isDoNotDisturbPermissionGranted(this)
+        if (dndPermissionGrantedState) {
+            lifecycleScope.launch {
+                // val muteMedia = dataStoreManager.muteMedia.first()
+                ZenRuleUtils.syncAutomaticZenRule(this@MainActivity, dataStoreManager)
+            }
+        }
     }
 }
