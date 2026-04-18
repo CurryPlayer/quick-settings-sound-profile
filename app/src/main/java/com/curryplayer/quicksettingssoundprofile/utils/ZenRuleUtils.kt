@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
 import android.os.Build
+import android.service.notification.ZenDeviceEffects
 import android.service.notification.ZenPolicy
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -118,11 +119,13 @@ object ZenRuleUtils {
         val conditionId = SILENT_CONDITION_DND_AND_MODE_URI.toUri()
 
         val zenPolicy: ZenPolicy = buildDefaultZenPolicy()
+        val zenDeviceEffects: ZenDeviceEffects = buildDefaultZenDeviceEffects()
 
         val zenRule = AutomaticZenRule.Builder(ruleName, conditionId)
             .setConfigurationActivity(owner)
             .setOwner(owner)
             .setZenPolicy(zenPolicy)
+            .setDeviceEffects(zenDeviceEffects)
             .setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
             .setEnabled(true)
             .setIconResId(R.drawable.ic_round_volume_off_24)
@@ -162,6 +165,19 @@ object ZenRuleUtils {
         }
 
         return zenPolicyBuilder.build()
+    }
+
+    // TODO: make zenDeviceEffects adjustable
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    private fun buildDefaultZenDeviceEffects(): ZenDeviceEffects {
+        val zenDeviceEffects: ZenDeviceEffects = ZenDeviceEffects.Builder()
+            .setShouldDimWallpaper(false)
+            .setShouldUseNightMode(false)
+            .setShouldDisplayGrayscale(false)
+            .setShouldSuppressAmbientDisplay(false)
+            .build()
+
+        return zenDeviceEffects
     }
 
 }
