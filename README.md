@@ -20,7 +20,7 @@ For devices running versions 10 through 14, the app applies a default ZenPolicy 
 On these older versions, ZenPolicy adjustments are not supported, nor do they exist, as the ZenPolicy was first introduced with Android 10. On these versions, only an **AutomaticZenRule** (which includes a ZenPolicy in newer versions) is applied. In your Do Not Disturb settings, you will see an **Automatic Rule** that activates when the device is silenced, without applying a specific policy.
 
 ## Why did I develop this app in the first place?
-One of the reasons I developed the functionality to toggle the sound mode via the Quick Settings is that Google doesn't provide this option natively. On almost every other Android smartphone, you can switch the sound mode through Quick Settings, but it's simply missing on Pixel devices.
+One of the reasons I developed the Quick Settings toggle for sound modes is that Google doesn't provide this option natively on Pixel devices. Currently, the only way to change it is by pressing the volume keys and then adjusting the mode via the small icon that appears. While almost every other Android manufacturer includes a toggle in the Quick Settings, it is curiously missing on Pixels.
 
 Furthermore, I wanted to explore Kotlin as a language and saw this as a great opportunity to get hands-on experience with Android development.
 
