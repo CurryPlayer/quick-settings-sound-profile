@@ -52,15 +52,22 @@ object ZenRuleUtils {
                 Log.i("MainActivity", "New ZenRule created: $newId")
                 return newId
             }
+            Log.e("MainActivity", "Could not create new ZenRule")
+            return ""
         } else {
             // TODO: maybe update the rule here if changes were made to it
-            // Unfortunately it is currently not possible to set individual values of a ZenRule while keeping the other values the same
-            val updatedRule = existingRule
-            val success = notificationManager.updateAutomaticZenRule(savedRuleId, updatedRule)
-            Log.i("MainActivity", "ZenRule updated: $success")
+            // val updatedRule = existingRule
+            /*
+            TODO:
+            Before Build.VERSION_CODES.VANILLA_ICE_CREAM, updating a rule that is not backed up
+            by a android.service.notification.ConditionProviderService will deactivate it if it
+            was previously active. Starting with Build.VERSION_CODES.VANILLA_ICE_CREAM, this will
+            only happen if the rule's definition is actually changing.
+             */
+            // val success = notificationManager.updateAutomaticZenRule(savedRuleId, updatedRule)
+            Log.i("MainActivity", "ZenRule already exists: $savedRuleId")
             return savedRuleId
         }
-        return ""
     }
 
     fun generateDefaultAutomaticZenRule(applicationContext: Context): AutomaticZenRule {
