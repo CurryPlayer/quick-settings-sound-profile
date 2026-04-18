@@ -175,6 +175,37 @@ object ZenRuleUtils {
         return zenPolicyBuilder.build()
     }
 
+    // TODO: maybe use in future or delete
+//    @RequiresApi(Build.VERSION_CODES.Q)
+//    private fun modifyDefaultZenPolicy(oldZenPolicy: ZenPolicy): ZenPolicy {
+//        val newZenPolicyBuilder: ZenPolicy.Builder = ZenPolicy.Builder()
+//            .disallowAllSounds()
+//            .showAllVisualEffects()
+//            .allowMedia(oldZenPolicy.priorityCategoryMedia == ZenPolicy.STATE_ALLOW)
+//            .allowAlarms(oldZenPolicy.priorityCategoryAlarms == ZenPolicy.STATE_ALLOW)
+//            .allowSystem(oldZenPolicy.priorityCategorySystem == ZenPolicy.STATE_ALLOW)
+//            .allowReminders(oldZenPolicy.priorityCategoryReminders == ZenPolicy.STATE_ALLOW)
+//            .allowEvents(oldZenPolicy.priorityCategoryEvents == ZenPolicy.STATE_ALLOW)
+//            .allowCalls(oldZenPolicy.priorityCallSenders)
+//            .allowMessages(oldZenPolicy.priorityMessageSenders)
+//            .allowRepeatCallers(oldZenPolicy.priorityCategoryRepeatCallers == ZenPolicy.STATE_ALLOW)
+//            .showFullScreenIntent(oldZenPolicy.visualEffectFullScreenIntent == ZenPolicy.STATE_ALLOW)
+//            .showLights(oldZenPolicy.visualEffectLights == ZenPolicy.STATE_ALLOW)
+//            .showPeeking(oldZenPolicy.visualEffectPeek == ZenPolicy.STATE_ALLOW)
+//            .showStatusBarIcons(oldZenPolicy.visualEffectStatusBar == ZenPolicy.STATE_ALLOW)
+//            .showBadges(oldZenPolicy.visualEffectBadge == ZenPolicy.STATE_ALLOW)
+//            .showInAmbientDisplay(oldZenPolicy.visualEffectAmbient == ZenPolicy.STATE_ALLOW)
+//            .showInNotificationList(oldZenPolicy.visualEffectNotificationList == ZenPolicy.STATE_ALLOW)
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+//            newZenPolicyBuilder
+//                .allowConversations(oldZenPolicy.priorityConversationSenders)
+//                .allowPriorityChannels(oldZenPolicy.priorityChannelsAllowed == ZenPolicy.STATE_ALLOW)
+//        }
+//
+//        return newZenPolicyBuilder.build()
+//    }
+
     // TODO: make zenDeviceEffects adjustable
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private fun buildDefaultZenDeviceEffects(): ZenDeviceEffects {
@@ -187,5 +218,18 @@ object ZenRuleUtils {
 
         return zenDeviceEffects
     }
+
+//    // TODO: maybe use in future or delete
+//    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+//    private fun modifyDefaultZenDeviceEffects(oldZenDeviceEffects: ZenDeviceEffects): ZenDeviceEffects {
+//        val newZenDeviceEffects: ZenDeviceEffects = ZenDeviceEffects.Builder()
+//            .setShouldDimWallpaper(oldZenDeviceEffects.shouldDimWallpaper())
+//            .setShouldUseNightMode(oldZenDeviceEffects.shouldUseNightMode())
+//            .setShouldDisplayGrayscale(oldZenDeviceEffects.shouldDisplayGrayscale())
+//            .setShouldSuppressAmbientDisplay(oldZenDeviceEffects.shouldSuppressAmbientDisplay())
+//            .build()
+//
+//        return newZenDeviceEffects
+//    }
 
 }
