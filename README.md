@@ -14,10 +14,10 @@ While this app supports devices running Android 7 and above, later OS versions u
 On these devices, you can configure audible and visual settings individually for each **mode** in the Android system settings. This is possible because the so-called **ZenPolicy** in Android 15 offers significantly more granular control than in previous versions. While the app provides a generic ZenPolicy, you currently need to manually refine these rules in your device's system settings.
 
 ### Android 10 to 14
-For devices running versions 10 through 14, the app applies a default ZenPolicy automatically whenever the phone is set to **Silent** mode. This is visible under the **Schedules** section within the **Do Not Disturb** settings.
+For devices running versions 10 through 14, the app automatically applies a default ZenPolicy whenever the phone is set to **Silent** mode. Currently, this policy only allows media sounds and alarms to go through. You can see this in the **Do Not Disturb** settings when the silent mode is active and the **Schedule** is triggered.
 
 ### Android 7 to 9
-On these older versions, ZenPolicy adjustments are not supported, nor do they exist, as the ZenPolicy was first introduced with Android 10. On these versions, only an **AutomaticZenRule** (which includes a ZenPolicy in newer versions) is applied. In your Do Not Disturb settings, you will see an **Automatic Rule** that activates when the device is silenced, without applying a specific policy.
+On older versions (Android 7 to 9), the app acts as a legacy bridge. It lets you toggle your ringer mode through the Quick Settings, but since these versions lack the **ZenPolicy** feature, you can't fine-tune the Do Not Disturb behavior as deeply as on newer devices.
 
 ## Why did I develop this app in the first place?
 One of the reasons I developed the Quick Settings toggle for sound modes is that Google doesn't provide this option natively on Pixel devices. Currently, the only way to change it is by pressing the volume keys and then adjusting the mode via the small icon that appears. While almost every other Android manufacturer includes a toggle in the Quick Settings, it is curiously missing on Pixels.
