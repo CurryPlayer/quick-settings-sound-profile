@@ -64,8 +64,7 @@ fun RenderSettingsPage(
 //                    onActivateDndChange,
 //                    hasPermission
 //                )
-                // TODO: investigate if only Android 15 and higher can use this feature
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                     RenderOpenZenModeSettings(ctx, ruleId, hasPermission)
                 }
             }
