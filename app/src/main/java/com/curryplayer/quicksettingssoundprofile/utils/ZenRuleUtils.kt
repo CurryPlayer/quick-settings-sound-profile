@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
 import android.os.Build
+import android.service.notification.ZenDeviceEffects
 import android.service.notification.ZenPolicy
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -51,15 +52,22 @@ object ZenRuleUtils {
                 Log.i("MainActivity", "New ZenRule created: $newId")
                 return newId
             }
+            Log.e("MainActivity", "Could not create new ZenRule")
+            return ""
         } else {
             // TODO: maybe update the rule here if changes were made to it
-            // Unfortunately it is currently not possible to set individual values of a ZenRule while keeping the other values the same
-            val updatedRule = existingRule
-            val success = notificationManager.updateAutomaticZenRule(savedRuleId, updatedRule)
-            Log.i("MainActivity", "ZenRule updated: $success")
+            // val updatedRule = existingRule
+            /*
+            TODO:
+            Before Build.VERSION_CODES.VANILLA_ICE_CREAM, updating a rule that is not backed up
+            by a android.service.notification.ConditionProviderService will deactivate it if it
+            was previously active. Starting with Build.VERSION_CODES.VANILLA_ICE_CREAM, this will
+            only happen if the rule's definition is actually changing.
+             */
+            // val success = notificationManager.updateAutomaticZenRule(savedRuleId, updatedRule)
+            Log.i("MainActivity", "ZenRule already exists: $savedRuleId")
             return savedRuleId
         }
-        return ""
     }
 
     fun generateDefaultAutomaticZenRule(applicationContext: Context): AutomaticZenRule {
@@ -118,16 +126,19 @@ object ZenRuleUtils {
         val conditionId = SILENT_CONDITION_DND_AND_MODE_URI.toUri()
 
         val zenPolicy: ZenPolicy = buildDefaultZenPolicy()
+        val zenDeviceEffects: ZenDeviceEffects = buildDefaultZenDeviceEffects()
 
         val zenRule = AutomaticZenRule.Builder(ruleName, conditionId)
             .setConfigurationActivity(owner)
             .setOwner(owner)
             .setZenPolicy(zenPolicy)
+            .setDeviceEffects(zenDeviceEffects)
             .setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
             .setEnabled(true)
             .setIconResId(R.drawable.ic_round_volume_off_24)
             .setTriggerDescription("When 'Silent' mode is activated via the Quick Settings Tile")   // TODO: localize string
             .setManualInvocationAllowed(false)
+            .setType(AutomaticZenRule.TYPE_OTHER)
             .build()
 
         return zenRule
@@ -163,5 +174,62 @@ object ZenRuleUtils {
 
         return zenPolicyBuilder.build()
     }
+
+    // TODO: maybe use in future or delete
+//    @RequiresApi(Build.VERSION_CODES.Q)
+//    private fun modifyDefaultZenPolicy(oldZenPolicy: ZenPolicy): ZenPolicy {
+//        val newZenPolicyBuilder: ZenPolicy.Builder = ZenPolicy.Builder()
+//            .disallowAllSounds()
+//            .showAllVisualEffects()
+//            .allowMedia(oldZenPolicy.priorityCategoryMedia == ZenPolicy.STATE_ALLOW)
+//            .allowAlarms(oldZenPolicy.priorityCategoryAlarms == ZenPolicy.STATE_ALLOW)
+//            .allowSystem(oldZenPolicy.priorityCategorySystem == ZenPolicy.STATE_ALLOW)
+//            .allowReminders(oldZenPolicy.priorityCategoryReminders == ZenPolicy.STATE_ALLOW)
+//            .allowEvents(oldZenPolicy.priorityCategoryEvents == ZenPolicy.STATE_ALLOW)
+//            .allowCalls(oldZenPolicy.priorityCallSenders)
+//            .allowMessages(oldZenPolicy.priorityMessageSenders)
+//            .allowRepeatCallers(oldZenPolicy.priorityCategoryRepeatCallers == ZenPolicy.STATE_ALLOW)
+//            .showFullScreenIntent(oldZenPolicy.visualEffectFullScreenIntent == ZenPolicy.STATE_ALLOW)
+//            .showLights(oldZenPolicy.visualEffectLights == ZenPolicy.STATE_ALLOW)
+//            .showPeeking(oldZenPolicy.visualEffectPeek == ZenPolicy.STATE_ALLOW)
+//            .showStatusBarIcons(oldZenPolicy.visualEffectStatusBar == ZenPolicy.STATE_ALLOW)
+//            .showBadges(oldZenPolicy.visualEffectBadge == ZenPolicy.STATE_ALLOW)
+//            .showInAmbientDisplay(oldZenPolicy.visualEffectAmbient == ZenPolicy.STATE_ALLOW)
+//            .showInNotificationList(oldZenPolicy.visualEffectNotificationList == ZenPolicy.STATE_ALLOW)
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+//            newZenPolicyBuilder
+//                .allowConversations(oldZenPolicy.priorityConversationSenders)
+//                .allowPriorityChannels(oldZenPolicy.priorityChannelsAllowed == ZenPolicy.STATE_ALLOW)
+//        }
+//
+//        return newZenPolicyBuilder.build()
+//    }
+
+    // TODO: make zenDeviceEffects adjustable
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    private fun buildDefaultZenDeviceEffects(): ZenDeviceEffects {
+        val zenDeviceEffects: ZenDeviceEffects = ZenDeviceEffects.Builder()
+            .setShouldDimWallpaper(false)
+            .setShouldUseNightMode(false)
+            .setShouldDisplayGrayscale(false)
+            .setShouldSuppressAmbientDisplay(false)
+            .build()
+
+        return zenDeviceEffects
+    }
+
+//    // TODO: maybe use in future or delete
+//    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+//    private fun modifyDefaultZenDeviceEffects(oldZenDeviceEffects: ZenDeviceEffects): ZenDeviceEffects {
+//        val newZenDeviceEffects: ZenDeviceEffects = ZenDeviceEffects.Builder()
+//            .setShouldDimWallpaper(oldZenDeviceEffects.shouldDimWallpaper())
+//            .setShouldUseNightMode(oldZenDeviceEffects.shouldUseNightMode())
+//            .setShouldDisplayGrayscale(oldZenDeviceEffects.shouldDisplayGrayscale())
+//            .setShouldSuppressAmbientDisplay(oldZenDeviceEffects.shouldSuppressAmbientDisplay())
+//            .build()
+//
+//        return newZenDeviceEffects
+//    }
 
 }
