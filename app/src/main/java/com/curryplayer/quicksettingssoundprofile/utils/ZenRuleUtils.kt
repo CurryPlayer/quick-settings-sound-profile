@@ -4,7 +4,9 @@ import android.app.AutomaticZenRule
 import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
+import android.net.Uri
 import android.os.Build
+import android.service.notification.Condition
 import android.service.notification.ZenDeviceEffects
 import android.service.notification.ZenPolicy
 import android.util.Log
@@ -231,5 +233,36 @@ object ZenRuleUtils {
 //
 //        return newZenDeviceEffects
 //    }
+
+    /**
+     * Starting with Android 15 (API level 35), the `source` parameter within a [Condition]
+     * must be explicitly set to [Condition.SOURCE_USER_ACTION] for this condition to work properly.
+     *
+     * This is because if a user manually deactivates a custom Zen Mode (e.g., via the system UI mode
+     * selector) -- and this app creates such a custom Zen Rule for the "Silent" mode -- the Android system blocks that
+     * specific custom rule from being applied on the immediate next execution.
+     * Without this parameter, the custom Zen Rule would only successfully
+     * activate on the *second* attempt to enable the "Silent" mode.
+     *
+     * Providing [Condition.SOURCE_USER_ACTION] as the source resolves this exact issue on devices running Android 15 or higher.
+     */
+    fun buildCondition(conditionId: Uri, summary: String, state: Int): Condition {
+        val condition: Condition =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                Condition(
+                    conditionId,
+                    summary,
+                    state,
+                    Condition.SOURCE_USER_ACTION
+                )
+            } else {
+                Condition(
+                    conditionId,
+                    summary,
+                    state
+                )
+            }
+        return condition
+    }
 
 }

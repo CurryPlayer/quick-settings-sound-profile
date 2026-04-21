@@ -175,7 +175,7 @@ class SoundProfileTileService : TileService() {
             // requires Android 10 / API 29 and higher
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 val conditionId = ZenRuleUtils.SILENT_CONDITION_DND_AND_MODE_URI.toUri()
-                val condition = Condition(conditionId, "Active", Condition.STATE_TRUE)
+                val condition = ZenRuleUtils.buildCondition(conditionId, "Active", Condition.STATE_TRUE)
                 notificationManager.setAutomaticZenRuleState(ruleId, condition)
             } else {
                 // fallback for older Android versions
@@ -204,7 +204,7 @@ class SoundProfileTileService : TileService() {
             // requires Android 10 / API 29 and higher
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 val conditionId = ZenRuleUtils.SILENT_CONDITION_DND_AND_MODE_URI.toUri()
-                val condition = Condition(conditionId, "Inactive", Condition.STATE_FALSE)
+                val condition = ZenRuleUtils.buildCondition(conditionId, "Inactive", Condition.STATE_FALSE)
                 notificationManager.setAutomaticZenRuleState(ruleId, condition)
             } else {
                 // fallback for older Android versions
