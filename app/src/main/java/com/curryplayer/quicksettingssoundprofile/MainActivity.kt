@@ -7,7 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
@@ -30,22 +29,11 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             QuickSettingsSoundProfileTheme {
-                val isDnDActive by dataStoreManager.activateDnd.collectAsState(initial = false)
-                val isMediaMuted by dataStoreManager.muteMedia.collectAsState(initial = false)
                 val savedZenRuleId by dataStoreManager.zenRuleId.collectAsState(initial = "")
-                val scope = rememberCoroutineScope()
 
                 RenderSettingsPage(
                     ctx = this,
                     hasPermission = dndPermissionGrantedState,
-                    activateDnd = isDnDActive,
-                    onActivateDndChange = { newValue ->
-                        scope.launch { dataStoreManager.setActivateDnd(newValue) }
-                    },
-                    muteMedia = isMediaMuted,
-                    onMuteMediaChange = { newValue ->
-                        scope.launch { dataStoreManager.setMuteMedia(newValue) }
-                    },
                     ruleId = savedZenRuleId
                 )
             }
@@ -61,7 +49,6 @@ class MainActivity : ComponentActivity() {
         dndPermissionGrantedState = Utils.isDoNotDisturbPermissionGranted(this)
         if (dndPermissionGrantedState) {
             lifecycleScope.launch {
-                // val muteMedia = dataStoreManager.muteMedia.first()
                 ZenRuleUtils.syncAutomaticZenRule(this@MainActivity, dataStoreManager)
             }
         }
