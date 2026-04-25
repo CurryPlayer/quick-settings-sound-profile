@@ -34,6 +34,14 @@ class SoundProfileTileService : TileService() {
     private lateinit var dataStoreManager: DataStoreManager
 
     /**
+     * Cache the last known ringer mode to avoid redundant tile updates.
+     * SILENT = 0
+     * VIBRATE = 1
+     * NORMAL = 2
+     */
+    private var lastKnownRingerMode: Int = -1
+
+    /**
      * A [BroadcastReceiver] that listens for changes in the device's ringer mode and DnD
      * interruption filter. When a change is detected (e.g., 'Sound' -> 'Vibrate',
      * 'Vibrate' -> 'Silent', or a DnD filter change), it triggers an update to the Quick Settings
@@ -143,8 +151,16 @@ class SoundProfileTileService : TileService() {
         }
 
         val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+        val currentMode = audioManager.ringerMode
 
-        when (audioManager.ringerMode) {
+        // Only update tile if the mode has actually changed since the last update
+        if (currentMode == lastKnownRingerMode) {
+            return
+        }
+
+        lastKnownRingerMode = currentMode
+
+        when (currentMode) {
             AudioManager.RINGER_MODE_NORMAL -> {
                 qsTile.state = Tile.STATE_ACTIVE
                 qsTile.label = getString(R.string.profile_sound_label)
@@ -160,7 +176,6 @@ class SoundProfileTileService : TileService() {
                 qsTile.label = getString(R.string.profile_silent_label)
                 qsTile.icon = Icon.createWithResource(this, R.drawable.ic_round_volume_off_24)
             }
-
         }
         qsTile.updateTile()
     }
