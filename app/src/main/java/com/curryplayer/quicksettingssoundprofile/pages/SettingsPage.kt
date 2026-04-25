@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.curryplayer.quicksettingssoundprofile.composables.RenderAllSetCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderGrantPermissionCard
+import com.curryplayer.quicksettingssoundprofile.composables.RenderNoticeCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderTopAppBar
 import com.curryplayer.quicksettingssoundprofile.composables.RenderNewCategoryName
 import com.curryplayer.quicksettingssoundprofile.composables.RenderSettingsToggleItem
@@ -47,6 +48,11 @@ fun RenderSettingsPage(
                 } else {
                     RenderAllSetCard(ctx)
                 }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    RenderNoticeCard(ctx)
+                }
+
 //                TODO: Maybe enable in a future version when AutomaticZenRule is applied. For now, make phone completely silent (including media)
 //                RenderNewCategoryName(ctx.getString(R.string.mute_settings_category))
 //                RenderSettingsToggleItem(

@@ -18,4 +18,6 @@
     <string name="open_mode_button">Open Mode Settings</string>
     <string name="open_mode_info">You can customize additional settings (like allowing specific callers, messages or media sound) directly in the Android system settings for this mode.</string>
     <string name="open_mode_grant_permission_first">Please grant access first.</string>
+    <string name="notice_title">Notice</string>
+    <string name="notice_description">When Silent Mode is enabled, only media (e.g., music, videos) and alarms will sound. Note that this applies only if Silent Mode was toggled via the app\’s Quick Settings tile. This behavior can be changed on Android 15 or higher but is not recommended, as it bypasses the silent state and may result in unwanted vibrations.</string>
 </resources>
