@@ -25,11 +25,6 @@ import androidx.core.net.toUri
 
 class SoundProfileTileService : TileService() {
 
-    // TODO:
-    /*
-    It seems that the Logic of switching between modes currently does not work properly. Multiple mode updates are sent.
-     */
-
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private lateinit var dataStoreManager: DataStoreManager
 
@@ -124,7 +119,6 @@ class SoundProfileTileService : TileService() {
 
         serviceScope.launch {
             val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-            // val muteMedia = dataStoreManager.muteMedia.first()
             val ruleId = ZenRuleUtils.syncAutomaticZenRule(this@SoundProfileTileService, dataStoreManager)
 
             when (audioManager.ringerMode) {
