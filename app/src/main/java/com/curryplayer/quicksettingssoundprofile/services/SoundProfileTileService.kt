@@ -181,61 +181,40 @@ class SoundProfileTileService : TileService() {
     }
 
     private fun activateAutomaticZenRule(ruleId: String) {
-        /*
-        The ZenRule already includes the "INTERRUPTION_FILTER_PRIORITY" interruption filter, which (most likely) automatically sets the ring mode to "SILENT".
-        It is therefore (probably) not necessary to set the ringer mode manually on Android 10 and above. If it were set to “SILENT” again, this would simultaneously activate the ZenRule provided by this app and the default (already existing) Do Not Disturb mode.
-         */
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        if (ruleId.isNotEmpty()) {
-            // requires Android 10 / API 29 and higher
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val conditionId = ZenRuleUtils.SILENT_CONDITION_DND_AND_MODE_URI.toUri()
-                val condition = ZenRuleUtils.buildCondition(conditionId, "Active", Condition.STATE_TRUE)
-                notificationManager.setAutomaticZenRuleState(ruleId, condition)
-            } else {
-                // fallback for older Android versions
-                // ensure the ZenRule is enabled
-                val zenRule = notificationManager.getAutomaticZenRule(ruleId)
-                if (zenRule != null && !zenRule.isEnabled) {
-                    zenRule.isEnabled = true
-                    val result = notificationManager.updateAutomaticZenRule(ruleId, zenRule)
-                    Log.i("SoundProfileTileService", "Activated Automatic Zen Rule with status: ${result}.")
-                }
-                // directly set the interruption filter as fallback
-                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
-            }
-        } else {
-            // fallback to set the default interruption filter if rule does not exist
-            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
-        }
+        setAutomaticZenRuleState(ruleId, true)
     }
 
     private fun deactivateAutomaticZenRule(ruleId: String) {
-        /*
-        It appears that disabling the interruption filter does not reset RingerMode to Normal, which is why it is set to Normal in any case.
-         */
+        setAutomaticZenRuleState(ruleId, false)
+    }
+
+    private fun setAutomaticZenRuleState(ruleId: String, activate: Boolean) {
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        val interruptionFilter = if (activate) NotificationManager.INTERRUPTION_FILTER_PRIORITY else NotificationManager.INTERRUPTION_FILTER_ALL
+
         if (ruleId.isNotEmpty()) {
             // requires Android 10 / API 29 and higher
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 val conditionId = ZenRuleUtils.SILENT_CONDITION_DND_AND_MODE_URI.toUri()
-                val condition = ZenRuleUtils.buildCondition(conditionId, "Inactive", Condition.STATE_FALSE)
+                val summary = if (activate) "Active" else "Inactive"
+                val state = if (activate) Condition.STATE_TRUE else Condition.STATE_FALSE
+                val condition = ZenRuleUtils.buildCondition(conditionId, summary, state)
                 notificationManager.setAutomaticZenRuleState(ruleId, condition)
             } else {
                 // fallback for older Android versions
-                // ensure the ZenRule is disabled
+                // ensure the ZenRule is enabled/disabled
                 val zenRule = notificationManager.getAutomaticZenRule(ruleId)
-                if (zenRule != null && zenRule.isEnabled) {
-                    zenRule.isEnabled = false
+                if (zenRule != null && zenRule.isEnabled != activate) {
+                    zenRule.isEnabled = activate
                     val result = notificationManager.updateAutomaticZenRule(ruleId, zenRule)
-                    Log.i("SoundProfileTileService", "Deactivated Automatic Zen Rule with status: ${result}.")
+                    Log.i("SoundProfileTileService", "${if (activate) "Activated" else "Deactivated"} Automatic Zen Rule with status: $result.")
                 }
                 // directly set the interruption filter as fallback
-                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+                notificationManager.setInterruptionFilter(interruptionFilter)
             }
         } else {
             // fallback to set the default interruption filter if rule does not exist
-            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+            notificationManager.setInterruptionFilter(interruptionFilter)
         }
     }
 
