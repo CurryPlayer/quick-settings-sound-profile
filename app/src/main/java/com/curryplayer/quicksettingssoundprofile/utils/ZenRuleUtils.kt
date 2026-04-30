@@ -25,6 +25,16 @@ object ZenRuleUtils {
     const val RULE_NAME = "Silence Profile Settings"
 
 
+    /**
+     * This method ensures a valid AutomaticZenRule exists by retrieving a saved ID or searching
+     * for an existing rule by name. If no rule is found, it automatically creates and persists
+     * a new one to maintain the app's silent profile functionality.
+     *
+     * @param applicationContext The context used to access system services and resources.
+     * @param dataStoreManager The manager used to retrieve and persist the unique ZenRule ID.
+     * @return The ID of the [AutomaticZenRule], or an empty string if the rule could not
+     * be found or created.
+     */
     suspend fun syncAutomaticZenRule(
         applicationContext: Context,
         dataStoreManager: DataStoreManager
@@ -47,14 +57,17 @@ object ZenRuleUtils {
         val existingRule = if (savedRuleId.isNotEmpty()) notificationManager.getAutomaticZenRule(savedRuleId) else null
 
         if (existingRule == null) {
-            val newRule = generateDefaultAutomaticZenRule(applicationContext)
-            val newId = notificationManager.addAutomaticZenRule(newRule)
-            if (newId != null) {
-                dataStoreManager.setZenRuleId(newId)
-                Log.i("MainActivity", "New ZenRule created: $newId")
-                return newId
+            try {
+                val newRule = generateDefaultAutomaticZenRule(applicationContext)
+                val newId = notificationManager.addAutomaticZenRule(newRule)
+                if (newId != null) {
+                    dataStoreManager.setZenRuleId(newId)
+                    Log.i("MainActivity", "New ZenRule created: $newId")
+                    return newId
+                }
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Error creating ZenRule", e)
             }
-            Log.e("MainActivity", "Could not create new ZenRule")
             return ""
         } else {
             // TODO: maybe update the rule here if changes were made to it
@@ -101,15 +114,15 @@ object ZenRuleUtils {
     private fun generateDefaultAutomaticZenRuleForAndroidQAndAbove(applicationContext: Context): AutomaticZenRule {
 
         val ruleName = RULE_NAME
-        val owner = ComponentName(applicationContext, MainActivity::class.java)
+        val configurationActivity = ComponentName(applicationContext, MainActivity::class.java)
         val conditionId = SILENT_CONDITION_DND_AND_MODE_URI.toUri()
 
         val zenPolicy: ZenPolicy = buildDefaultZenPolicy()
 
         val zenRule = AutomaticZenRule(
             ruleName,
-            owner,
-            owner,
+            null,   // superseded by configurationActivity
+            configurationActivity,
             conditionId,
             zenPolicy,
             NotificationManager.INTERRUPTION_FILTER_PRIORITY,
@@ -124,15 +137,15 @@ object ZenRuleUtils {
     private fun generateDefaultAutomaticZenRuleForAndroidVanillaIceCreamAndAbove(applicationContext: Context): AutomaticZenRule {
 
         val ruleName = RULE_NAME
-        val owner = ComponentName(applicationContext, MainActivity::class.java)
+        val configurationActivity = ComponentName(applicationContext, MainActivity::class.java)
         val conditionId = SILENT_CONDITION_DND_AND_MODE_URI.toUri()
 
         val zenPolicy: ZenPolicy = buildDefaultZenPolicy()
         val zenDeviceEffects: ZenDeviceEffects = buildDefaultZenDeviceEffects()
 
         val zenRule = AutomaticZenRule.Builder(ruleName, conditionId)
-            .setConfigurationActivity(owner)
-            .setOwner(owner)
+            .setOwner(null) // superseded by configurationActivity
+            .setConfigurationActivity(configurationActivity)
             .setZenPolicy(zenPolicy)
             .setDeviceEffects(zenDeviceEffects)
             .setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
