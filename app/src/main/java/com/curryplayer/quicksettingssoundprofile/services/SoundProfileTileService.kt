@@ -11,7 +11,7 @@ import android.os.Build
 import android.service.notification.Condition
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import android.util.Log
+//import android.util.Log
 import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.utils.Utils
@@ -200,8 +200,9 @@ class SoundProfileTileService : TileService() {
                 val zenRule = notificationManager.getAutomaticZenRule(ruleId)
                 if (zenRule != null && zenRule.isEnabled != activate) {
                     zenRule.isEnabled = activate
-                    val result = notificationManager.updateAutomaticZenRule(ruleId, zenRule)
-                    Log.i("SoundProfileTileService", "${if (activate) "Activated" else "Deactivated"} Automatic Zen Rule with status: $result.")
+                    notificationManager.updateAutomaticZenRule(ruleId, zenRule)
+                    //val result = notificationManager.updateAutomaticZenRule(ruleId, zenRule)
+                    //Log.i("SoundProfileTileService", "${if (activate) "Activated" else "Deactivated"} Automatic Zen Rule with status: $result.")
                 }
                 // directly set the interruption filter as fallback
                 notificationManager.setInterruptionFilter(interruptionFilter)
