@@ -41,12 +41,6 @@ fun RenderOpenZenModeSettings(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = ctx.getString(R.string.open_mode_info),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
             Button(
                 onClick = {
                     openZenRuleSettings(ctx, ruleId)

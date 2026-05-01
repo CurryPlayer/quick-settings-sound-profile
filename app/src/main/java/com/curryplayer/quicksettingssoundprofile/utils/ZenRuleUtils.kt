@@ -4,10 +4,13 @@ import android.app.AutomaticZenRule
 import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
+import android.net.Uri
 import android.os.Build
+import android.service.notification.Condition
 import android.service.notification.ZenDeviceEffects
 import android.service.notification.ZenPolicy
-import android.util.Log
+//import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import com.curryplayer.quicksettingssoundprofile.MainActivity
@@ -23,6 +26,16 @@ object ZenRuleUtils {
     const val RULE_NAME = "Silence Profile Settings"
 
 
+    /**
+     * This method ensures a valid AutomaticZenRule exists by retrieving a saved ID or searching
+     * for an existing rule by name. If no rule is found, it automatically creates and persists
+     * a new one to maintain the app's silent profile functionality.
+     *
+     * @param applicationContext The context used to access system services and resources.
+     * @param dataStoreManager The manager used to retrieve and persist the unique ZenRule ID.
+     * @return The ID of the [AutomaticZenRule], or an empty string if the rule could not
+     * be found or created.
+     */
     suspend fun syncAutomaticZenRule(
         applicationContext: Context,
         dataStoreManager: DataStoreManager
@@ -37,7 +50,7 @@ object ZenRuleUtils {
             if (existingRuleEntry != null) {
                 savedRuleId = existingRuleEntry.key
                 dataStoreManager.setZenRuleId(savedRuleId)
-                Log.i("MainActivity", "Found existing rule: $savedRuleId")
+                //Log.i("MainActivity", "Found existing rule: $savedRuleId")
             }
         }
 
@@ -45,14 +58,21 @@ object ZenRuleUtils {
         val existingRule = if (savedRuleId.isNotEmpty()) notificationManager.getAutomaticZenRule(savedRuleId) else null
 
         if (existingRule == null) {
-            val newRule = generateDefaultAutomaticZenRule(applicationContext)
-            val newId = notificationManager.addAutomaticZenRule(newRule)
-            if (newId != null) {
-                dataStoreManager.setZenRuleId(newId)
-                Log.i("MainActivity", "New ZenRule created: $newId")
-                return newId
+            try {
+                val newRule = generateDefaultAutomaticZenRule(applicationContext)
+                val newId = notificationManager.addAutomaticZenRule(newRule)
+                if (newId != null) {
+                    dataStoreManager.setZenRuleId(newId)
+                    //Log.i("MainActivity", "New ZenRule created: $newId")
+                    return newId
+                }
+            } catch (_: Exception) {
+                Toast.makeText(
+                    applicationContext,
+                    applicationContext.getString(R.string.toast_create_rule_failed),
+                    Toast.LENGTH_LONG
+                ).show()
             }
-            Log.e("MainActivity", "Could not create new ZenRule")
             return ""
         } else {
             // TODO: maybe update the rule here if changes were made to it
@@ -65,7 +85,7 @@ object ZenRuleUtils {
             only happen if the rule's definition is actually changing.
              */
             // val success = notificationManager.updateAutomaticZenRule(savedRuleId, updatedRule)
-            Log.i("MainActivity", "ZenRule already exists: $savedRuleId")
+            //Log.i("MainActivity", "ZenRule already exists: $savedRuleId")
             return savedRuleId
         }
     }
@@ -99,15 +119,15 @@ object ZenRuleUtils {
     private fun generateDefaultAutomaticZenRuleForAndroidQAndAbove(applicationContext: Context): AutomaticZenRule {
 
         val ruleName = RULE_NAME
-        val owner = ComponentName(applicationContext, MainActivity::class.java)
+        val configurationActivity = ComponentName(applicationContext, MainActivity::class.java)
         val conditionId = SILENT_CONDITION_DND_AND_MODE_URI.toUri()
 
         val zenPolicy: ZenPolicy = buildDefaultZenPolicy()
 
         val zenRule = AutomaticZenRule(
             ruleName,
-            owner,
-            owner,
+            null,   // superseded by configurationActivity
+            configurationActivity,
             conditionId,
             zenPolicy,
             NotificationManager.INTERRUPTION_FILTER_PRIORITY,
@@ -122,15 +142,15 @@ object ZenRuleUtils {
     private fun generateDefaultAutomaticZenRuleForAndroidVanillaIceCreamAndAbove(applicationContext: Context): AutomaticZenRule {
 
         val ruleName = RULE_NAME
-        val owner = ComponentName(applicationContext, MainActivity::class.java)
+        val configurationActivity = ComponentName(applicationContext, MainActivity::class.java)
         val conditionId = SILENT_CONDITION_DND_AND_MODE_URI.toUri()
 
         val zenPolicy: ZenPolicy = buildDefaultZenPolicy()
         val zenDeviceEffects: ZenDeviceEffects = buildDefaultZenDeviceEffects()
 
         val zenRule = AutomaticZenRule.Builder(ruleName, conditionId)
-            .setConfigurationActivity(owner)
-            .setOwner(owner)
+            .setOwner(null) // superseded by configurationActivity
+            .setConfigurationActivity(configurationActivity)
             .setZenPolicy(zenPolicy)
             .setDeviceEffects(zenDeviceEffects)
             .setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
@@ -231,5 +251,36 @@ object ZenRuleUtils {
 //
 //        return newZenDeviceEffects
 //    }
+
+    /**
+     * Starting with Android 15 (API level 35), the `source` parameter within a [Condition]
+     * must be explicitly set to [Condition.SOURCE_USER_ACTION] for this condition to work properly.
+     *
+     * This is because if a user manually deactivates a custom Zen Mode (e.g., via the system UI mode
+     * selector) -- and this app creates such a custom Zen Rule for the "Silent" mode -- the Android system blocks that
+     * specific custom rule from being applied on the immediate next execution.
+     * Without this parameter, the custom Zen Rule would only successfully
+     * activate on the *second* attempt to enable the "Silent" mode.
+     *
+     * Providing [Condition.SOURCE_USER_ACTION] as the source resolves this exact issue on devices running Android 15 or higher.
+     */
+    fun buildCondition(conditionId: Uri, summary: String, state: Int): Condition {
+        val condition: Condition =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                Condition(
+                    conditionId,
+                    summary,
+                    state,
+                    Condition.SOURCE_USER_ACTION
+                )
+            } else {
+                Condition(
+                    conditionId,
+                    summary,
+                    state
+                )
+            }
+        return condition
+    }
 
 }
