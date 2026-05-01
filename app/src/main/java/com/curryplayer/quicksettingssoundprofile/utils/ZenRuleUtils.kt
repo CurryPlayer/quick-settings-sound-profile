@@ -10,6 +10,7 @@ import android.service.notification.Condition
 import android.service.notification.ZenDeviceEffects
 import android.service.notification.ZenPolicy
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import com.curryplayer.quicksettingssoundprofile.MainActivity
@@ -65,8 +66,12 @@ object ZenRuleUtils {
                     Log.i("MainActivity", "New ZenRule created: $newId")
                     return newId
                 }
-            } catch (e: Exception) {
-                Log.e("MainActivity", "Error creating ZenRule", e)
+            } catch (_: Exception) {
+                Toast.makeText(
+                    applicationContext,
+                    applicationContext.getString(R.string.toast_create_rule_failed),
+                    Toast.LENGTH_LONG
+                ).show()
             }
             return ""
         } else {
