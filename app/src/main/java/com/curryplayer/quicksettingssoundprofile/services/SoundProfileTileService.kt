@@ -11,7 +11,7 @@ import android.os.Build
 import android.service.notification.Condition
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-//import android.util.Log
+import android.util.Log
 import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.utils.Utils
@@ -22,11 +22,12 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
+import kotlinx.coroutines.runBlocking
 
 class SoundProfileTileService : TileService() {
 
-    private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
-    private lateinit var dataStoreManager: DataStoreManager
+    private val _serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private lateinit var _dataStoreManager: DataStoreManager
 
     /**
      * Cache the last known ringer mode to avoid redundant tile updates.
@@ -34,7 +35,8 @@ class SoundProfileTileService : TileService() {
      * VIBRATE = 1
      * NORMAL = 2
      */
-    private var lastKnownRingerMode: Int = -1
+    private var _lastKnownRingerMode: Int = -1
+    private var _cachedRuleId: String = ""
 
     /**
      * A [BroadcastReceiver] that listens for changes in the device's ringer mode and DnD
@@ -43,7 +45,7 @@ class SoundProfileTileService : TileService() {
      * tile to reflect the new state. This ensures the tile is always in sync with the actual
      * system sound profile, including changes made via Android's native switches.
      */
-    private val ringerModeChangedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+    private val _ringerModeChangedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == AudioManager.RINGER_MODE_CHANGED_ACTION ||
                 intent?.action == NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED) {
@@ -54,7 +56,7 @@ class SoundProfileTileService : TileService() {
 
     override fun onCreate() {
         super.onCreate()
-        dataStoreManager = DataStoreManager(this)
+        _dataStoreManager = DataStoreManager(this)
     }
 
     override fun onTileAdded() {
@@ -76,7 +78,18 @@ class SoundProfileTileService : TileService() {
             // it seems that an interruption filter also has an effect on the audioManager.ringerMode to change its behavior
             addAction(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED)
         }
-        registerReceiver(ringerModeChangedReceiver, filter)
+        registerReceiver(_ringerModeChangedReceiver, filter)
+
+        if (Utils.isDoNotDisturbPermissionGranted(this) && _cachedRuleId.isEmpty()) {
+            Log.i("SoundProfileTileService", "Syncing Automatic Zen Rule as it is currently empty (onStartListening)...")
+            _serviceScope.launch {
+                _cachedRuleId = ZenRuleUtils.syncAutomaticZenRule(
+                    this@SoundProfileTileService,
+                    _dataStoreManager
+                )
+            }
+        }
+
         updateTileState()
     }
 
@@ -93,12 +106,12 @@ class SoundProfileTileService : TileService() {
     override fun onDestroy() {
         super.onDestroy()
         unregisterRingerModeChangedReceiver()
-        serviceScope.cancel()
+        _serviceScope.cancel()
     }
 
     private fun unregisterRingerModeChangedReceiver() {
         try {
-            unregisterReceiver(ringerModeChangedReceiver)
+            unregisterReceiver(_ringerModeChangedReceiver)
         } catch (_: IllegalArgumentException) {
             // Receiver previously not registered or already unregistered
         }
@@ -114,28 +127,43 @@ class SoundProfileTileService : TileService() {
                 qsTile.label = getString(R.string.permission_required)
                 qsTile.updateTile()
             }
+            _lastKnownRingerMode = -1   // otherwise the tile would stay in an unavailable state
             return
         }
 
-        serviceScope.launch {
-            val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-            val ruleId = ZenRuleUtils.syncAutomaticZenRule(this@SoundProfileTileService, dataStoreManager)
+        val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
 
-            when (audioManager.ringerMode) {
-                AudioManager.RINGER_MODE_NORMAL -> {
-                    audioManager.ringerMode = AudioManager.RINGER_MODE_VIBRATE
-                }
-                AudioManager.RINGER_MODE_VIBRATE -> {
-                    activateAutomaticZenRule(ruleId)
-                    audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
-                }
-                AudioManager.RINGER_MODE_SILENT -> {
-                    deactivateAutomaticZenRule(ruleId)
-                    audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
-                }
+        when (audioManager.ringerMode) {
+            AudioManager.RINGER_MODE_NORMAL -> {
+                audioManager.ringerMode = AudioManager.RINGER_MODE_VIBRATE
             }
-            updateTileState()
+
+            AudioManager.RINGER_MODE_VIBRATE -> {
+                val ruleId = resolveZenRuleId()
+                activateAutomaticZenRule(ruleId)
+                audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+            }
+
+            AudioManager.RINGER_MODE_SILENT -> {
+                val ruleId = resolveZenRuleId()
+                deactivateAutomaticZenRule(ruleId)
+                audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+            }
         }
+        updateTileState()
+
+    }
+
+    private fun resolveZenRuleId(): String {
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        if (_cachedRuleId.isEmpty() || notificationManager.getAutomaticZenRule(_cachedRuleId) == null) {
+            // if the rule does not exist, create it and cache its ID
+            // runBlocking is used here as it is now crucial that the role exists / gets created at this point
+            Log.i("SoundProfileTileService", "Syncing Automatic Zen Rule while onClick as it is currently empty or no longer valid. ID \"$_cachedRuleId\"")
+            _cachedRuleId = runBlocking { ZenRuleUtils.syncAutomaticZenRule(this@SoundProfileTileService, _dataStoreManager) }
+            Log.i("SoundProfileTileService", "Synced Automatic Zen Rule with ID \"$_cachedRuleId\"")
+        }
+        return _cachedRuleId
     }
 
     private fun updateTileState() {
@@ -148,11 +176,11 @@ class SoundProfileTileService : TileService() {
         val currentMode = audioManager.ringerMode
 
         // Only update tile if the mode has actually changed since the last update
-        if (currentMode == lastKnownRingerMode) {
+        if (currentMode == _lastKnownRingerMode) {
             return
         }
 
-        lastKnownRingerMode = currentMode
+        _lastKnownRingerMode = currentMode
 
         when (currentMode) {
             AudioManager.RINGER_MODE_NORMAL -> {
