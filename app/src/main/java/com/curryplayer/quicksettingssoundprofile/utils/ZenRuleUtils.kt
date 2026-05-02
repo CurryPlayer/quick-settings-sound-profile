@@ -9,7 +9,7 @@ import android.os.Build
 import android.service.notification.Condition
 import android.service.notification.ZenDeviceEffects
 import android.service.notification.ZenPolicy
-//import android.util.Log
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
@@ -63,7 +63,7 @@ object ZenRuleUtils {
                 val newId = notificationManager.addAutomaticZenRule(newRule)
                 if (newId != null) {
                     dataStoreManager.setZenRuleId(newId)
-                    //Log.i("MainActivity", "New ZenRule created: $newId")
+                    Log.i("ZenRuleUtils", "New ZenRule created: $newId")
                     return newId
                 }
             } catch (_: Exception) {
@@ -85,7 +85,7 @@ object ZenRuleUtils {
             only happen if the rule's definition is actually changing.
              */
             // val success = notificationManager.updateAutomaticZenRule(savedRuleId, updatedRule)
-            //Log.i("MainActivity", "ZenRule already exists: $savedRuleId")
+            Log.i("ZenRuleUtils", "ZenRule already exists: $savedRuleId")
             return savedRuleId
         }
     }
