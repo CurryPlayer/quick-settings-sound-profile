@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId = "com.curryplayer.quicksettingssoundprofile"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 5
         versionName = "0.2.2"
 
