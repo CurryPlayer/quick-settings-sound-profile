@@ -11,7 +11,6 @@ import android.os.Build
 import android.service.notification.Condition
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import android.util.Log
 import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.utils.Utils
@@ -154,9 +153,7 @@ class SoundProfileTileService : TileService() {
         if (_cachedRuleId.isEmpty() || notificationManager.getAutomaticZenRule(_cachedRuleId) == null) {
             // if the rule does not exist, create it and cache its ID
             // runBlocking is used here as it is now crucial that the role exists / gets created at this point
-            Log.i("SoundProfileTileService", "Syncing Automatic Zen Rule while onClick as it is currently empty or no longer valid. ID \"$_cachedRuleId\"")
             _cachedRuleId = runBlocking { ZenRuleUtils.syncAutomaticZenRule(this@SoundProfileTileService, _dataStoreManager) }
-            Log.i("SoundProfileTileService", "Synced Automatic Zen Rule with ID \"$_cachedRuleId\"")
         }
         return _cachedRuleId
     }
