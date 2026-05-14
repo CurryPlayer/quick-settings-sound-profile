@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -27,11 +26,12 @@ fun RenderNoticeCard(ctx: Context, modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        border = CardDefaults.outlinedCardBorder()
     ) {
         Column(
             modifier = Modifier
@@ -41,7 +41,7 @@ fun RenderNoticeCard(ctx: Context, modifier: Modifier = Modifier) {
             Text(
                 text = ctx.getString(R.string.notice_title),
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Start,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -51,7 +51,7 @@ fun RenderNoticeCard(ctx: Context, modifier: Modifier = Modifier) {
             Text(
                 text = ctx.getString(R.string.notice_description),
                 style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Justify,
+                textAlign = TextAlign.Start,
                 modifier = Modifier.fillMaxWidth()
             )
         }
