@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -33,9 +32,10 @@ fun RenderAllSetCard(ctx: Context, modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -49,14 +49,14 @@ fun RenderAllSetCard(ctx: Context, modifier: Modifier = Modifier) {
             Box(
                 modifier = Modifier
                     .size(80.dp)
-                    .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
+                    .background(MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.1f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_round_check_circle_24),
                     contentDescription = null,
                     modifier = Modifier.size(50.dp),
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer)
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSecondaryContainer)
                 )
             }
 
@@ -65,9 +65,8 @@ fun RenderAllSetCard(ctx: Context, modifier: Modifier = Modifier) {
             Text(
                 text = ctx.getString(R.string.all_set),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -75,8 +74,7 @@ fun RenderAllSetCard(ctx: Context, modifier: Modifier = Modifier) {
             Text(
                 text = ctx.getString(R.string.tile_placement_manual),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.bodyLarge
             )
         }
     }

@@ -16,9 +16,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -49,7 +49,7 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier) {
                 launchPermissionIntent(ctx)
             },
             onDismiss = { showDialog = false },
-            ctx = ctx
+            ctx = ctx,
         )
     }
 
@@ -57,9 +57,10 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -73,7 +74,7 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier) {
             Box(
                 modifier = Modifier
                     .size(80.dp)
-                    .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
+                    .background(MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.1f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -89,9 +90,8 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier) {
             Text(
                 text = ctx.getString(R.string.grant_do_not_disturb_permission_title),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -99,8 +99,7 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier) {
             Text(
                 text = ctx.getString(R.string.grant_do_not_disturb_permission_desc),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.bodyLarge
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -109,7 +108,11 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier) {
                 onClick = {
                     showDialog = true
                 },
-                shape = RoundedCornerShape(16.dp)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                shape = MaterialTheme.shapes.medium
             ) {
                 Text(
                     text = ctx.getString(R.string.button_grant_permission),
