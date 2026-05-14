@@ -57,6 +57,11 @@ class SoundProfileTileService : TileService() {
     override fun onCreate() {
         super.onCreate()
         _dataStoreManager = DataStoreManager(this)
+        _serviceScope.launch {
+            _dataStoreManager.zenRuleId.collect { id ->
+                _cachedRuleId = id
+            }
+        }
     }
 
     override fun onTileAdded() {
@@ -79,16 +84,6 @@ class SoundProfileTileService : TileService() {
             addAction(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED)
         }
         registerReceiver(_ringerModeChangedReceiver, filter)
-
-        if (Utils.isDoNotDisturbPermissionGranted(this) && _cachedRuleId.isEmpty()) {
-            Log.i("SoundProfileTileService", "Syncing Automatic Zen Rule as it is currently empty (onStartListening)...")
-            _serviceScope.launch {
-                _cachedRuleId = ZenRuleUtils.syncAutomaticZenRule(
-                    this@SoundProfileTileService,
-                    _dataStoreManager
-                )
-            }
-        }
 
         updateTileState()
     }
@@ -140,13 +135,13 @@ class SoundProfileTileService : TileService() {
 
             AudioManager.RINGER_MODE_VIBRATE -> {
                 val ruleId = resolveZenRuleId()
-                activateAutomaticZenRule(ruleId)
+                setAutomaticZenRuleState(ruleId, true)
                 audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
             }
 
             AudioManager.RINGER_MODE_SILENT -> {
                 val ruleId = resolveZenRuleId()
-                deactivateAutomaticZenRule(ruleId)
+                setAutomaticZenRuleState(ruleId, false)
                 audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
             }
         }
@@ -202,14 +197,6 @@ class SoundProfileTileService : TileService() {
         qsTile.updateTile()
     }
 
-    private fun activateAutomaticZenRule(ruleId: String) {
-        setAutomaticZenRuleState(ruleId, true)
-    }
-
-    private fun deactivateAutomaticZenRule(ruleId: String) {
-        setAutomaticZenRuleState(ruleId, false)
-    }
-
     private fun setAutomaticZenRuleState(ruleId: String, activate: Boolean) {
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val interruptionFilter = if (activate) NotificationManager.INTERRUPTION_FILTER_PRIORITY else NotificationManager.INTERRUPTION_FILTER_ALL
@@ -229,8 +216,6 @@ class SoundProfileTileService : TileService() {
                 if (zenRule != null && zenRule.isEnabled != activate) {
                     zenRule.isEnabled = activate
                     notificationManager.updateAutomaticZenRule(ruleId, zenRule)
-                    //val result = notificationManager.updateAutomaticZenRule(ruleId, zenRule)
-                    //Log.i("SoundProfileTileService", "${if (activate) "Activated" else "Deactivated"} Automatic Zen Rule with status: $result.")
                 }
                 // directly set the interruption filter as fallback
                 notificationManager.setInterruptionFilter(interruptionFilter)
