@@ -108,15 +108,17 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier) {
                 onClick = {
                     showDialog = true
                 },
-                colors = ButtonDefaults.buttonColors(
+                shape = MaterialTheme.shapes.medium,
+                colors = ButtonDefaults.elevatedButtonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
-                shape = MaterialTheme.shapes.medium
+                elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 2.dp)
             ) {
                 Text(
                     text = ctx.getString(R.string.button_grant_permission),
-                    style = MaterialTheme.typography.labelLarge
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
