@@ -10,17 +10,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.curryplayer.quicksettingssoundprofile.R
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -46,16 +49,29 @@ fun RenderOpenZenModeSettings(
                     openZenRuleSettings(ctx, ruleId)
                 },
                 enabled = hasPermission && ruleId.isNotEmpty(),
-                shape = RoundedCornerShape(8.dp)
+                shape = MaterialTheme.shapes.medium,
+                colors = ButtonDefaults.elevatedButtonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 2.dp)
             ) {
-                Text(text = ctx.getString(R.string.open_mode_button))
+                Text(
+                    text = ctx.getString(R.string.open_mode_button),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold
+                )
             }
 
             if (!hasPermission) {
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = ctx.getString(R.string.open_mode_grant_permission_first),
                     textAlign = TextAlign.Center,
-                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
                     fontStyle = FontStyle.Italic,
                 )
             }
