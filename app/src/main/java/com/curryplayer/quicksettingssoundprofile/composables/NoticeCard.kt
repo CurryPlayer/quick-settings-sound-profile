@@ -28,8 +28,8 @@ fun RenderNoticeCard(ctx: Context, modifier: Modifier = Modifier) {
             .padding(horizontal = 16.dp, vertical = 4.dp),
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.outlinedCardColors(
-            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
         ),
         border = CardDefaults.outlinedCardBorder()
     ) {
