@@ -11,8 +11,6 @@
     <string name="all_set">You\'re all set and ready to go!</string>
     <string name="tile_placement_manual">Place the sound tile in your quick settings panel and toggle between the different sound profiles.</string>
     <string name="mute_settings_category">Mute Settings</string>
-    <string name="mute_media_title">Also mute media</string>
-    <string name="mute_media_subtitle">If enabled, media will be muted when the device gets muted. Media level will be restored to its original volume when the device is unmuted.</string>
     <string name="permission_required">Permission required</string>
     <string name="profile_sound_label">Sound</string>
     <string name="profile_vibrate_label">Vibrate</string>
