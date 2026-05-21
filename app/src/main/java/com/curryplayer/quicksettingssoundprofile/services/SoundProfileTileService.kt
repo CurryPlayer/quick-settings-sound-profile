@@ -83,7 +83,6 @@ class SoundProfileTileService : TileService() {
             addAction(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED)
         }
         registerReceiver(_ringerModeChangedReceiver, filter)
-
         updateTileState()
     }
 
