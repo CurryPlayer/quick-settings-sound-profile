@@ -146,7 +146,7 @@ object ZenRuleUtils {
             .setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
             .setEnabled(true)
             .setIconResId(R.drawable.ic_round_volume_off_24)
-            .setTriggerDescription("When 'Silent' mode is activated via the Quick Settings Tile")   // TODO: localize string
+            .setTriggerDescription(applicationContext.getString(R.string.zen_rule_trigger_description))
             .setManualInvocationAllowed(false)
             .setType(AutomaticZenRule.TYPE_OTHER)
             .build()
