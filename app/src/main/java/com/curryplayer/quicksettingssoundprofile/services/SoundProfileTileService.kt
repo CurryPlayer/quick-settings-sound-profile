@@ -21,7 +21,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
-import kotlinx.coroutines.runBlocking
 
 class SoundProfileTileService : TileService() {
 
@@ -126,33 +125,34 @@ class SoundProfileTileService : TileService() {
 
         val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
 
-        when (audioManager.ringerMode) {
-            AudioManager.RINGER_MODE_NORMAL -> {
-                audioManager.ringerMode = AudioManager.RINGER_MODE_VIBRATE
-            }
+        _serviceScope.launch {
+            when (audioManager.ringerMode) {
+                AudioManager.RINGER_MODE_NORMAL -> {
+                    audioManager.ringerMode = AudioManager.RINGER_MODE_VIBRATE
+                }
 
-            AudioManager.RINGER_MODE_VIBRATE -> {
-                val ruleId = resolveZenRuleId()
-                setAutomaticZenRuleState(ruleId, true)
-                audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
-            }
+                AudioManager.RINGER_MODE_VIBRATE -> {
+                    val ruleId = resolveZenRuleId()
+                    setAutomaticZenRuleState(ruleId, true)
+                    audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+                }
 
-            AudioManager.RINGER_MODE_SILENT -> {
-                val ruleId = resolveZenRuleId()
-                setAutomaticZenRuleState(ruleId, false)
-                audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+                AudioManager.RINGER_MODE_SILENT -> {
+                    val ruleId = resolveZenRuleId()
+                    setAutomaticZenRuleState(ruleId, false)
+                    audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+                }
             }
+            updateTileState()
         }
-        updateTileState()
 
     }
 
-    private fun resolveZenRuleId(): String {
+    private suspend fun resolveZenRuleId(): String {
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         if (_cachedRuleId.isEmpty() || notificationManager.getAutomaticZenRule(_cachedRuleId) == null) {
             // if the rule does not exist, create it and cache its ID
-            // runBlocking is used here as it is now crucial that the role exists / gets created at this point
-            _cachedRuleId = runBlocking { ZenRuleUtils.syncAutomaticZenRule(this@SoundProfileTileService, _dataStoreManager) }
+            _cachedRuleId = ZenRuleUtils.syncAutomaticZenRule(this@SoundProfileTileService, _dataStoreManager)
         }
         return _cachedRuleId
     }
