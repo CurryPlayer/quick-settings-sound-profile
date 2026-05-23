@@ -2,7 +2,6 @@ package com.curryplayer.quicksettingssoundprofile.pages
 
 import android.content.Context
 import android.os.Build
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,7 +10,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import com.curryplayer.quicksettingssoundprofile.composables.RenderAllSetCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderGrantPermissionCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderNoticeCard
@@ -26,9 +24,7 @@ fun RenderSettingsPage(
     modifier: Modifier = Modifier
 ) {
     Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color.DarkGray),
+        modifier = Modifier.fillMaxSize(),
         topBar = { RenderTopAppBar(ctx) },
         content = { contentPadding ->
             Column(
@@ -36,6 +32,7 @@ fun RenderSettingsPage(
                     .padding(contentPadding)
                     .verticalScroll(rememberScrollState())
             ) {
+
                 if (!hasPermission) {
                     RenderGrantPermissionCard(ctx)
                 } else {

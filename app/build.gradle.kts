@@ -5,14 +5,18 @@ plugins {
 
 android {
     namespace = "com.curryplayer.quicksettingssoundprofile"
-    compileSdk = 37
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 0
+        }
+    }
 
     defaultConfig {
         applicationId = "com.curryplayer.quicksettingssoundprofile"
         minSdk = 24
-        targetSdk = 36
-        versionCode = 5
-        versionName = "0.2.2"
+        targetSdk = 37
+        versionCode = 6
+        versionName = "0.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -40,7 +44,6 @@ android {
     buildFeatures {
         compose = true
     }
-    compileSdkMinor = 0
 }
 
 dependencies {

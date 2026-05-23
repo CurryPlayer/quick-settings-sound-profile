@@ -3,13 +3,13 @@
     <string name="top_app_bar_title">Quick Settings Sound Profile</string>
     <string name="grant_do_not_disturb_permission_title">Please grant the \'Do Not Disturb\' permission</string>
     <string name="grant_do_not_disturb_permission_desc">The \'Do Not Disturb\' permission is required to set the phone to silent mode. Please allow the app to use this permission.</string>
-    <string name="toast_intent_text">Select \'Quick Settings Sound Profile\' in the app list and grant the permission.</string>
+    <string name="alert_grant_do_not_disturb_permission_title">Grant Permission</string>
+    <string name="alert_grant_do_not_disturb_permission_desc">The next screen will display a list of apps. Please select \'Quick Settings Sound Profile\' and allow the app to use this permission.</string>
+    <string name="alert_button_confirm">Understood</string>
+    <string name="alert_button_cancel">Cancel</string>
     <string name="button_grant_permission">Grant Permission</string>
     <string name="all_set">You\'re all set and ready to go!</string>
     <string name="tile_placement_manual">Place the sound tile in your quick settings panel and toggle between the different sound profiles.</string>
-    <string name="mute_settings_category">Mute Settings</string>
-    <string name="mute_media_title">Also mute media</string>
-    <string name="mute_media_subtitle">If enabled, media will be muted when the device gets muted. Media level will be restored to its original volume when the device is unmuted.</string>
     <string name="permission_required">Permission required</string>
     <string name="profile_sound_label">Sound</string>
     <string name="profile_vibrate_label">Vibrate</string>
@@ -19,5 +19,6 @@
     <string name="open_mode_button">Open Mode Settings</string>
     <string name="open_mode_grant_permission_first">Please grant access first.</string>
     <string name="notice_title">Notice</string>
+    <string name="zen_rule_trigger_description">When \'Silent\' mode is activated via the Quick Settings Tile</string>
     <string name="notice_description">When Silent Mode is enabled, only media (e.g., music, videos) and alarms will sound. Note that this applies only if Silent Mode was toggled via the app\’s Quick Settings tile. This behavior can be changed on Android 15 or higher but is not recommended, as it bypasses the silent state and may result in unwanted vibrations.</string>
 </resources>
