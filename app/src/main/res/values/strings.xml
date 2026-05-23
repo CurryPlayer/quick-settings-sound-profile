@@ -10,7 +10,6 @@
     <string name="button_grant_permission">Grant Permission</string>
     <string name="all_set">You\'re all set and ready to go!</string>
     <string name="tile_placement_manual">Place the sound tile in your quick settings panel and toggle between the different sound profiles.</string>
-    <string name="mute_settings_category">Mute Settings</string>
     <string name="permission_required">Permission required</string>
     <string name="profile_sound_label">Sound</string>
     <string name="profile_vibrate_label">Vibrate</string>

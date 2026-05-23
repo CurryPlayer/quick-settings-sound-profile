@@ -11,16 +11,15 @@
     <string name="button_grant_permission">Berechtigung erteilen</string>
     <string name="all_set">Du bist startklar!</string>
     <string name="tile_placement_manual">Füge die Sound-Kachel in deine Schnelleinstellungen hinzu und wechsle zwischen den verschiedenen Soundprofilen.</string>
-    <string name="mute_settings_category">Lautlos Einstellungen</string>
     <string name="permission_required">Berechtigung erforderlich</string>
     <string name="profile_sound_label">Laut</string>
     <string name="profile_vibrate_label">Vibration</string>
     <string name="profile_silent_label">Stumm</string>
-    <string name="toast_intent_failed">Der Intent konnte nicht geöffnet werden. Bitte versuche es erneut.</string>
+    <string name="toast_intent_failed">Intent konnte nicht geöffnet werden. Bitte versuche es erneut.</string>
     <string name="toast_create_rule_failed">Es konnte keine Regel für den Stumm-Modus erstellt werden.</string>
     <string name="open_mode_button">Modi Einstellungen öffnen</string>
     <string name="open_mode_grant_permission_first">Bitte erteile zuerst die Berechtigung.</string>
     <string name="notice_title">Hinweis</string>
     <string name="zen_rule_trigger_description">Wenn der „Stumm“-Modus über die Kachel in den Schnelleinstellungen aktiviert wird</string>
-    <string name="notice_description">Wenn der Stumm-Modus aktiviert ist, werden nur Medien (z. B. Musik, Videos) und Wecker wiedergegeben. Bitte beachte, dass dies nur gilt, wenn der Stumm-Modus über die Kachel von dieser App in den Schnelleinstellungen aktiviert wurde. Dieses Verhalten kann unter Android 15 oder höher geändert werden, wird jedoch nicht empfohlen, da dadurch der Stumm-Modus umgangen wird und es zu unerwünschten Vibrationen kommen kann.</string>
+    <string name="notice_description">Wenn der Stumm-Modus aktiviert ist, werden nur Medien (z. B. Musik, Videos) und Wecker wiedergegeben. Beachte, dass dies nur gilt, wenn der Stumm-Modus über die Kachel dieser App in den Schnelleinstellungen aktiviert wurde. Dieses Verhalten kann unter Android 15 oder höher geändert werden, wird jedoch nicht empfohlen, da dadurch der Stumm-Modus umgangen wird und es zu unerwünschten Vibrationen kommen kann.</string>
 </resources>
