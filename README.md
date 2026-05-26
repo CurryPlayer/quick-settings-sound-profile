@@ -24,5 +24,8 @@ One of the reasons I developed the Quick Settings toggle for sound modes is that
 
 Furthermore, I wanted to explore Kotlin as a language and saw this as a great opportunity to get hands-on experience with Android development.
 
+## Find it on Google Play
+You can download the App via [GitHub](https://github.com/CurryPlayer/quick-settings-sound-profile/releases) or [Google Play](https://play.google.com/store/apps/details?id=com.curryplayer.quicksettingssoundprofile)
+
 ## Credits
 For the implementation, I drew inspiration from the already existing [project](https://github.com/Alfio010/sound-quick-settings) by [Alfio010](https://github.com/Alfio010).
