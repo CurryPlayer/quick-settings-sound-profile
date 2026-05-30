@@ -44,6 +44,10 @@ fun RenderSettingsPage(
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    /* TODO:
+                    Not every device running Android 15 has user managed modes. These devices use schedules instead, which cannot be modified directly.
+                    Maybe show this notice to the user as well or change notice text, because otherwise this button is useless for these users
+                     */
                     RenderOpenZenModeSettings(ctx, ruleId, hasPermission)
                 }
             }
