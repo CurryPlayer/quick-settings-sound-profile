@@ -1,5 +1,6 @@
 package com.curryplayer.quicksettingssoundprofile.composables
 
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -83,17 +84,32 @@ fun RenderOpenZenModeSettings(
 // requires Android 8 / API 26
 @RequiresApi(Build.VERSION_CODES.O)
 private fun openZenRuleSettings(context: Context, ruleId: String) {
+    val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+        buildIntentForAndroidVanillaIceCreamAndAbove(context, ruleId)
+    } else {
+        Intent(Settings.ACTION_ZEN_MODE_PRIORITY_SETTINGS)
+    }
+
     try {
-        val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            Intent(Settings.ACTION_AUTOMATIC_ZEN_RULE_SETTINGS).apply {
-                putExtra(Settings.EXTRA_AUTOMATIC_ZEN_RULE_ID, ruleId)
-            }
-        } else {
-            Intent(Settings.ACTION_ZEN_MODE_PRIORITY_SETTINGS)
-        }
         context.startActivity(intent)
     } catch (_: Exception) {
-        Toast.makeText(context, context.getString(R.string.toast_intent_failed), Toast.LENGTH_SHORT)
-            .show()
+        Toast.makeText(
+            context,
+            context.getString(R.string.toast_intent_failed),
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+private fun buildIntentForAndroidVanillaIceCreamAndAbove(context: Context, ruleId: String): Intent {
+    val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    // not every device running Android 15 has user managed modes. These devices use schedules instead, which cannot be modified directly.
+    return if (notificationManager.areAutomaticZenRulesUserManaged()) {
+        Intent(Settings.ACTION_AUTOMATIC_ZEN_RULE_SETTINGS).apply {
+            putExtra(Settings.EXTRA_AUTOMATIC_ZEN_RULE_ID, ruleId)
+        }
+    } else {
+        Intent(Settings.ACTION_ZEN_MODE_PRIORITY_SETTINGS)
     }
 }
