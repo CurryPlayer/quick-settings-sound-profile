@@ -1,5 +1,6 @@
 package com.curryplayer.quicksettingssoundprofile.pages
 
+import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.curryplayer.quicksettingssoundprofile.composables.RenderAllSetCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderGrantPermissionCard
+import com.curryplayer.quicksettingssoundprofile.composables.RenderNoUserManagedModesAvailableCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderNoticeCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderTopAppBar
 import com.curryplayer.quicksettingssoundprofile.composables.RenderOpenZenModeSettings
@@ -44,12 +46,14 @@ fun RenderSettingsPage(
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                    /* TODO:
-                    Not every device running Android 15 has user managed modes. These devices use schedules instead, which cannot be modified directly.
-                    Maybe show this notice to the user as well or change notice text, because otherwise this button is useless for these users
-                     */
+                    // Not every device running Android 15 has user managed modes. These devices use schedules instead, which cannot be modified directly.
+                    val notificationManager = ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    if (!notificationManager.areAutomaticZenRulesUserManaged()) {
+                        RenderNoUserManagedModesAvailableCard(ctx)
+                    }
                     RenderOpenZenModeSettings(ctx, ruleId, hasPermission)
                 }
+
             }
         }
     )
