@@ -15,7 +15,7 @@
     <string name="profile_sound_label">Laut</string>
     <string name="profile_vibrate_label">Vibration</string>
     <string name="profile_silent_label">Stumm</string>
-    <string name="toast_intent_failed">Intent konnte nicht geöffnet werden. Bitte versuche es erneut.</string>
+    <string name="toast_intent_failed">Etwas ist schiefgelaufen.</string>
     <string name="toast_create_rule_failed">Es konnte keine Regel für den Stumm-Modus erstellt werden.</string>
     <string name="open_mode_button">Modi Einstellungen öffnen</string>
     <string name="open_mode_grant_permission_first">Bitte erteile zuerst die Berechtigung.</string>

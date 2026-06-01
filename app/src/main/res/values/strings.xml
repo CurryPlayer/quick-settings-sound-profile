@@ -14,7 +14,7 @@
     <string name="profile_sound_label">Sound</string>
     <string name="profile_vibrate_label">Vibrate</string>
     <string name="profile_silent_label">Silent</string>
-    <string name="toast_intent_failed">Could not open intent. Please try again.</string>
+    <string name="toast_intent_failed">Something went wrong.</string>
     <string name="toast_create_rule_failed">Could not create rule for silent mode.</string>
     <string name="open_mode_button">Open Mode Settings</string>
     <string name="open_mode_grant_permission_first">Please grant access first.</string>
