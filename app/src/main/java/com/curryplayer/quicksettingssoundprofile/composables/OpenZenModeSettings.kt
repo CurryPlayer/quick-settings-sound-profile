@@ -104,7 +104,7 @@ private fun openZenRuleSettings(context: Context, ruleId: String) {
 @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 private fun buildIntentForAndroidVanillaIceCreamAndAbove(context: Context, ruleId: String): Intent {
     val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    // not every device running Android 15 has user managed modes. These devices use schedules instead, which cannot be modified directly.
+    // a matching Activity will only be found if NotificationManager.areAutomaticZenRulesUserManaged() is true.
     return if (notificationManager.areAutomaticZenRulesUserManaged()) {
         Intent(Settings.ACTION_AUTOMATIC_ZEN_RULE_SETTINGS).apply {
             putExtra(Settings.EXTRA_AUTOMATIC_ZEN_RULE_ID, ruleId)
