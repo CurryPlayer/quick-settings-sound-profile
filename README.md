@@ -13,6 +13,8 @@ While this app supports devices running Android 7 and above, later OS versions u
 ### Android 15 and Higher
 On these devices, you can configure audible and visual settings individually for each **mode** in the Android system settings. This is possible because the so-called **ZenPolicy** in Android 15 offers significantly more granular control than in previous versions. While the app provides a generic ZenPolicy, you currently need to manually refine these rules in your device's system settings.
 
+// TODO: Not every device running Android 15 has user managed modes. These devices use schedules instead, which cannot be modified directly.
+
 ### Android 10 to 14
 For devices running versions 10 through 14, the app automatically applies a default ZenPolicy whenever the phone is set to **Silent** mode. Currently, this policy only allows media sounds and alarms to go through. You can see this in the **Do Not Disturb** settings when the silent mode is active and the **Schedule** is triggered.
 
