@@ -8,6 +8,10 @@
     <string name="alert_button_confirm">Understood</string>
     <string name="alert_button_cancel">Cancel</string>
     <string name="button_grant_permission">Grant Permission</string>
+    <string name="button_add_tile">Add Sound Tile</string>
+    <string name="tile_added_success">Tile added successfully</string>
+    <string name="tile_already_added">Tile is already added</string>
+    <string name="tile_not_added">Tile was not added</string>
     <string name="all_set">You\'re all set and ready to go!</string>
     <string name="tile_placement_manual">Place the sound tile in your quick settings panel and toggle between the different sound profiles.</string>
     <string name="permission_required">Permission required</string>

@@ -9,6 +9,10 @@
     <string name="alert_button_confirm">Verstanden</string>
     <string name="alert_button_cancel">Abbrechen</string>
     <string name="button_grant_permission">Berechtigung erteilen</string>
+    <string name="button_add_tile">Kachel hinzufügen</string>
+    <string name="tile_added_success">Kachel erfolgreich hinzugefügt</string>
+    <string name="tile_already_added">Kachel ist bereits hinzugefügt</string>
+    <string name="tile_not_added">Kachel wurde nicht hinzugefügt</string>
     <string name="all_set">Du bist startklar!</string>
     <string name="tile_placement_manual">Füge die Sound-Kachel in deine Schnelleinstellungen hinzu und wechsle zwischen den verschiedenen Soundprofilen.</string>
     <string name="permission_required">Berechtigung erforderlich</string>
