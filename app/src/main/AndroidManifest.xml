@@ -50,14 +50,9 @@
             <meta-data
                 android:name="android.service.quicksettings.TOGGLEABLE_TILE"
                 android:value="true" />
-            <!--
-            While it would probably make sense to categorize the tile into the "Utilities" category,
-            it also confuses me if the tile is not placed at the bottom under the
-            "From apps you installed" section.
             <meta-data
                 android:name="android.service.quicksettings.TILE_CATEGORY"
                 android:value="android.service.quicksettings.CATEGORY_UTILITIES" />
-            -->
         </service>
 
         <!--
@@ -75,7 +70,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.service.zen.automatic.ruleType"
-                android:value="Silence Profile Settings">   <!-- TODO: localize string -->
+                android:value="Silence Profile Settings">
             </meta-data>
             <meta-data
                 android:name="android.service.zen.automatic.configurationActivity"

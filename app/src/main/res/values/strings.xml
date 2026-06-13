@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Quick Settings Sound Profile</string>
     <string name="top_app_bar_title">Quick Settings Sound Profile</string>
@@ -8,17 +9,24 @@
     <string name="alert_button_confirm">Understood</string>
     <string name="alert_button_cancel">Cancel</string>
     <string name="button_grant_permission">Grant Permission</string>
+    <string name="button_add_tile">Add Sound Tile</string>
+    <string name="tile_added_success">Tile added successfully</string>
+    <string name="tile_already_added">Tile is already added</string>
+    <string name="tile_not_added">Tile was not added</string>
     <string name="all_set">You\'re all set and ready to go!</string>
     <string name="tile_placement_manual">Place the sound tile in your quick settings panel and toggle between the different sound profiles.</string>
     <string name="permission_required">Permission required</string>
     <string name="profile_sound_label">Sound</string>
     <string name="profile_vibrate_label">Vibrate</string>
     <string name="profile_silent_label">Silent</string>
-    <string name="toast_intent_failed">Could not open intent. Please try again.</string>
+    <string name="toast_intent_failed">Something went wrong.</string>
     <string name="toast_create_rule_failed">Could not create rule for silent mode.</string>
     <string name="open_mode_button">Open Mode Settings</string>
     <string name="open_mode_grant_permission_first">Please grant access first.</string>
     <string name="notice_title">Notice</string>
-    <string name="zen_rule_trigger_description">When \'Silent\' mode is activated via the Quick Settings Tile</string>
+    <string name="zen_rule_name">Silence Profile</string>
+    <string name="zen_rule_trigger_description">When Silent Mode is activated via the Quick Settings Tile</string>
     <string name="notice_description">When Silent Mode is enabled, only media (e.g., music, videos) and alarms will sound. Note that this applies only if Silent Mode was toggled via the app\’s Quick Settings tile. This behavior can be changed on Android 15 or higher but is not recommended, as it bypasses the silent state and may result in unwanted vibrations.</string>
+    <string name="no_user_managed_modes_available_title">Limitations</string>
+    <string name="no_user_managed_modes_available_description">Your device doesn\'t support user-managed modes. This means your device will automatically apply a standard \'Do Not Disturb\' schedule with the app\'s default settings mentioned above whenever Silent Mode is active. However, you won\'t be able to customize its specific behavior.</string>
 </resources>

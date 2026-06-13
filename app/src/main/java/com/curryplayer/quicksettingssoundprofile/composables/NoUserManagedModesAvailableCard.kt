@@ -18,15 +18,15 @@ import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.R
 
 @Composable
-fun RenderNoticeCard(ctx: Context, modifier: Modifier = Modifier) {
+fun RenderNoUserManagedModesAvailableCard(ctx: Context, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp),
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.outlinedCardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer
         ),
         border = CardDefaults.outlinedCardBorder()
     ) {
@@ -36,7 +36,7 @@ fun RenderNoticeCard(ctx: Context, modifier: Modifier = Modifier) {
                 .padding(16.dp)
         ) {
             Text(
-                text = ctx.getString(R.string.notice_title),
+                text = ctx.getString(R.string.no_user_managed_modes_available_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Start,
@@ -46,7 +46,7 @@ fun RenderNoticeCard(ctx: Context, modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = ctx.getString(R.string.notice_description),
+                text = ctx.getString(R.string.no_user_managed_modes_available_description),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Start,
                 modifier = Modifier.fillMaxWidth()

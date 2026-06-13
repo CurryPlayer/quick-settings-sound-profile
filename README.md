@@ -19,6 +19,18 @@ For devices running versions 10 through 14, the app automatically applies a defa
 ### Android 7 to 9
 On older versions (Android 7 to 9), the app acts as a legacy bridge. It lets you toggle your ringer mode through the Quick Settings, but since these versions lack the **ZenPolicy** feature, you can't fine-tune the Do Not Disturb behavior as deeply as on newer devices.
 
+## Why use an AutomaticZenRule?
+
+When activating Silent Mode via the app's Quick Settings tile, a small visual discrepancy occurs: the status bar shows a "silent" icon, but pressing the physical volume buttons reveals that the system volume panel still displays the **vibrate** icon.
+This behavior is an intentional workaround for a restrictive Android limitation.
+
+In theory, the native "Silent" icon could be forced to appear everywhere (status bar and volume panel) by quickly switching the `ringerMode` from `Normal` to `Silent`, skipping the `Vibrate` state entirely. However, doing this forces Android to always activate Do Not Disturb (DND) mode, showing the native DND icon in the status bar. This behavior cannot be bypassed directly.
+
+To prevent the system from forcing DND, this app utilizes an `AutomaticZenRule` (known as a **"Mode"** in Android 15+):
+
+* **Android 15+ (with user-managed modes support):** The app activates a dedicated, custom mode, which successfully bypasses the forced DND activation. Attempting to set the `ringerMode` to silent after the mode is active is ignored by the OS. This is why the volume panel continues to show the vibrate icon.
+* **Android 14 and below (or devices lacking user-managed modes support):** Not every device running Android 15+ supports user-managed modes. On these unsupported or older devices, the app falls back to activating the system DND and layering a custom schedule on top. However, you won't be able to customize its specific behavior.
+
 ## Why did I develop this app in the first place?
 One of the reasons I developed the Quick Settings toggle for sound modes is that Google doesn't provide this option natively on Pixel devices. Currently, the only way to change it is by pressing the volume keys and then adjusting the mode via the small icon that appears. While almost every other Android manufacturer includes a toggle in the Quick Settings, it is curiously missing on Pixels.
 

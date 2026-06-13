@@ -9,7 +9,7 @@ import android.os.Build
 import android.service.notification.Condition
 import android.service.notification.ZenDeviceEffects
 import android.service.notification.ZenPolicy
-import android.util.Log
+//import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
@@ -22,9 +22,6 @@ import kotlinx.coroutines.flow.first
 object ZenRuleUtils {
 
     const val SILENT_CONDITION_DND_AND_MODE_URI = "condition://com.curryplayer.quicksettingssoundprofile/silent_profile_active"
-    // TODO: make name dynamic for multiple languages
-    const val RULE_NAME = "Silence Profile Settings"
-
 
     /**
      * This method ensures a valid AutomaticZenRule exists by retrieving a saved ID or searching
@@ -46,7 +43,7 @@ object ZenRuleUtils {
         // check if there is already an existing rule with the same name
         if (savedRuleId.isEmpty()) {
             val allRules = notificationManager.automaticZenRules
-            val existingRuleEntry = allRules.entries.find { it.value.name == RULE_NAME }
+            val existingRuleEntry = allRules.entries.find { it.value.name == applicationContext.getString(R.string.zen_rule_name) }
             if (existingRuleEntry != null) {
                 savedRuleId = existingRuleEntry.key
                 dataStoreManager.setZenRuleId(savedRuleId)
@@ -62,11 +59,11 @@ object ZenRuleUtils {
                 val newId = notificationManager.addAutomaticZenRule(newRule)
                 if (newId != null) {
                     dataStoreManager.setZenRuleId(newId)
-                    Log.i("ZenRuleUtils", "New ZenRule created: $newId")
+                    //Log.i("ZenRuleUtils", "New ZenRule created: $newId")
                     return newId
                 }
             } catch (_: Exception) {
-                Log.i("ZenRuleUtils", "Could not create ZenRule")
+                //Log.i("ZenRuleUtils", "Could not create ZenRule")
                 Toast.makeText(
                     applicationContext,
                     applicationContext.getString(R.string.toast_create_rule_failed),
@@ -75,7 +72,7 @@ object ZenRuleUtils {
             }
             return ""
         } else {
-            Log.i("ZenRuleUtils", "ZenRule already exists: $savedRuleId")
+            //Log.i("ZenRuleUtils", "ZenRule already exists: $savedRuleId")
             return savedRuleId
         }
     }
@@ -95,7 +92,7 @@ object ZenRuleUtils {
     private fun generateDefaultAutomaticZenRuleForAndroidNAndAbove(applicationContext: Context): AutomaticZenRule {
         // constructor is deprecated in API 35 but works for API 24
         val zenRule = AutomaticZenRule(
-            RULE_NAME,
+            applicationContext.getString(R.string.zen_rule_name),
             ComponentName(applicationContext, SoundProfileConditionProviderService::class.java),
             SILENT_CONDITION_DND_AND_MODE_URI.toUri(),
             NotificationManager.INTERRUPTION_FILTER_PRIORITY,
@@ -108,7 +105,7 @@ object ZenRuleUtils {
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun generateDefaultAutomaticZenRuleForAndroidQAndAbove(applicationContext: Context): AutomaticZenRule {
 
-        val ruleName = RULE_NAME
+        val ruleName = applicationContext.getString(R.string.zen_rule_name)
         val configurationActivity = ComponentName(applicationContext, MainActivity::class.java)
         val conditionId = SILENT_CONDITION_DND_AND_MODE_URI.toUri()
 
@@ -131,7 +128,7 @@ object ZenRuleUtils {
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private fun generateDefaultAutomaticZenRuleForAndroidVanillaIceCreamAndAbove(applicationContext: Context): AutomaticZenRule {
 
-        val ruleName = RULE_NAME
+        val ruleName = applicationContext.getString(R.string.zen_rule_name)
         val configurationActivity = ComponentName(applicationContext, MainActivity::class.java)
         val conditionId = SILENT_CONDITION_DND_AND_MODE_URI.toUri()
 
