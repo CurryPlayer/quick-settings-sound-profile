@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
@@ -30,11 +31,17 @@ class MainActivity : ComponentActivity() {
         setContent {
             QuickSettingsSoundProfileTheme {
                 val savedZenRuleId by dataStoreManager.zenRuleId.collectAsState(initial = "")
+                val savedIconsTheme by dataStoreManager.iconTheme.collectAsState(initial = 0)
+                val scope = rememberCoroutineScope()
 
                 RenderSettingsPage(
                     ctx = this,
                     hasPermission = dndPermissionGrantedState,
-                    ruleId = savedZenRuleId
+                    ruleId = savedZenRuleId,
+                    iconTheme = savedIconsTheme,
+                    onIconThemeChange = { newValue ->
+                        scope.launch { dataStoreManager.setIconTheme(newValue) }
+                    }
                 )
             }
         }

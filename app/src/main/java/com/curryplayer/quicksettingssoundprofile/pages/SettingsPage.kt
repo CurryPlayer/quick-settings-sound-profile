@@ -17,12 +17,17 @@ import com.curryplayer.quicksettingssoundprofile.composables.RenderNoUserManaged
 import com.curryplayer.quicksettingssoundprofile.composables.RenderNoticeCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderTopAppBar
 import com.curryplayer.quicksettingssoundprofile.composables.RenderOpenZenModeSettings
+import com.curryplayer.quicksettingssoundprofile.composables.RenderSettingsSelectionItem
+import com.curryplayer.quicksettingssoundprofile.composables.SelectionOption
+import com.curryplayer.quicksettingssoundprofile.R
 
 @Composable
 fun RenderSettingsPage(
     ctx: Context,
     hasPermission: Boolean,
     ruleId: String,
+    iconTheme: Int,
+    onIconThemeChange: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -54,6 +59,18 @@ fun RenderSettingsPage(
                         RenderNoUserManagedModesAvailableCard(ctx)
                     }
                 }
+
+                RenderSettingsSelectionItem(
+                    title = "Icon Design",
+                    subtitle = "Wähle das Design der Icons für die Quick Settings Kachel",
+                    options = listOf(
+                        SelectionOption("Lautsprecher (Volume)", R.drawable.ic_round_volume_up_24),
+                        SelectionOption("Glocke (Notifications)", R.drawable.ic_round_notifications_active_24)
+                    ),
+                    selectedOptionIndex = iconTheme,
+                    onOptionSelected = onIconThemeChange,
+                    hasPermission = hasPermission
+                )
 
             }
         }
