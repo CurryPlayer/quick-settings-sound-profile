@@ -172,9 +172,13 @@ object ZenRuleUtils {
             .showInAmbientDisplay(true)
             .showInNotificationList(true)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             zenPolicyBuilder
                 .allowConversations(ZenPolicy.CONVERSATION_SENDERS_NONE)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            zenPolicyBuilder
                 .allowPriorityChannels(false)
         }
 
