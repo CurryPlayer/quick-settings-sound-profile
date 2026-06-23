@@ -38,9 +38,10 @@ Furthermore, I wanted to explore Kotlin as a language and saw this as a great op
 
 ## Download the App
 Get it on [Google Play](https://play.google.com/store/apps/details?id=com.curryplayer.quicksettingssoundprofile):  
+
 <a href="https://play.google.com/store/apps/details?id=com.curryplayer.quicksettingssoundprofile">
     <img src="assets/banner/GetItOnGooglePlay_Badge_Web_color_English.png" alt="Get it on Google Play" height="80">
-</a>
+</a>  
 
 Or download it via [GitHub Releases](https://github.com/CurryPlayer/quick-settings-sound-profile/releases)
 
