@@ -13,7 +13,7 @@ import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
-import com.curryplayer.quicksettingssoundprofile.utils.Utils
+import com.curryplayer.quicksettingssoundprofile.utils.NotificationPolicyUtils
 import com.curryplayer.quicksettingssoundprofile.utils.ZenRuleUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -112,7 +112,7 @@ class SoundProfileTileService : TileService() {
     private fun changeSoundProfileAndUpdateTileState() {
 
         // disable tile if user has no permission to change sound profile
-        if (!Utils.isDoNotDisturbPermissionGranted(this)) {
+        if (!NotificationPolicyUtils.isDoNotDisturbPermissionGranted(this)) {
             if (qsTile != null) {
                 qsTile.icon = Icon.createWithResource(this, R.drawable.ic_round_warning_24)
                 qsTile.state = Tile.STATE_UNAVAILABLE

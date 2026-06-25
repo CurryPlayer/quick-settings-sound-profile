@@ -3,7 +3,7 @@ package com.curryplayer.quicksettingssoundprofile.utils
 import android.app.NotificationManager
 import android.content.Context
 
-object Utils {
+object NotificationPolicyUtils {
 
 
     /**
