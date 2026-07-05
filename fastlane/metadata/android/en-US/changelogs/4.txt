@@ -1,0 +1,3 @@
+- Fix: 'Silent' mode turns off on Android versions 7-14 when it was previously active and the app was re-opened.
+- Show 'Open Mode Settings' button only on Android 15 or higher.
+- Update Java compile options from version 11 to version 17.
