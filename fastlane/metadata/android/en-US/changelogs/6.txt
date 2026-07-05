@@ -1,0 +1,7 @@
+- New: Redesigned the user interface with Material 3 components.
+- New: Long-press the app's tile to open the app directly.
+- New: Added German language support.
+- New: Added support for Android 17.
+- Improved: Updated the setup dialog with clearer instructions for granting the 'Do Not Disturb' permission.
+- Improved: Optimized sound profile toggling for faster switching.
+- Fixed: An issue where the tile wouldn't reset its state if 'Do Not Disturb' permission was missing.

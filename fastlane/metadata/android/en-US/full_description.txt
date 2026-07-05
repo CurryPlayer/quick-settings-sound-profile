@@ -1,0 +1,5 @@
+Easily switch your sound profile directly from your smartphone's Quick Settings.
+<b>
+This app allows you to toggle your sound mode with a single tap. Additionally, it offers granular settings to customize how each mode behaves upon activation (requires Android 15 or higher). Once you've added the Quick Settings tile and granted the necessary permissions, it's ready to go.
+<b>
+While specifically designed for Google Pixel smartphones—which lack a native toggle for sound modes—this app is also compatible with many other Android devices.
