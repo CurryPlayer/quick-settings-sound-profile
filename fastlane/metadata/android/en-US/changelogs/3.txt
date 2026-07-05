@@ -1,0 +1,3 @@
+- Adds a custom ZenRule (mode) that is activated when the phone is set to 'Silent'.
+- On devices running Android 15 or later, audio and visual settings can be customized individually for this ZenRule (mode).
+- Enable 'isMinifyEnabled' and 'isShrinkResources' flags inside 'build.gradle.kts' for release builds to reduce the app size.

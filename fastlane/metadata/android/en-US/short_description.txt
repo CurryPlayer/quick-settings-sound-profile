@@ -1,0 +1,1 @@
+Change your sound profile (ring, vibrate, mute) via a Quick Settings tile.
