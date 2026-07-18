@@ -3,6 +3,8 @@
 An app that lets you change your sound profile (ring, vibrate, mute) via a Quick Settings tile.  
 The app is written 100% in Kotlin :D
 
+<img src="assets/banner/featureGraphic.png" width="1024" height="500" alt="Promo Banner"/>
+
 ## Demo video
 <img src="assets/animation/demo_video.gif" width="486" height="1080" alt="Demo Animation"/>
 
