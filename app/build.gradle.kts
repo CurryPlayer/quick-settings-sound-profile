@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+val isFossBuild = gradle.startParameter.taskNames.any { it.contains("foss", ignoreCase = true) }
+
 android {
     namespace = "com.curryplayer.quicksettingssoundprofile"
     compileSdk {
@@ -19,6 +21,24 @@ android {
         versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    flavorDimensions += "distribution"
+
+    productFlavors {
+        // Google Play
+        create("play") {
+            dimension = "distribution"
+        }
+        // e.g. GitHub or F-Droid
+        create("foss") {
+            dimension = "distribution"
+        }
+    }
+
+    dependenciesInfo {
+        includeInApk = !isFossBuild
+        includeInBundle = !isFossBuild
     }
 
     buildTypes {
