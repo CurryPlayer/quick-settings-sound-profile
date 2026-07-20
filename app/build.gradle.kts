@@ -3,8 +3,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
-val isFossBuild = gradle.startParameter.taskNames.any { it.contains("foss", ignoreCase = true) }
-
 android {
     namespace = "com.curryplayer.quicksettingssoundprofile"
     compileSdk {
@@ -37,8 +35,10 @@ android {
     }
 
     dependenciesInfo {
-        includeInApk = !isFossBuild
-        includeInBundle = !isFossBuild
+        // Disables dependency metadata when building APKs.
+        includeInApk = false
+        // Disables dependency metadata when building Android App Bundles.
+        includeInBundle = false
     }
 
     buildTypes {
