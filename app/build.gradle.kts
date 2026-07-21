@@ -15,10 +15,30 @@ android {
         applicationId = "com.curryplayer.quicksettingssoundprofile"
         minSdk = 24
         targetSdk = 37
-        versionCode = 8
-        versionName = "1.0.0"
+        versionCode = 9
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    flavorDimensions += "distribution"
+
+    productFlavors {
+        // Google Play
+        create("play") {
+            dimension = "distribution"
+        }
+        // e.g. GitHub or F-Droid
+        create("foss") {
+            dimension = "distribution"
+        }
+    }
+
+    dependenciesInfo {
+        // Disables dependency metadata when building APKs.
+        includeInApk = false
+        // Disables dependency metadata when building Android App Bundles.
+        includeInBundle = false
     }
 
     buildTypes {
