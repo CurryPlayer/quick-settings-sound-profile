@@ -1,4 +1,0 @@
-- Release of version 1.0.0.
-- Adjust phrasing and hyphenation in German and English translations.
-- Updated source and target compatibility to Java 21.
-- Updated API level check for ZenPolicy allowConversations to apply from Android 11 onwards.

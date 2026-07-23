@@ -1,4 +1,0 @@
-- Fix: Silent Mode (ZenRule) now properly reactivates on Android 15+ after manual deactivation by the user.
-- Fix: Prevented app startup crashes related to ZenRule creation.
-- New: Added Toast notification for failed ZenRule creation.
-- Optimization: Tile state updates are now limited to a single refresh when multiple update requests are received.
