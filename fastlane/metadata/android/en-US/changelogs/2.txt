@@ -1,2 +1,0 @@
-- Fix: Phone will no longer vibrate when setting to 'Silent' mode.
-- Setting the phone to 'Silent' mode will automatically mute media audio, such as YouTube videos or music playback.

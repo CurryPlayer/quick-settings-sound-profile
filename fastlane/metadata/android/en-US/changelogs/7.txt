@@ -1,4 +1,0 @@
-- New: The tile can now be found under the 'Utils' category in the tile selection.
-- New: Added a button to directly add the tile to the Quick Settings panel (requires Android 13+).
-- New: Added a notification for devices that do not support user-managed modes on Android 15 or higher.
-- Improved: Updated and refined English and German translations.
