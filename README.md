@@ -45,6 +45,12 @@ Get it on [Google Play](https://play.google.com/store/apps/details?id=com.curryp
     <img src="assets/banner/GetItOnGooglePlay_Badge_Web_color_English.png" alt="Get it on Google Play" height="80">
 </a>  
 
+Get it on [F-Droid](https://f-droid.org/packages/com.curryplayer.quicksettingssoundprofile/):
+
+<a href="https://f-droid.org/packages/com.curryplayer.quicksettingssoundprofile/">
+    <img src="assets/banner/GetItOnFDroid_Badge_English.png" alt="Get it on F-Droid" height="80">
+</a>  
+
 Or download it via [GitHub Releases](https://github.com/CurryPlayer/quick-settings-sound-profile/releases)
 
 ## Credits
