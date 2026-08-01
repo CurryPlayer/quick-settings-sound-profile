@@ -171,8 +171,7 @@ class SoundProfileTileService : TileService() {
             return
         }
 
-        val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-        val currentMode = audioManager.ringerMode
+        val currentMode = (getSystemService(AUDIO_SERVICE) as AudioManager).ringerMode
 
         // Only update tile if the mode or theme has actually changed since the last update
         if (currentMode == _lastKnownRingerMode && _iconTheme == _lastKnownIconTheme) {
