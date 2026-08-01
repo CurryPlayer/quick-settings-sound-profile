@@ -15,13 +15,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.curryplayer.quicksettingssoundprofile.R
+import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 
 @Composable
 fun RenderSettingsSelectionItem(
     title: String,
     subtitle: String?,
     selectedOptionIndex: Int,
-    onOptionSelected: (Int) -> Unit,
+    onOptionSelectedIndex: (Int) -> Unit,
     hasPermission: Boolean
 ) {
     Column(
@@ -45,11 +46,11 @@ fun RenderSettingsSelectionItem(
             )
         }
 
-        iconDesignOptions.forEachIndexed { index, option ->
+        IconTheme.entries.forEachIndexed { index, option ->
             val isSelected = index == selectedOptionIndex
             
             OutlinedCard(
-                onClick = { if (hasPermission) onOptionSelected(index) },
+                onClick = { if (hasPermission) onOptionSelectedIndex(index) },
                 enabled = hasPermission,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -100,23 +101,4 @@ private fun IconColumn(iconRes: Int, label: String, isEnabled: Boolean) {
     }
 }
 
-data class SelectionOption(
-    val ringIcon: Int,
-    val vibrateIcon: Int,
-    val silentIcon: Int
-)
 
-val iconDesignOptions = listOf(
-    // index 0
-    SelectionOption(
-        ringIcon = R.drawable.ic_round_volume_up_24,
-        vibrateIcon = R.drawable.ic_round_vibration_24,
-        silentIcon = R.drawable.ic_round_volume_off_24
-    ),
-    // index 1
-    SelectionOption(
-        ringIcon = R.drawable.ic_round_notifications_active_24,
-        vibrateIcon = R.drawable.ic_round_vibration_outline_24,
-        silentIcon = R.drawable.ic_round_notifications_off_24
-    )
-)

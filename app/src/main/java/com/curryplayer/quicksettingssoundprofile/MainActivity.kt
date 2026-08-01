@@ -11,6 +11,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
+import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 import com.curryplayer.quicksettingssoundprofile.pages.RenderSettingsPage
 import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProfileTheme
 import com.curryplayer.quicksettingssoundprofile.utils.NotificationPolicyUtils
@@ -31,15 +32,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             QuickSettingsSoundProfileTheme {
                 val savedZenRuleId by dataStoreManager.zenRuleId.collectAsState(initial = "")
-                val savedIconsTheme by dataStoreManager.iconTheme.collectAsState(initial = 0)
+                val savedIconsThemeIndex by dataStoreManager.iconTheme.collectAsState(initial = IconTheme.VOLUME_DEFAULT.ordinal)
                 val scope = rememberCoroutineScope()
 
                 RenderSettingsPage(
                     ctx = this,
                     hasPermission = dndPermissionGrantedState,
                     ruleId = savedZenRuleId,
-                    iconTheme = savedIconsTheme,
-                    onIconThemeChange = { newValue ->
+                    iconThemeIndex = savedIconsThemeIndex,
+                    onIconThemeChangeIndex = { newValue ->
                         scope.launch { dataStoreManager.setIconTheme(newValue) }
                     }
                 )

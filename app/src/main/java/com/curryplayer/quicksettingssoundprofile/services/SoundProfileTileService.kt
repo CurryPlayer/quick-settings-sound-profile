@@ -13,6 +13,7 @@ import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
+import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 import com.curryplayer.quicksettingssoundprofile.utils.NotificationPolicyUtils
 import com.curryplayer.quicksettingssoundprofile.utils.ZenRuleUtils
 import kotlinx.coroutines.CoroutineScope
@@ -34,8 +35,8 @@ class SoundProfileTileService : TileService() {
      * NORMAL = 2
      */
     private var _lastKnownRingerMode: Int = -1
-    private var _iconTheme: Int = 0
-    private var _lastKnownIconTheme: Int = -1
+    private var _iconTheme: IconTheme = IconTheme.VOLUME_DEFAULT
+    private var _lastKnownIconTheme: IconTheme? = null
     private var _cachedRuleId: String = ""
 
     /**
@@ -63,8 +64,8 @@ class SoundProfileTileService : TileService() {
             }
         }
         _serviceScope.launch {
-            _dataStoreManager.iconTheme.collect { theme ->
-                _iconTheme = theme
+            _dataStoreManager.iconTheme.collect { themeId ->
+                _iconTheme = IconTheme.fromOrdinal(themeId)
                 updateTileState()
             }
         }
@@ -196,29 +197,8 @@ class SoundProfileTileService : TileService() {
             }
         }
 
-        qsTile.icon = Icon.createWithResource(this, getIconResource(currentMode))
+        qsTile.icon = Icon.createWithResource(this, _iconTheme.getIconForMode(currentMode))
         qsTile.updateTile()
-    }
-
-    private fun getIconResource(ringerMode: Int): Int {
-        return when (_iconTheme) {
-            1 -> { // Notifications Theme
-                when (ringerMode) {
-                    AudioManager.RINGER_MODE_NORMAL -> R.drawable.ic_round_notifications_active_24
-                    AudioManager.RINGER_MODE_VIBRATE -> R.drawable.ic_round_vibration_outline_24
-                    AudioManager.RINGER_MODE_SILENT -> R.drawable.ic_round_notifications_off_24
-                    else -> R.drawable.ic_round_notifications_active_24
-                }
-            }
-            else -> { // Volume Theme (default)
-                when (ringerMode) {
-                    AudioManager.RINGER_MODE_NORMAL -> R.drawable.ic_round_volume_up_24
-                    AudioManager.RINGER_MODE_VIBRATE -> R.drawable.ic_round_vibration_24
-                    AudioManager.RINGER_MODE_SILENT -> R.drawable.ic_round_volume_off_24
-                    else -> R.drawable.ic_round_volume_up_24
-                }
-            }
-        }
     }
 
     private fun setAutomaticZenRuleState(ruleId: String, activate: Boolean) {

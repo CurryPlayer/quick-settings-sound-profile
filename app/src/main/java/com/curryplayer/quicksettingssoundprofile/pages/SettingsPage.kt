@@ -18,15 +18,14 @@ import com.curryplayer.quicksettingssoundprofile.composables.RenderNoticeCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderTopAppBar
 import com.curryplayer.quicksettingssoundprofile.composables.RenderOpenZenModeSettings
 import com.curryplayer.quicksettingssoundprofile.composables.RenderSettingsSelectionItem
-import com.curryplayer.quicksettingssoundprofile.R
 
 @Composable
 fun RenderSettingsPage(
     ctx: Context,
     hasPermission: Boolean,
     ruleId: String,
-    iconTheme: Int,
-    onIconThemeChange: (Int) -> Unit,
+    iconThemeIndex: Int,
+    onIconThemeChangeIndex: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -62,8 +61,8 @@ fun RenderSettingsPage(
                 RenderSettingsSelectionItem(
                     title = "Icon Design",
                     subtitle = "Wähle das Design der Icons für die Quick Settings Kachel",
-                    selectedOptionIndex = iconTheme,
-                    onOptionSelected = onIconThemeChange,
+                    selectedOptionIndex = iconThemeIndex,
+                    onOptionSelectedIndex = onIconThemeChangeIndex,
                     hasPermission = hasPermission
                 )
 
