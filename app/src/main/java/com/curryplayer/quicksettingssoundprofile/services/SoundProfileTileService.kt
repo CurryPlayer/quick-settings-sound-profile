@@ -65,7 +65,7 @@ class SoundProfileTileService : TileService() {
         _serviceScope.launch {
             _dataStoreManager.iconTheme.collect { theme ->
                 _iconTheme = theme
-                //updateTileState()
+                updateTileState()
             }
         }
     }
