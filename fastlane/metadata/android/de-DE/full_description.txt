@@ -1,0 +1,5 @@
+Wechsle ganz einfach direkt über die Schnelleinstellungen deines Smartphones zwischen den Soundprofilen (Laut, Vibrieren, Stumm).
+
+Mit dieser App kannst Du den Soundmodus mit einem einzigen Klick umschalten. Darüber hinaus bietet die App detaillierte Einstellungen, mit denen Du festlegen kannst, wie sich der Stumm-Modus bei der Aktivierung verhält (setzt Android 15 oder höher voraus). Sobald Du die Kachel in den Schnelleinstellungen hinzugefügt und die erforderlichen Berechtigungen erteilt hast, ist die App einsatzbereit.
+
+Obwohl die App speziell für Google Pixel-Smartphones entwickelt wurde – denen eine native Umschaltfunktion für Soundmodi in den Schnelleinstellungen fehlt –, ist sie auch mit vielen anderen Android-Geräten kompatibel.

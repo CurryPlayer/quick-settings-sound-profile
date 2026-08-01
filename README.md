@@ -3,6 +3,8 @@
 An app that lets you change your sound profile (ring, vibrate, mute) via a Quick Settings tile.  
 The app is written 100% in Kotlin :D
 
+<img src="assets/banner/featureGraphic.png" width="1024" height="500" alt="Promo Banner"/>
+
 ## Demo video
 <img src="assets/animation/demo_video.gif" width="486" height="1080" alt="Demo Animation"/>
 
@@ -36,8 +38,22 @@ One of the reasons I developed the Quick Settings toggle for sound modes is that
 
 Furthermore, I wanted to explore Kotlin as a language and saw this as a great opportunity to get hands-on experience with Android development.
 
-## Find it on Google Play
-You can download the App via [GitHub](https://github.com/CurryPlayer/quick-settings-sound-profile/releases) or [Google Play](https://play.google.com/store/apps/details?id=com.curryplayer.quicksettingssoundprofile)
+## Download the App
+Get it on [Google Play](https://play.google.com/store/apps/details?id=com.curryplayer.quicksettingssoundprofile):  
+
+<a href="https://play.google.com/store/apps/details?id=com.curryplayer.quicksettingssoundprofile">
+    <img src="assets/banner/GetItOnGooglePlay_Badge_Web_color_English.png" alt="Get it on Google Play" height="80">
+</a>
+<br><br>
+
+Get it on [F-Droid](https://f-droid.org/packages/com.curryplayer.quicksettingssoundprofile/):
+
+<a href="https://f-droid.org/packages/com.curryplayer.quicksettingssoundprofile/">
+    <img src="assets/banner/GetItOnFDroid_Badge_English.png" alt="Get it on F-Droid" height="80">
+</a>
+<br><br>
+
+Or download it via [GitHub Releases](https://github.com/CurryPlayer/quick-settings-sound-profile/releases)
 
 ## Credits
 For the implementation, I drew inspiration from the already existing [project](https://github.com/Alfio010/sound-quick-settings) by [Alfio010](https://github.com/Alfio010).

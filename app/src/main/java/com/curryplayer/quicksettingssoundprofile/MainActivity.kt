@@ -13,7 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.pages.RenderSettingsPage
 import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProfileTheme
-import com.curryplayer.quicksettingssoundprofile.utils.Utils
+import com.curryplayer.quicksettingssoundprofile.utils.NotificationPolicyUtils
 import com.curryplayer.quicksettingssoundprofile.utils.ZenRuleUtils
 import kotlinx.coroutines.launch
 
@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun checkPermissionAndSyncRule() {
-        dndPermissionGrantedState = Utils.isDoNotDisturbPermissionGranted(this)
+        dndPermissionGrantedState = NotificationPolicyUtils.isDoNotDisturbPermissionGranted(this)
         if (dndPermissionGrantedState) {
             lifecycleScope.launch {
                 ZenRuleUtils.syncAutomaticZenRule(this@MainActivity, dataStoreManager)

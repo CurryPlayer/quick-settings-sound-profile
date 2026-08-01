@@ -174,8 +174,12 @@ object ZenRuleUtils {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             zenPolicyBuilder
-                .allowConversations(ZenPolicy.CONVERSATION_SENDERS_NONE)
                 .allowPriorityChannels(false)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            zenPolicyBuilder
+                .allowConversations(ZenPolicy.CONVERSATION_SENDERS_NONE)
         }
 
         return zenPolicyBuilder.build()
