@@ -40,8 +40,8 @@ class MainActivity : ComponentActivity() {
                     hasPermission = dndPermissionGrantedState,
                     ruleId = savedZenRuleId,
                     iconThemeIndex = savedIconThemeIndex,
-                    onIconThemeChangeIndex = { newValue ->
-                        scope.launch { dataStoreManager.setIconTheme(newValue) }
+                    onIconThemeChangeIndex = { newIndexValue ->
+                        scope.launch { dataStoreManager.setIconTheme(newIndexValue) }
                     }
                 )
             }
