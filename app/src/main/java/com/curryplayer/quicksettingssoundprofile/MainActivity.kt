@@ -32,14 +32,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             QuickSettingsSoundProfileTheme {
                 val savedZenRuleId by dataStoreManager.zenRuleId.collectAsState(initial = "")
-                val savedIconsThemeIndex by dataStoreManager.iconTheme.collectAsState(initial = IconTheme.VOLUME_DEFAULT.ordinal)
+                val savedIconThemeIndex by dataStoreManager.iconTheme.collectAsState(initial = IconTheme.VOLUME_DEFAULT.ordinal)
                 val scope = rememberCoroutineScope()
 
                 RenderSettingsPage(
                     ctx = this,
                     hasPermission = dndPermissionGrantedState,
                     ruleId = savedZenRuleId,
-                    iconThemeIndex = savedIconsThemeIndex,
+                    iconThemeIndex = savedIconThemeIndex,
                     onIconThemeChangeIndex = { newValue ->
                         scope.launch { dataStoreManager.setIconTheme(newValue) }
                     }
