@@ -1,7 +1,6 @@
 package com.curryplayer.quicksettingssoundprofile.composables
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -34,54 +33,67 @@ fun RenderIconThemeSelector(
             text = title,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = if (hasPermission) (if (isSystemInDarkTheme()) Color.White else Color.Black) else Color.Gray
+            color = MaterialTheme.colorScheme.onSurface
         )
         if (!subtitle.isNullOrBlank()) {
             Text(
                 text = subtitle,
                 fontSize = 14.sp,
                 lineHeight = 18.sp,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
         }
 
         IconTheme.entries.forEachIndexed { index, option ->
             val isSelected = index == selectedOptionIndex
-            
-            OutlinedCard(
-                onClick = { if (hasPermission) onOptionSelectedIndex(index) },
-                enabled = hasPermission,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp),
-                border = BorderStroke(
-                    width = if (isSelected) 2.dp else 1.dp,
-                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-                ),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.outlinedCardColors(
-                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f) else Color.Transparent
-                )
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconColumn(option.ringIcon, stringResource(R.string.profile_sound_label), hasPermission)
-                    IconColumn(option.vibrateIcon, stringResource(R.string.profile_vibrate_label), hasPermission)
-                    IconColumn(option.silentIcon, stringResource(R.string.profile_silent_label), hasPermission)
-                }
-            }
+            IconTheme(hasPermission, onOptionSelectedIndex, index, isSelected, option)
         }
     }
 }
 
 @Composable
-private fun IconColumn(iconRes: Int, label: String, isEnabled: Boolean) {
+private fun IconTheme(
+    hasPermission: Boolean,
+    onOptionSelectedIndex: (Int) -> Unit,
+    index: Int,
+    isSelected: Boolean,
+    option: IconTheme
+) {
+    OutlinedCard(
+        onClick = { if (hasPermission) onOptionSelectedIndex(index) },
+        enabled = hasPermission,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp),
+        border = BorderStroke(
+            width = if (isSelected) 2.dp else 1.dp,
+            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(
+                alpha = 0.5f
+            )
+        ),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f) else Color.Transparent
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconAndTextColumn(option.ringIcon, stringResource(R.string.profile_sound_label), hasPermission)
+            IconAndTextColumn(option.vibrateIcon, stringResource(R.string.profile_vibrate_label), hasPermission)
+            IconAndTextColumn(option.silentIcon, stringResource(R.string.profile_silent_label), hasPermission
+            )
+        }
+    }
+}
+
+@Composable
+private fun IconAndTextColumn(iconRes: Int, label: String, isEnabled: Boolean) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
