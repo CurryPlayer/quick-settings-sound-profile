@@ -17,7 +17,7 @@ import com.curryplayer.quicksettingssoundprofile.composables.RenderNoUserManaged
 import com.curryplayer.quicksettingssoundprofile.composables.RenderNoticeCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderTopAppBar
 import com.curryplayer.quicksettingssoundprofile.composables.RenderOpenZenModeSettings
-import com.curryplayer.quicksettingssoundprofile.composables.RenderSettingsSelectionItem
+import com.curryplayer.quicksettingssoundprofile.composables.RenderIconThemeSelector
 
 @Composable
 fun RenderSettingsPage(
@@ -58,7 +58,7 @@ fun RenderSettingsPage(
                     }
                 }
 
-                RenderSettingsSelectionItem(
+                RenderIconThemeSelector(
                     title = "Icon Design",
                     subtitle = "Wähle das Design der Icons für die Quick Settings Kachel",
                     selectedOptionIndex = iconThemeIndex,

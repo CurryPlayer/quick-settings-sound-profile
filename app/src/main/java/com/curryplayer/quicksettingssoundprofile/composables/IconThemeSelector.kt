@@ -18,7 +18,7 @@ import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 
 @Composable
-fun RenderSettingsSelectionItem(
+fun RenderIconThemeSelector(
     title: String,
     subtitle: String?,
     selectedOptionIndex: Int,
