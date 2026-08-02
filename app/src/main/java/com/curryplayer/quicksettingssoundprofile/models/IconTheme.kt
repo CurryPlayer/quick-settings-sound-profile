@@ -4,7 +4,7 @@ import android.media.AudioManager
 import com.curryplayer.quicksettingssoundprofile.R
 
 enum class IconTheme(val ringIcon: Int, val vibrateIcon: Int, val silentIcon: Int) {
-    // DON'T RE-ARRANGE ORDER ONCE SET! The ordinal is used for the datastore
+    // DON'T RE-ARRANGE ORDER ONCE SET! The ordinal is used for the index
     VOLUME_DEFAULT( // ordinal 0
         ringIcon = R.drawable.ic_round_volume_up_24,
         vibrateIcon = R.drawable.ic_round_vibration_24,
