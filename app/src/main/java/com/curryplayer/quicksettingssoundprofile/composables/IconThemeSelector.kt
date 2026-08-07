@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.curryplayer.quicksettingssoundprofile.R
@@ -18,8 +17,6 @@ import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 
 @Composable
 fun RenderIconThemeSelector(
-    title: String,
-    subtitle: String?,
     selectedOptionIndex: Int,
     onOptionSelectedIndex: (Int) -> Unit,
     hasPermission: Boolean
@@ -29,22 +26,6 @@ fun RenderIconThemeSelector(
             .fillMaxWidth()
             .padding(vertical = 8.dp, horizontal = 16.dp)
     ) {
-        Text(
-            text = title,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        if (!subtitle.isNullOrBlank()) {
-            Text(
-                text = subtitle,
-                fontSize = 14.sp,
-                lineHeight = 18.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-        }
-
         IconTheme.entries.forEachIndexed { index, option ->
             val isSelected = index == selectedOptionIndex
             IconTheme(hasPermission, onOptionSelectedIndex, index, isSelected, option)
