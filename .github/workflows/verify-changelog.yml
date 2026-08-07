@@ -1,0 +1,36 @@
+name: Verify Changelog
+
+on:
+  pull_request:
+    branches: [ main, 'release/*' ]
+  push:
+    branches: [ main, 'release/*' ]
+
+jobs:
+  check-fastlane-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify Fastlane Changelog Existence
+        run: |
+          # Extract versionCode from build.gradle.kts
+          # We search for ‘versionCode = X’ and extract the number
+          VERSION_CODE=$(grep "versionCode =" app/build.gradle.kts | sed 's/[^0-9]//g')
+          
+          if [ -z "$VERSION_CODE" ]; then
+            echo "Error: versionCode could not be found in app/build.gradle.kts."
+            exit 1
+          fi
+          
+          echo "Found versionCode: $VERSION_CODE"
+          
+          CHANGELOG_FILE="fastlane/metadata/android/en-US/changelogs/${VERSION_CODE}.txt"
+          
+          if [ -f "$CHANGELOG_FILE" ]; then
+            echo "Found Changelog file: $CHANGELOG_FILE"
+          else
+            echo "Error: The changelog file for version $VERSION_CODE is missing!"
+            echo "Expected path: $CHANGELOG_FILE"
+            exit 1
+          fi
