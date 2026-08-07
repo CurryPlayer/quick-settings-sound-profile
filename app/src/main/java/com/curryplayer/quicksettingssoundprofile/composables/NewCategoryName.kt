@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun RenderNewCategoryName(title: String, subtitle: String?) {
+fun RenderNewCategoryName(title: String, description: String?) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -24,9 +24,9 @@ fun RenderNewCategoryName(title: String, subtitle: String?) {
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
-        if (!subtitle.isNullOrBlank()) {
+        if (!description.isNullOrBlank()) {
             Text(
-                text = subtitle,
+                text = description,
                 fontSize = 14.sp,
                 lineHeight = 18.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

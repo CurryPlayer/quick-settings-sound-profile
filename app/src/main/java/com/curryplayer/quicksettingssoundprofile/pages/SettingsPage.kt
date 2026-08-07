@@ -14,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.composables.RenderAllSetCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderGrantPermissionCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderNoUserManagedModesAvailableCard
@@ -65,8 +66,8 @@ fun RenderSettingsPage(
                 Spacer(Modifier.height(16.dp))
 
                 RenderNewCategoryName(
-                    title = "Icon Design",
-                    subtitle = "Wähle das Design der Icons für die Quick Settings Kachel",
+                    title = ctx.getString(R.string.new_category_title),
+                    description = ctx.getString(R.string.new_category_description),
                 )
 
                 RenderIconThemeSelector(
