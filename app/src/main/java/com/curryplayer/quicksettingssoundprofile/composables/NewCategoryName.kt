@@ -30,7 +30,6 @@ fun RenderNewCategoryName(title: String, subtitle: String?) {
                 fontSize = 14.sp,
                 lineHeight = 18.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 12.dp)
             )
         }
     }
