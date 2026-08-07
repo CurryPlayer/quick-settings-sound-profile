@@ -4,13 +4,16 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.composables.RenderAllSetCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderGrantPermissionCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderNoUserManagedModesAvailableCard
@@ -58,6 +61,8 @@ fun RenderSettingsPage(
                         RenderNoUserManagedModesAvailableCard(ctx)
                     }
                 }
+
+                Spacer(Modifier.height(16.dp))
 
                 RenderNewCategoryName(
                     title = "Icon Design",
