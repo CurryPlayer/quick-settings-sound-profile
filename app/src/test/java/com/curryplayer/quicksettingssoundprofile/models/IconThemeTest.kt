@@ -21,7 +21,7 @@ class IconThemeTest {
 
     @Test
     fun testFromOrdinalFallback() {
-        // Fallback sollte VOLUME_DEFAULT sein
+        // Fallback should be VOLUME_DEFAULT
         assertEquals(IconTheme.VOLUME_DEFAULT, IconTheme.fromOrdinal(-1))
         assertEquals(IconTheme.VOLUME_DEFAULT, IconTheme.fromOrdinal(999))
     }
