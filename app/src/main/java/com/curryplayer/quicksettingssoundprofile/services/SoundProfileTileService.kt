@@ -13,6 +13,7 @@ import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
+import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 import com.curryplayer.quicksettingssoundprofile.utils.NotificationPolicyUtils
 import com.curryplayer.quicksettingssoundprofile.utils.ZenRuleUtils
 import kotlinx.coroutines.CoroutineScope
@@ -34,6 +35,8 @@ class SoundProfileTileService : TileService() {
      * NORMAL = 2
      */
     private var _lastKnownRingerMode: Int = -1
+    private var _iconTheme: IconTheme = IconTheme.VOLUME_DEFAULT
+    private var _lastKnownIconTheme: IconTheme? = null
     private var _cachedRuleId: String = ""
 
     /**
@@ -58,6 +61,12 @@ class SoundProfileTileService : TileService() {
         _serviceScope.launch {
             _dataStoreManager.zenRuleId.collect { id ->
                 _cachedRuleId = id
+            }
+        }
+        _serviceScope.launch {
+            _dataStoreManager.iconTheme.collect { themeId ->
+                _iconTheme = IconTheme.fromOrdinal(themeId)
+                updateTileState()
             }
         }
     }
@@ -163,33 +172,32 @@ class SoundProfileTileService : TileService() {
             return
         }
 
-        val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-        val currentMode = audioManager.ringerMode
+        val currentMode = (getSystemService(AUDIO_SERVICE) as AudioManager).ringerMode
 
-        // Only update tile if the mode has actually changed since the last update
-        if (currentMode == _lastKnownRingerMode) {
+        // Only update tile if the mode or theme has actually changed since the last update
+        if (currentMode == _lastKnownRingerMode && _iconTheme == _lastKnownIconTheme) {
             return
         }
 
         _lastKnownRingerMode = currentMode
+        _lastKnownIconTheme = _iconTheme
 
         when (currentMode) {
             AudioManager.RINGER_MODE_NORMAL -> {
                 qsTile.state = Tile.STATE_ACTIVE
                 qsTile.label = getString(R.string.profile_sound_label)
-                qsTile.icon = Icon.createWithResource(this, R.drawable.ic_round_volume_up_24)
             }
             AudioManager.RINGER_MODE_VIBRATE -> {
                 qsTile.state = Tile.STATE_INACTIVE
                 qsTile.label = getString(R.string.profile_vibrate_label)
-                qsTile.icon = Icon.createWithResource(this, R.drawable.ic_round_vibration_24)
             }
             AudioManager.RINGER_MODE_SILENT -> {
                 qsTile.state = Tile.STATE_INACTIVE
                 qsTile.label = getString(R.string.profile_silent_label)
-                qsTile.icon = Icon.createWithResource(this, R.drawable.ic_round_volume_off_24)
             }
         }
+
+        qsTile.icon = Icon.createWithResource(this, _iconTheme.getIconForMode(currentMode))
         qsTile.updateTile()
     }
 
