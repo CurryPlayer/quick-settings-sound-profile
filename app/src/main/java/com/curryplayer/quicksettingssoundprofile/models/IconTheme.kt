@@ -4,16 +4,26 @@ import android.media.AudioManager
 import com.curryplayer.quicksettingssoundprofile.R
 
 enum class IconTheme(val ringIcon: Int, val vibrateIcon: Int, val silentIcon: Int) {
-    // DON'T RE-ARRANGE ORDER ONCE SET! The ordinal is used for the index
+    // The ordinal is used for the index
     VOLUME_DEFAULT( // ordinal 0
         ringIcon = R.drawable.ic_round_volume_up_24,
         vibrateIcon = R.drawable.ic_round_vibration_24,
         silentIcon = R.drawable.ic_round_volume_off_24
     ),
-    NOTIFICATIONS(  // ordinal 1
-        ringIcon = R.drawable.ic_round_notifications_active_24,
+    VOLUME_OUTLINE( // ordinal 1
+        ringIcon = R.drawable.ic_round_volume_up_outline_24,
         vibrateIcon = R.drawable.ic_round_vibration_outline_24,
+        silentIcon = R.drawable.ic_round_volume_off_outline_24
+    ),
+    NOTIFICATIONS(  // ordinal 2
+        ringIcon = R.drawable.ic_round_notifications_active_24,
+        vibrateIcon = R.drawable.ic_round_vibration_24,
         silentIcon = R.drawable.ic_round_notifications_off_24
+    ),
+    NOTIFICATIONS_OUTLINE(  // ordinal 3
+        ringIcon = R.drawable.ic_round_notifications_active_outline_24,
+        vibrateIcon = R.drawable.ic_round_vibration_outline_24,
+        silentIcon = R.drawable.ic_round_notifications_off_outline_24
     );
 
     companion object {
