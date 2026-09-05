@@ -1,5 +1,6 @@
 package com.curryplayer.quicksettingssoundprofile
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -41,9 +42,19 @@ class MainActivity : ComponentActivity() {
                     ruleId = savedZenRuleId,
                     iconThemeIndex = savedIconThemeIndex,
                     onIconThemeChangeIndex = { newIndexValue ->
-                        scope.launch { dataStoreManager.setIconTheme(newIndexValue) }
+                        scope.launch {
+                            dataStoreManager.setIconTheme(newIndexValue)
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM && savedZenRuleId.isNotEmpty()) {
+                                ZenRuleUtils.updateZenRuleIcon(
+                                    context = this@MainActivity,
+                                    ruleId = savedZenRuleId,
+                                    iconResId = IconTheme.fromOrdinal(newIndexValue).silentIcon
+                                )
+                            }
+                        }
                     }
                 )
+
             }
         }
     }

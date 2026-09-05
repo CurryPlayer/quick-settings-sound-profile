@@ -16,6 +16,7 @@ import androidx.core.net.toUri
 import com.curryplayer.quicksettingssoundprofile.MainActivity
 import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
+import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 import com.curryplayer.quicksettingssoundprofile.services.SoundProfileConditionProviderService
 import kotlinx.coroutines.flow.first
 
@@ -55,7 +56,8 @@ object ZenRuleUtils {
 
         if (existingRule == null) {
             try {
-                val newRule = generateDefaultAutomaticZenRule(applicationContext)
+                val savedIconThemeIndex = dataStoreManager.iconTheme.first()
+                val newRule = generateDefaultAutomaticZenRule(applicationContext, savedIconThemeIndex)
                 val newId = notificationManager.addAutomaticZenRule(newRule)
                 if (newId != null) {
                     dataStoreManager.setZenRuleId(newId)
@@ -77,9 +79,16 @@ object ZenRuleUtils {
         }
     }
 
-    fun generateDefaultAutomaticZenRule(applicationContext: Context): AutomaticZenRule {
+    /**
+     * Generates a default [AutomaticZenRule] tailored to the device's Android version.
+     *
+     * @param applicationContext The context used to access resources.
+     * @param zenRuleIconIndex The ordinal index of the [IconTheme] to use for the rule's icon (Android 15+).
+     * @return A configured [AutomaticZenRule].
+     */
+    fun generateDefaultAutomaticZenRule(applicationContext: Context, zenRuleIconIndex: Int = IconTheme.VOLUME_DEFAULT.ordinal): AutomaticZenRule {
         val zenRule = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            generateDefaultAutomaticZenRuleForAndroidVanillaIceCreamAndAbove(applicationContext)
+            generateDefaultAutomaticZenRuleForAndroidVanillaIceCreamAndAbove(applicationContext, zenRuleIconIndex)
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             generateDefaultAutomaticZenRuleForAndroidQAndAbove(applicationContext)
         } else {
@@ -126,7 +135,10 @@ object ZenRuleUtils {
 
     // requires Android 15 / API 35
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    private fun generateDefaultAutomaticZenRuleForAndroidVanillaIceCreamAndAbove(applicationContext: Context): AutomaticZenRule {
+    private fun generateDefaultAutomaticZenRuleForAndroidVanillaIceCreamAndAbove(
+        applicationContext: Context,
+        zenRuleIconIndex: Int
+    ): AutomaticZenRule {
 
         val ruleName = applicationContext.getString(R.string.zen_rule_name)
         val configurationActivity = ComponentName(applicationContext, MainActivity::class.java)
@@ -135,6 +147,8 @@ object ZenRuleUtils {
         val zenPolicy: ZenPolicy = buildDefaultZenPolicy()
         val zenDeviceEffects: ZenDeviceEffects = buildDefaultZenDeviceEffects()
 
+        val zenRuleIconResId = IconTheme.fromOrdinal(zenRuleIconIndex).silentIcon
+
         val zenRule = AutomaticZenRule.Builder(ruleName, conditionId)
             .setOwner(null) // superseded by configurationActivity
             .setConfigurationActivity(configurationActivity)
@@ -142,7 +156,7 @@ object ZenRuleUtils {
             .setDeviceEffects(zenDeviceEffects)
             .setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
             .setEnabled(true)
-            .setIconResId(R.drawable.ic_round_volume_off_24)
+            .setIconResId(zenRuleIconResId)
             .setTriggerDescription(applicationContext.getString(R.string.zen_rule_trigger_description))
             .setManualInvocationAllowed(false)
             .setType(AutomaticZenRule.TYPE_OTHER)
@@ -151,6 +165,32 @@ object ZenRuleUtils {
         return zenRule
     }
 
+    /**
+     * Updates the icon of an existing [AutomaticZenRule].
+     *
+     * This feature requires Android 15 (API level 35) or higher.
+     *
+     * @param context The context used to access the [NotificationManager].
+     * @param ruleId The unique identifier of the rule to update.
+     * @param iconResId The resource ID of the new icon.
+     */
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    fun updateZenRuleIcon(context: Context, ruleId: String, iconResId: Int) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val existingRule = notificationManager.getAutomaticZenRule(ruleId)
+        if (existingRule != null) {
+            val updatedRule = AutomaticZenRule.Builder(existingRule)
+                .setIconResId(iconResId)
+                .build()
+            notificationManager.updateAutomaticZenRule(ruleId, updatedRule)
+        }
+    }
+
+    /**
+     * Builds a default [ZenPolicy] for the "Silent" profile.
+     *
+     * @return A [ZenPolicy] configured to disallow most interruptions while allowing alarms and media.
+     */
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun buildDefaultZenPolicy(): ZenPolicy {
         val zenPolicyBuilder: ZenPolicy.Builder = ZenPolicy.Builder()
@@ -185,6 +225,11 @@ object ZenRuleUtils {
         return zenPolicyBuilder.build()
     }
 
+    /**
+     * Builds a default [ZenDeviceEffects] for the "Silent" profile.
+     *
+     * @return A [ZenDeviceEffects] instance with all effects (like grayscale or dimming) disabled.
+     */
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private fun buildDefaultZenDeviceEffects(): ZenDeviceEffects {
         val zenDeviceEffects: ZenDeviceEffects = ZenDeviceEffects.Builder()
@@ -198,6 +243,8 @@ object ZenRuleUtils {
     }
 
     /**
+     * Creates a [Condition] with appropriate parameters based on the Android version.
+     *
      * Starting with Android 15 (API level 35), the `source` parameter within a [Condition]
      * must be explicitly set to [Condition.SOURCE_USER_ACTION] for this condition to work properly.
      *
@@ -208,6 +255,11 @@ object ZenRuleUtils {
      * activate on the *second* attempt to enable the "Silent" mode.
      *
      * Providing [Condition.SOURCE_USER_ACTION] as the source resolves this exact issue on devices running Android 15 or higher.
+     *
+     * @param conditionId The unique URI of the condition.
+     * @param summary A brief description of the condition's state.
+     * @param state The state of the condition (e.g., [Condition.STATE_TRUE]).
+     * @return A configured [Condition] object.
      */
     fun buildCondition(conditionId: Uri, summary: String, state: Int): Condition {
         val condition: Condition =

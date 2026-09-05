@@ -23,6 +23,7 @@ import com.curryplayer.quicksettingssoundprofile.composables.RenderTopAppBar
 import com.curryplayer.quicksettingssoundprofile.composables.RenderOpenZenModeSettings
 import com.curryplayer.quicksettingssoundprofile.composables.RenderIconThemeSelector
 import com.curryplayer.quicksettingssoundprofile.composables.RenderNewCategoryName
+import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 
 @Composable
 fun RenderSettingsPage(
@@ -33,8 +34,10 @@ fun RenderSettingsPage(
     onIconThemeChangeIndex: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val iconTheme = IconTheme.fromOrdinal(iconThemeIndex)
+
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         topBar = { RenderTopAppBar(ctx) },
         content = { contentPadding ->
             Column(
@@ -46,7 +49,7 @@ fun RenderSettingsPage(
                 if (!hasPermission) {
                     RenderGrantPermissionCard(ctx)
                 } else {
-                    RenderAllSetCard(ctx)
+                    RenderAllSetCard(ctx, iconTheme)
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -75,6 +78,8 @@ fun RenderSettingsPage(
                     onOptionSelectedIndex = onIconThemeChangeIndex,
                     hasPermission = hasPermission
                 )
+
+                Spacer(Modifier.height(16.dp))
 
             }
         }

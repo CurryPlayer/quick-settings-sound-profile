@@ -26,7 +26,7 @@
     <string name="notice_title">Hinweis</string>
     <string name="zen_rule_name">Stumm-Profil</string>
     <string name="zen_rule_trigger_description">Wenn der Stumm-Modus über die Kachel in den Schnelleinstellungen aktiviert wird</string>
-    <string name="notice_description">Wenn der Stumm-Modus aktiviert ist, werden nur Medien (z. B. Musik, Videos) und Wecker wiedergegeben. Beachte, dass dies nur gilt, wenn der Stumm-Modus über die Kachel dieser App in den Schnelleinstellungen aktiviert wurde. Dieses Verhalten kann unter Android 15 oder höher geändert werden, wird jedoch nicht empfohlen, da dadurch der Stumm-Modus umgangen wird und es zu unerwünschten Vibrationen kommen kann.</string>
+    <string name="notice_description">Wenn der Stumm-Modus aktiviert ist, werden nur Medien (z. B. Musik, Videos) und Wecker wiedergegeben. Ab Android 15 kann das Verhalten dieses Modus angepasst werden. Davon wird jedoch abgeraten, da dies die Stummschaltung umgeht und zu unerwünschten Unterbrechungen führen kann.</string>
     <string name="no_user_managed_modes_available_title">Einschränkungen</string>
     <string name="no_user_managed_modes_available_description">Dein Gerät unterstützt keine benutzerverwalteten Modi. Das bedeutet, dass dein Gerät automatisch einen eigenen \„Bitte nicht stören\“-Zeitplan mit den oben genannten Standardeinstellungen der App anwendet, sobald der Stumm-Modus aktiv ist. Du kannst das spezifische Verhalten jedoch nicht individuell anpassen.</string>
     <string name="new_category_title">Icon Design</string>

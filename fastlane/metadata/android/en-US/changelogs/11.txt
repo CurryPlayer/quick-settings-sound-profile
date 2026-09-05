@@ -1,0 +1,6 @@
+- Added more icon styles for the Quick Settings tile
+- Status bar icon now updates to match the selected mode icon
+- Migrated icons from Material Icons to Material Symbols
+- Updated dependencies:
+-- agp 9.3.1 -> 9.3.2
+-- Gradle Wrapper 9.7.0 -> 9.7.1
