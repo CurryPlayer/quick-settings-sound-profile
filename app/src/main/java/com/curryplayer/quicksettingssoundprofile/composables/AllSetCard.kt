@@ -33,10 +33,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.R
+import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 import com.curryplayer.quicksettingssoundprofile.services.SoundProfileTileService
 
 @Composable
-fun RenderAllSetCard(ctx: Context, modifier: Modifier = Modifier) {
+fun RenderAllSetCard(
+    ctx: Context,
+    iconTheme: IconTheme,
+    modifier: Modifier = Modifier
+) {
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -91,7 +96,7 @@ fun RenderAllSetCard(ctx: Context, modifier: Modifier = Modifier) {
 
                 Button(
                     onClick = {
-                        addTileToStatusBar(ctx)
+                        addTileToStatusBar(ctx, iconTheme)
                     },
                     shape = MaterialTheme.shapes.medium,
                     colors = ButtonDefaults.elevatedButtonColors(
@@ -113,10 +118,10 @@ fun RenderAllSetCard(ctx: Context, modifier: Modifier = Modifier) {
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-private fun addTileToStatusBar(ctx: Context) {
+private fun addTileToStatusBar(ctx: Context, iconTheme: IconTheme) {
     val componentName = ComponentName(ctx, SoundProfileTileService::class.java)
     val statusBarManager = ctx.getSystemService(StatusBarManager::class.java)
-    val icon = Icon.createWithResource(ctx, R.drawable.ic_round_volume_up_24)
+    val icon = Icon.createWithResource(ctx, iconTheme.ringIcon)
     statusBarManager.requestAddTileService(
         componentName,
         ctx.getString(R.string.profile_sound_label),
