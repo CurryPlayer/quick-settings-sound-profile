@@ -13,7 +13,7 @@ object NotificationPolicyUtils {
      * @return True if the permission is granted, false otherwise.
      */
     fun isDoNotDisturbPermissionGranted(applicationContext: Context): Boolean {
-        val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = applicationContext.getSystemService(NotificationManager::class.java)
         return notificationManager.isNotificationPolicyAccessGranted
     }
 
