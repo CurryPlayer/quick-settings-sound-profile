@@ -309,11 +309,12 @@ object ZenRuleUtils {
 
         val audioManager = context.getSystemService(AudioManager::class.java)
 
-        // set ringerMode to 'NORMAL' to let notification sounds through when something is excluded from ZenRule
-//        val needToAdjustRingerMode = audioManager.ringerMode != AudioManager.RINGER_MODE_NORMAL || audioManager.ringerMode != AudioManager.RINGER_MODE_SILENT
-//        if (activate && needToAdjustRingerMode) {
-//            audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
-//        }
+        // set ringerMode to 'NORMAL' before activating zenRule to allow notification sounds for excluded content (contacts, apps, etc.)
+        // should this be a toggleable option??
+        val needToAdjustRingerMode = audioManager.ringerMode != AudioManager.RINGER_MODE_NORMAL && audioManager.ringerMode != AudioManager.RINGER_MODE_SILENT
+        if (activate && needToAdjustRingerMode) {
+            audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+        }
 
         setAutomaticZenRuleState(context, ruleId, activate)
 
