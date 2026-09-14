@@ -7,8 +7,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.drawable.Icon
 import android.media.AudioManager
-import android.os.Build
-import android.service.notification.Condition
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import com.curryplayer.quicksettingssoundprofile.R
@@ -21,7 +19,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import androidx.core.net.toUri
 
 class SoundProfileTileService : TileService() {
 
@@ -132,7 +129,7 @@ class SoundProfileTileService : TileService() {
             return
         }
 
-        val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+        val audioManager = getSystemService(AudioManager::class.java)
 
         _serviceScope.launch {
             when (audioManager.ringerMode) {
@@ -142,14 +139,22 @@ class SoundProfileTileService : TileService() {
 
                 AudioManager.RINGER_MODE_VIBRATE -> {
                     val ruleId = resolveZenRuleId()
-                    setAutomaticZenRuleState(ruleId, true)
-                    audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+                    ZenRuleUtils.applyZenRuleAndRingerMode(
+                        this@SoundProfileTileService,
+                        ruleId = ruleId,
+                        activate = true,
+                        targetRingerMode = AudioManager.RINGER_MODE_SILENT
+                    )
                 }
 
                 AudioManager.RINGER_MODE_SILENT -> {
                     val ruleId = resolveZenRuleId()
-                    setAutomaticZenRuleState(ruleId, false)
-                    audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+                    ZenRuleUtils.applyZenRuleAndRingerMode(
+                        this@SoundProfileTileService,
+                        ruleId = ruleId,
+                        activate = false,
+                        targetRingerMode = AudioManager.RINGER_MODE_NORMAL
+                    )
                 }
             }
             updateTileState()
@@ -158,7 +163,7 @@ class SoundProfileTileService : TileService() {
     }
 
     private suspend fun resolveZenRuleId(): String {
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = getSystemService(NotificationManager::class.java)
         if (_cachedRuleId.isEmpty() || notificationManager.getAutomaticZenRule(_cachedRuleId) == null) {
             // if the rule does not exist, create it and cache its ID
             _cachedRuleId = ZenRuleUtils.syncAutomaticZenRule(this@SoundProfileTileService, _dataStoreManager)
@@ -172,7 +177,7 @@ class SoundProfileTileService : TileService() {
             return
         }
 
-        val currentMode = (getSystemService(AUDIO_SERVICE) as AudioManager).ringerMode
+        val currentMode = getSystemService(AudioManager::class.java).ringerMode
 
         // Only update tile if the mode or theme has actually changed since the last update
         if (currentMode == _lastKnownRingerMode && _iconTheme == _lastKnownIconTheme) {
@@ -199,35 +204,6 @@ class SoundProfileTileService : TileService() {
 
         qsTile.icon = Icon.createWithResource(this, _iconTheme.getIconForMode(currentMode))
         qsTile.updateTile()
-    }
-
-    private fun setAutomaticZenRuleState(ruleId: String, activate: Boolean) {
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        val interruptionFilter = if (activate) NotificationManager.INTERRUPTION_FILTER_PRIORITY else NotificationManager.INTERRUPTION_FILTER_ALL
-
-        if (ruleId.isNotEmpty()) {
-            // requires Android 10 / API 29 and higher
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val conditionId = ZenRuleUtils.SILENT_CONDITION_DND_AND_MODE_URI.toUri()
-                val summary = if (activate) "Active" else "Inactive"
-                val state = if (activate) Condition.STATE_TRUE else Condition.STATE_FALSE
-                val condition = ZenRuleUtils.buildCondition(conditionId, summary, state)
-                notificationManager.setAutomaticZenRuleState(ruleId, condition)
-            } else {
-                // fallback for older Android versions
-                // ensure the ZenRule is enabled/disabled
-                val zenRule = notificationManager.getAutomaticZenRule(ruleId)
-                if (zenRule != null && zenRule.isEnabled != activate) {
-                    zenRule.isEnabled = activate
-                    notificationManager.updateAutomaticZenRule(ruleId, zenRule)
-                }
-                // directly set the interruption filter as fallback
-                notificationManager.setInterruptionFilter(interruptionFilter)
-            }
-        } else {
-            // fallback to set the default interruption filter if rule does not exist
-            notificationManager.setInterruptionFilter(interruptionFilter)
-        }
     }
 
 }

@@ -4,6 +4,7 @@ import android.app.AutomaticZenRule
 import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
+import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.service.notification.Condition
@@ -18,7 +19,9 @@ import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 import com.curryplayer.quicksettingssoundprofile.services.SoundProfileConditionProviderService
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlin.time.Duration.Companion.milliseconds
 
 object ZenRuleUtils {
 
@@ -278,6 +281,109 @@ object ZenRuleUtils {
                 )
             }
         return condition
+    }
+
+    /**
+     * Safely applies the [AutomaticZenRule] state and ensures the [AudioManager.ringerMode] is synchronized.
+     *
+     * Due to the asynchronous nature of Android's system services, directly chaining Do Not Disturb (DND)
+     * changes with ringer mode changes can cause race conditions (e.g., the `AudioService` ignoring commands
+     * or getting stuck in `SILENT` mode).
+     *
+     * This method resolves these issues by:
+     * 1. Polling until the system's `interruptionFilter` actually reflects the DND change.
+     * 2. When activating DND: Waiting for the system to natively force the `SILENT` mode.
+     * 3. When deactivating DND: Repeatedly applying the target mode until the `AudioService` accepts it.
+     *
+     * @param context The context used to access the [NotificationManager] and [AudioManager].
+     * @param ruleId The unique identifier of the rule to apply.
+     * @param activate True if the rule should be activated, false otherwise.
+     * @param targetRingerMode The desired ringer mode after applying the rule.
+     */
+    suspend fun applyZenRuleAndRingerMode(
+        context: Context,
+        ruleId: String,
+        activate: Boolean,
+        targetRingerMode: Int
+    ) {
+
+        val audioManager = context.getSystemService(AudioManager::class.java)
+
+        setAutomaticZenRuleState(context, ruleId, activate)
+
+        // waiting for the system to synchronize the DND filter
+        synchronizeInterruptionFilter(context, activate)
+
+        if (activate) {
+            // waiting for ringerMode 'SILENT' to get synchronized
+            var retries = 0
+            while (audioManager.ringerMode != targetRingerMode && retries < 10) {
+                delay(50.milliseconds)
+                retries++
+            }
+            // fallback: set ringer mode manually
+            if (audioManager.ringerMode != targetRingerMode) {
+                audioManager.ringerMode = targetRingerMode
+            }
+        } else {
+            // applying ringerMode 'NORMAL' or 'VIBRATE' until it is synchronized
+            var retries = 0
+            while (audioManager.ringerMode != targetRingerMode && retries < 10) {
+                audioManager.ringerMode = targetRingerMode
+                delay(50.milliseconds)
+                retries++
+            }
+        }
+    }
+
+    private suspend fun synchronizeInterruptionFilter(
+        ctx: Context,
+        activate: Boolean
+    ) {
+        val expectedFilter = if (activate) {
+            NotificationManager.INTERRUPTION_FILTER_PRIORITY
+        } else {
+            NotificationManager.INTERRUPTION_FILTER_ALL
+        }
+
+        // note: In case that any other DND-Mode is currently active, this will not synchronize
+        val notificationManager = ctx.getSystemService(NotificationManager::class.java)
+        val startTime = System.currentTimeMillis()
+        val timeoutMillis = 100L
+        while (notificationManager.currentInterruptionFilter != expectedFilter && (System.currentTimeMillis() - startTime) < timeoutMillis) {
+            delay(25.milliseconds)
+        }
+    }
+
+    /**
+     * Sets the state of an AutomaticZenRule (or fallback interruption filter).
+     *
+     * @param context The context used to access the [NotificationManager].
+     * @param ruleId The unique identifier of the rule to update.
+     * @param activate True if the rule should be activated, false otherwise.
+     */
+    fun setAutomaticZenRuleState(context: Context, ruleId: String, activate: Boolean) {
+        val notificationManager = context.getSystemService(NotificationManager::class.java)
+        val interruptionFilter = if (activate) NotificationManager.INTERRUPTION_FILTER_PRIORITY else NotificationManager.INTERRUPTION_FILTER_ALL
+
+        if (ruleId.isNotEmpty()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val conditionId = SILENT_CONDITION_DND_AND_MODE_URI.toUri()
+                val summary = if (activate) "Active" else "Inactive"
+                val state = if (activate) Condition.STATE_TRUE else Condition.STATE_FALSE
+                val condition = buildCondition(conditionId, summary, state)
+                notificationManager.setAutomaticZenRuleState(ruleId, condition)
+            } else {
+                val zenRule = notificationManager.getAutomaticZenRule(ruleId)
+                if (zenRule != null && zenRule.isEnabled != activate) {
+                    zenRule.isEnabled = activate
+                    notificationManager.updateAutomaticZenRule(ruleId, zenRule)
+                }
+                notificationManager.setInterruptionFilter(interruptionFilter)
+            }
+        } else {
+            notificationManager.setInterruptionFilter(interruptionFilter)
+        }
     }
 
 }
