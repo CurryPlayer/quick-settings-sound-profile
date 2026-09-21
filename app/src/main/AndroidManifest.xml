@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
         android:allowBackup="true"
@@ -21,12 +22,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <!--
-            Long pressing on the tile will open the MainActivity
-            -->
-            <intent-filter>
-                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES"/>
-            </intent-filter>
-            <!--
             Add the filter for the configuration of the DnD / modes rule.
             This activity is allowed to edit the DnD / modes rule on Android 10 and above.
             -->
@@ -35,6 +30,28 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.curryplayer.quicksettingssoundprofile.TilePreferencesActivity"
+            android:exported="true"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:autoRemoveFromRecents="true"
+            android:showForAllUsers="true"
+            android:launchMode="singleInstance"
+            android:theme="@style/Theme.QuickSettingsSoundProfile.Dialog">
+            <!--
+            Long pressing on the tile will open this dialog activity
+            -->
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
+        </activity>
+
+        <receiver
+            android:name="com.curryplayer.quicksettingssoundprofile.receivers.TimerExpiredReceiver"
+            android:exported="false" />
 
         <service
             android:name="com.curryplayer.quicksettingssoundprofile.services.SoundProfileTileService"
