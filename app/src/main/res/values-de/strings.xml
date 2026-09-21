@@ -54,4 +54,5 @@
     <string name="temporary_mute_title">Zeitweises Stummschalten</string>
     <string name="temporary_mute_desc">Lege fest, wie lange dein Telefon stummgeschaltet bleiben soll, bevor zum vorherigen Sound-Modus zurückgekehrt wird.</string>
     <string name="sound_mode_selection_title">Sound-Modus</string>
+    <string name="tile_options_tip">Halte die Kachel in den Schnelleinstellungen gedrückt, um Timer-Optionen und Einstellungen zu öffnen.</string>
 </resources>
