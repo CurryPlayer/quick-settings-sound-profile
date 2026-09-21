@@ -51,9 +51,11 @@ import androidx.compose.material3.TimePickerDialog
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -81,8 +83,11 @@ import com.curryplayer.quicksettingssoundprofile.utils.AlarmExactUtils
 import com.curryplayer.quicksettingssoundprofile.utils.NotificationPolicyUtils
 import com.curryplayer.quicksettingssoundprofile.utils.ZenRuleUtils
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 class TilePreferencesActivity : ComponentActivity() {
     companion object {
@@ -206,7 +211,21 @@ class TilePreferencesActivity : ComponentActivity() {
                 Text(text = stringResource(R.string.timer_title))
             },
             text = {
-                val currentTime = System.currentTimeMillis()
+                var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
+
+                LaunchedEffect(timerEndTime) {
+                    while (isActive) {
+                        val now = System.currentTimeMillis()
+                        if (timerEndTime <= now) break
+                        currentTime = now
+
+                        val remainingMillis = timerEndTime - now
+                        val millisUntilNextMinute = remainingMillis % 60_000L
+                        val nextDelay = if (millisUntilNextMinute == 0L) 60_000L else millisUntilNextMinute
+                        delay(nextDelay.milliseconds)
+                    }
+                }
+
                 val isTimerActive = timerEndTime > currentTime
 
                 Column(
@@ -229,6 +248,8 @@ class TilePreferencesActivity : ComponentActivity() {
                         RenderTemporaryMuteSelection(
                             selectedMode = selectedMode,
                             isTimerActive = isTimerActive,
+                            timerEndTime = timerEndTime,
+                            currentTime = currentTime,
                             savedMuteDurationMinutes = savedMuteDurationMinutes,
                             onSaveMuteDuration = { minutes ->
                                 scope.launch {
@@ -407,11 +428,14 @@ class TilePreferencesActivity : ComponentActivity() {
     private fun RenderTemporaryMuteSelection(
         selectedMode: Int,
         isTimerActive: Boolean,
+        timerEndTime: Long,
+        currentTime: Long,
         savedMuteDurationMinutes: Int,
         onSaveMuteDuration: (minutes: Int) -> Unit,
         onStartTimer: (minutes: Int) -> Unit,
         onCancelTimer: () -> Unit,
     ) {
+        // FIXME: This will result in one of these three options is selected when custom time has the same value
         var isCustomSelected by remember(savedMuteDurationMinutes) {
             mutableStateOf(savedMuteDurationMinutes !in listOf(DURATION_30_MINUTES, DURATION_60_MINUTES, DURATION_180_MINUTES))
         }
@@ -468,10 +492,20 @@ class TilePreferencesActivity : ComponentActivity() {
 
                         if (isTimerActive) {
                             Spacer(modifier = Modifier.height(16.dp))
-                            // FIXME: Time representation
+
+                            val remainingMillis = (timerEndTime - currentTime).coerceAtLeast(0L)
+                            val totalMinutes = (remainingMillis + 59_999L) / 60_000L
+                            val hours = totalMinutes / 60
+                            val minutes = totalMinutes % 60
+
+                            val timeString = when {
+                                hours > 0 && minutes > 0 -> stringResource(R.string.time_format_hours_minutes, hours, minutes)
+                                hours > 0 -> stringResource(R.string.time_format_hours_only, hours)
+                                else -> stringResource(R.string.time_format_minutes_only, minutes)
+                            }
 
                             Text(
-                                text = "Remaining Time: $finalMinutes min",
+                                text = stringResource(R.string.time_remaining, timeString),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
