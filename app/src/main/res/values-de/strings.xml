@@ -40,7 +40,7 @@
     <string name="duration_1h">1 Std</string>
     <string name="duration_2h">2 Std</string>
     <string name="duration_3h">3 Std</string>
-    <string name="custom_minutes">Eigene Min.</string>
+    <string name="custom_minutes">Benutzerdefiniert</string>
     <string name="start_timer">Starten</string>
     <string name="cancel_timer">Timer beenden</string>
     <string name="timer_active_until">Bis %s</string>
