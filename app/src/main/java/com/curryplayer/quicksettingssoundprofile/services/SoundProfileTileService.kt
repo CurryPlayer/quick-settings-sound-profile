@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.drawable.Icon
 import android.media.AudioManager
+import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import com.curryplayer.quicksettingssoundprofile.R
@@ -19,6 +20,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 class SoundProfileTileService : TileService() {
 
@@ -35,6 +40,8 @@ class SoundProfileTileService : TileService() {
     private var _iconTheme: IconTheme = IconTheme.VOLUME_DEFAULT
     private var _lastKnownIconTheme: IconTheme? = null
     private var _cachedRuleId: String = ""
+    private var _lastKnownTimerEndTime: Long = 0
+    private var _timerEndTime: Long = 0
 
     /**
      * A [BroadcastReceiver] that listens for changes in the device's ringer mode and DnD
@@ -66,6 +73,12 @@ class SoundProfileTileService : TileService() {
                 updateTileState()
             }
         }
+        _serviceScope.launch {
+            _dataStoreManager.timerEndTime.collect { time ->
+                _timerEndTime = time
+                updateTileState()
+            }
+        }
     }
 
     override fun onTileAdded() {
@@ -83,11 +96,7 @@ class SoundProfileTileService : TileService() {
 
     override fun onStartListening() {
         super.onStartListening()
-        val filter = IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION).apply {
-            // it seems that an interruption filter also has an effect on the audioManager.ringerMode to change its behavior
-            addAction(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED)
-        }
-        registerReceiver(_ringerModeChangedReceiver, filter)
+        registerRingerModeReceiver()
         updateTileState()
     }
 
@@ -98,6 +107,7 @@ class SoundProfileTileService : TileService() {
 
     override fun onClick() {
         super.onClick()
+        // TODO: Deactivate Timer if present
         changeSoundProfileAndUpdateTileState()
     }
 
@@ -105,6 +115,19 @@ class SoundProfileTileService : TileService() {
         super.onDestroy()
         unregisterRingerModeChangedReceiver()
         _serviceScope.cancel()
+    }
+
+    private fun registerRingerModeReceiver() {
+        val filter = IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION).apply {
+            // it seems that an interruption filter also has an effect on the audioManager.ringerMode to change its behavior
+            addAction(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(_ringerModeChangedReceiver, filter, RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(_ringerModeChangedReceiver, filter)
+        }
     }
 
     private fun unregisterRingerModeChangedReceiver() {
@@ -179,26 +202,45 @@ class SoundProfileTileService : TileService() {
 
         val currentMode = getSystemService(AudioManager::class.java).ringerMode
 
-        // Only update tile if the mode or theme has actually changed since the last update
-        if (currentMode == _lastKnownRingerMode && _iconTheme == _lastKnownIconTheme) {
+        // TODO: check if logic is correct and not unnecessary
+        // Only update tile if the mode, theme or timerEndTime has actually changed since the last update
+        if (currentMode == _lastKnownRingerMode && _iconTheme == _lastKnownIconTheme && _timerEndTime == _lastKnownTimerEndTime) {
             return
         }
 
         _lastKnownRingerMode = currentMode
         _lastKnownIconTheme = _iconTheme
+        _lastKnownTimerEndTime = _timerEndTime
+
 
         when (currentMode) {
             AudioManager.RINGER_MODE_NORMAL -> {
                 qsTile.state = Tile.STATE_ACTIVE
                 qsTile.label = getString(R.string.profile_sound_label)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    qsTile.subtitle = null
+                }
             }
             AudioManager.RINGER_MODE_VIBRATE -> {
                 qsTile.state = Tile.STATE_INACTIVE
                 qsTile.label = getString(R.string.profile_vibrate_label)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    qsTile.subtitle = null
+                }
             }
             AudioManager.RINGER_MODE_SILENT -> {
                 qsTile.state = Tile.STATE_INACTIVE
                 qsTile.label = getString(R.string.profile_silent_label)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (_timerEndTime > System.currentTimeMillis()) {
+                        val formattedLocalTime = Instant.ofEpochMilli(_timerEndTime)
+                            .atZone(ZoneId.systemDefault())
+                            .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
+                        qsTile.subtitle = getString(R.string.timer_active_until, formattedLocalTime)
+                    } else {
+                        qsTile.subtitle = null
+                    }
+                }
             }
         }
 
