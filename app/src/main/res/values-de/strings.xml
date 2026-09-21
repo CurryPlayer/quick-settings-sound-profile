@@ -49,6 +49,8 @@
     <string name="grant_exact_alarm_desc">Damit der Timer pünktlich abläuft, erteile der App in den Einstellungen bitte die Berechtigung für exakte Alarme.</string>
     <string name="button_grant_exact_alarm">Berechtigung erteilen</string>
     <string name="time_format_hours_minutes">%1$d Std. %2$d Min.</string>
+    <string name="time_format_hours_only">%1$d Std.</string>
+    <string name="time_format_minutes_only">%1$d Min.</string>
     <string name="time_format_minutes_seconds">%1$d Min. %2$02d Sek.</string>
     <string name="time_format_seconds_only">%1$d Sek.</string>
     <string name="temporary_mute_title">Zeitweises Stummschalten</string>

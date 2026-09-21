@@ -49,6 +49,8 @@
     <string name="grant_exact_alarm_desc">To ensure your timer expires precisely on time, please allow exact alarms for this app in settings.</string>
     <string name="button_grant_exact_alarm">Grant Permission</string>
     <string name="time_format_hours_minutes">%1$d h %2$d m</string>
+    <string name="time_format_hours_only">%1$d h</string>
+    <string name="time_format_minutes_only">%1$d m</string>
     <string name="time_format_minutes_seconds">%1$d m %2$02d s</string>
     <string name="time_format_seconds_only">%1$d s</string>
     <string name="temporary_mute_title">Temporary mute</string>
