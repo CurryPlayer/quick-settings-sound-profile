@@ -1,0 +1,866 @@
+package com.curryplayer.quicksettingssoundprofile
+
+import android.app.AlarmManager
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.ActivityNotFoundException
+import android.content.BroadcastReceiver
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.media.AudioManager
+import android.os.Build
+import android.os.Bundle
+import android.provider.Settings
+import android.service.quicksettings.TileService
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDialog
+import androidx.compose.material3.rememberTimePickerState
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
+import androidx.lifecycle.lifecycleScope
+import com.curryplayer.quicksettingssoundprofile.composables.AppButton
+import com.curryplayer.quicksettingssoundprofile.composables.AppButtonType
+import com.curryplayer.quicksettingssoundprofile.composables.RenderGrantPermissionCard
+import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
+import com.curryplayer.quicksettingssoundprofile.models.IconTheme
+import com.curryplayer.quicksettingssoundprofile.receivers.TimerExpiredReceiver
+import com.curryplayer.quicksettingssoundprofile.services.SoundProfileTileService
+import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProfileTheme
+import com.curryplayer.quicksettingssoundprofile.utils.AlarmExactUtils
+import com.curryplayer.quicksettingssoundprofile.utils.NotificationPolicyUtils
+import com.curryplayer.quicksettingssoundprofile.utils.ZenRuleUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+
+class TilePreferencesActivity : ComponentActivity() {
+    companion object {
+        private const val DURATION_30_MINUTES = 30
+        private const val DURATION_60_MINUTES = 60
+        private const val DURATION_180_MINUTES = 180
+    }
+
+    private var scheduleExactAlarmsPermissionGrantedState by mutableStateOf(false)
+    private var dndPermissionGrantedState by mutableStateOf(false)
+    private var selectedSoundModeState by mutableIntStateOf(AudioManager.RINGER_MODE_NORMAL)
+    private lateinit var dataStoreManager: DataStoreManager
+
+    private val ringerModeReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == AudioManager.RINGER_MODE_CHANGED_ACTION ||
+                intent?.action == NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED) {
+                updateRingerModeState()
+            }
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+
+        dataStoreManager = DataStoreManager(this)
+        updateRingerModeState()
+
+        setContent {
+            QuickSettingsSoundProfileTheme {
+                val timerEndTime by dataStoreManager.timerEndTime.collectAsState(initial = 0L)
+                val savedIconThemeIndex by dataStoreManager.iconTheme.collectAsState(initial = IconTheme.VOLUME_DEFAULT.ordinal)
+                val savedMuteDurationMinutes by dataStoreManager.lastMuteDurationMinutes.collectAsState(initial = DURATION_60_MINUTES)
+                val iconTheme = remember(savedIconThemeIndex) { IconTheme.fromOrdinal(savedIconThemeIndex) }
+                val scope = rememberCoroutineScope()
+
+                RenderFloatingAlertActivity(
+                    selectedMode = selectedSoundModeState,
+                    timerEndTime = timerEndTime,
+                    savedMuteDurationMinutes = savedMuteDurationMinutes,
+                    scope = scope,
+                    iconTheme = iconTheme
+                )
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkPermissionsAndSyncRule()
+        updateRingerModeState()
+        registerRingerModeReceiver()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        unregisterRingerModeReceiver()
+        if (!isFinishing) {
+            finish()
+        }
+    }
+
+    private fun updateRingerModeState() {
+        selectedSoundModeState = getSystemService(AudioManager::class.java).ringerMode
+    }
+
+    private fun registerRingerModeReceiver() {
+        val filter = IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION).apply {
+            addAction(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(ringerModeReceiver, filter, RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(ringerModeReceiver, filter)
+        }
+    }
+
+    private fun unregisterRingerModeReceiver() {
+        try {
+            unregisterReceiver(ringerModeReceiver)
+        } catch (_: IllegalArgumentException) {
+            // Receiver previously not registered or already unregistered
+        }
+    }
+
+    private fun checkPermissionsAndSyncRule() {
+        dndPermissionGrantedState = NotificationPolicyUtils.isDoNotDisturbPermissionGranted(this)
+        if (dndPermissionGrantedState) {
+            lifecycleScope.launch {
+                ZenRuleUtils.syncAutomaticZenRule(this@TilePreferencesActivity, dataStoreManager)
+            }
+
+        }
+        checkExactAlarmPermission()
+    }
+
+    private fun checkExactAlarmPermission() {
+        scheduleExactAlarmsPermissionGrantedState = AlarmExactUtils.isScheduleExactAlarmsPermissionGranted(this)
+    }
+
+    @Composable
+    private fun RenderFloatingAlertActivity(
+        selectedMode: Int,
+        timerEndTime: Long,
+        savedMuteDurationMinutes: Int,
+        scope: CoroutineScope,
+        iconTheme: IconTheme
+    ) {
+        AlertDialog(
+            onDismissRequest = { finish() },
+            modifier = Modifier.border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.primary,
+                shape = AlertDialogDefaults.shape
+            ),
+            title = {
+                Text(text = stringResource(R.string.timer_title))
+            },
+            text = {
+                val currentTime = System.currentTimeMillis()
+                val isTimerActive = timerEndTime > currentTime
+
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState())
+                ) {
+                    if (!dndPermissionGrantedState) {
+                        RenderGrantPermissionCard(ctx = this@TilePreferencesActivity, outerPadding = 0)
+                    } else {
+
+                        RenderGrantExactAlarmPermission(scheduleExactAlarmsPermissionGrantedState)
+
+                        RenderSoundModeSelection(
+                            selectedMode = selectedMode,
+                            iconTheme = iconTheme,
+                            onSelectedMode = { mode ->
+                                selectedSoundModeState = mode
+                            }
+                        )
+
+                        RenderTemporaryMuteSelection(
+                            selectedMode = selectedMode,
+                            isTimerActive = isTimerActive,
+                            savedMuteDurationMinutes = savedMuteDurationMinutes,
+                            onSaveMuteDuration = { minutes ->
+                                scope.launch {
+                                    dataStoreManager.saveMuteDurationMinutes(minutes)
+                                }
+                            },
+                            onStartTimer = { minutes ->
+                                scope.launch {
+                                    startTimer(minutes)
+                                }
+                            },
+                            onCancelTimer = {
+                                scope.launch {
+                                    cancelTimer()
+                                }
+                            }
+                        )
+                    }
+                }
+
+            },
+            confirmButton = {
+                RenderAlertDialogButtons()
+            },
+            dismissButton = {
+                // unused
+            }
+        )
+    }
+
+    @Composable
+    private fun RenderGrantExactAlarmPermission(
+        canScheduleExactAlarms: Boolean
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            if (!canScheduleExactAlarms) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .background(
+                                    MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.1f),
+                                    CircleShape
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_round_info_24),
+                                contentDescription = null,
+                                modifier = Modifier.size(25.dp),
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(R.string.grant_exact_alarm_title),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = stringResource(R.string.grant_exact_alarm_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(
+                            onClick = {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                    openExactAlarmSettings(this@TilePreferencesActivity)
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            Text(text = stringResource(R.string.button_grant_exact_alarm))
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun RenderSoundModeSelection(
+        selectedMode: Int,
+        iconTheme: IconTheme,
+        onSelectedMode: (Int) -> Unit,
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(R.string.sound_mode_selection_title),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Sound Mode Card
+                SoundModeCard(
+                    title = stringResource(R.string.profile_sound_label),
+                    iconRes = iconTheme.ringIcon,
+                    isSelected = selectedMode == AudioManager.RINGER_MODE_NORMAL,
+                    onClick = {
+                        onSelectedMode(AudioManager.RINGER_MODE_NORMAL)
+                        lifecycleScope.launch {
+                            cancelTimer()
+                            applyModeImmediately(AudioManager.RINGER_MODE_NORMAL)
+                        }
+
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+
+                // Vibrate Mode Card
+                SoundModeCard(
+                    title = stringResource(R.string.profile_vibrate_label),
+                    iconRes = iconTheme.vibrateIcon,
+                    isSelected = selectedMode == AudioManager.RINGER_MODE_VIBRATE,
+                    onClick = {
+                        onSelectedMode(AudioManager.RINGER_MODE_VIBRATE)
+                        lifecycleScope.launch {
+                            cancelTimer()
+                            applyModeImmediately(AudioManager.RINGER_MODE_VIBRATE)
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+
+                // Mute / Silent Mode Card
+                SoundModeCard(
+                    title = stringResource(R.string.profile_silent_label),
+                    iconRes = iconTheme.silentIcon,
+                    isSelected = selectedMode == AudioManager.RINGER_MODE_SILENT,
+                    onClick = {
+                        onSelectedMode(AudioManager.RINGER_MODE_SILENT)
+                        lifecycleScope.launch {
+                            applyModeImmediately(AudioManager.RINGER_MODE_SILENT)
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun RenderTemporaryMuteSelection(
+        selectedMode: Int,
+        isTimerActive: Boolean,
+        savedMuteDurationMinutes: Int,
+        onSaveMuteDuration: (minutes: Int) -> Unit,
+        onStartTimer: (minutes: Int) -> Unit,
+        onCancelTimer: () -> Unit,
+    ) {
+        var isCustomSelected by remember(savedMuteDurationMinutes) {
+            mutableStateOf(savedMuteDurationMinutes !in listOf(DURATION_30_MINUTES, DURATION_60_MINUTES, DURATION_180_MINUTES))
+        }
+        var selectedPresetMinutes by remember(savedMuteDurationMinutes) {
+            mutableIntStateOf(if (savedMuteDurationMinutes in listOf(DURATION_30_MINUTES, DURATION_60_MINUTES, DURATION_180_MINUTES)) savedMuteDurationMinutes else DURATION_60_MINUTES)
+        }
+        var customHours by remember(savedMuteDurationMinutes) {
+            mutableIntStateOf(savedMuteDurationMinutes / DURATION_60_MINUTES)
+        }
+        var customMinutes by remember(savedMuteDurationMinutes) {
+            mutableIntStateOf(savedMuteDurationMinutes % DURATION_60_MINUTES)
+        }
+        var showTimeSelectorDialog by remember { mutableStateOf(false) }
+
+        val finalMinutes = if (isCustomSelected) {
+            customHours * DURATION_60_MINUTES + customMinutes
+        } else {
+            selectedPresetMinutes
+        }
+
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            if (selectedMode == AudioManager.RINGER_MODE_SILENT) {
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 16.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Min),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.temporary_mute_title),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = stringResource(R.string.temporary_mute_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        if (isTimerActive) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            // FIXME: Time representation
+
+                            Text(
+                                text = "Remaining Time: $finalMinutes min",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                        }
+                    }
+
+                    VerticalDivider(
+                        modifier = Modifier.padding(
+                            horizontal = 12.dp,
+                            vertical = 2.dp
+                        ),
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+
+                    Switch(
+                        checked = isTimerActive,
+                        onCheckedChange = { isChecked ->
+                            if (isChecked) {
+                                onSaveMuteDuration(finalMinutes)
+                                onStartTimer(finalMinutes)
+                            } else {
+                                onCancelTimer()
+                            }
+                        }
+                    )
+                }
+
+                if (isTimerActive) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 16.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+
+                    Text(
+                        text = stringResource(R.string.select_duration),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        FilterChip(
+                            selected = !isCustomSelected && selectedPresetMinutes == DURATION_30_MINUTES,
+                            onClick = {
+                                isCustomSelected = false
+                                selectedPresetMinutes = DURATION_30_MINUTES
+                                onSaveMuteDuration(DURATION_30_MINUTES)
+                                if (isTimerActive) {
+                                    onStartTimer(DURATION_30_MINUTES)
+                                }
+                            },
+                            label = {
+                                Text(
+                                    text = stringResource(R.string.duration_30m),
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Center
+                                )
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+
+                        FilterChip(
+                            selected = !isCustomSelected && selectedPresetMinutes == DURATION_60_MINUTES,
+                            onClick = {
+                                isCustomSelected = false
+                                selectedPresetMinutes = DURATION_60_MINUTES
+                                onSaveMuteDuration(DURATION_60_MINUTES)
+                                if (isTimerActive) {
+                                    onStartTimer(DURATION_60_MINUTES)
+                                }
+                            },
+                            label = {
+                                Text(
+                                    text = stringResource(R.string.duration_1h),
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Center
+                                )
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+
+                        FilterChip(
+                            selected = !isCustomSelected && selectedPresetMinutes == DURATION_180_MINUTES,
+                            onClick = {
+                                isCustomSelected = false
+                                selectedPresetMinutes = DURATION_180_MINUTES
+                                onSaveMuteDuration(DURATION_180_MINUTES)
+                                if (isTimerActive) {
+                                    onStartTimer(DURATION_180_MINUTES)
+                                }
+                            },
+                            label = {
+                                Text(
+                                    text = stringResource(R.string.duration_3h),
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Center
+                                )
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        FilterChip(
+                            selected = isCustomSelected,
+                            onClick = {
+                                isCustomSelected = true
+                                showTimeSelectorDialog = true
+                                if (isTimerActive) {
+                                    onStartTimer(customHours * DURATION_60_MINUTES + customMinutes)
+                                }
+                            },
+                            label = {
+                                val customText = if (isCustomSelected && finalMinutes > 0) {
+                                    "${stringResource(R.string.custom_minutes)} (${finalMinutes}m)"
+                                } else {
+                                    stringResource(R.string.custom_minutes)
+                                }
+                                Text(
+                                    text = customText,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        )
+                    }
+
+                    if (showTimeSelectorDialog) {
+                        val timePickerState = rememberTimePickerState(
+                            initialHour = customHours,
+                            initialMinute = customMinutes,
+                            is24Hour = true
+                        )
+
+                        TimePickerDialog(
+                            onDismissRequest = { showTimeSelectorDialog = false },
+                            title = {
+                                Text(
+                                    text = "Dauer einstellen",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            },
+                            confirmButton = {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    AppButton(
+                                        text = stringResource(R.string.alert_button_close),
+                                        onClick = {
+                                            showTimeSelectorDialog = false
+                                        },
+                                        type = AppButtonType.OUTLINED
+                                    )
+                                    AppButton(
+                                        text = stringResource(R.string.start_timer),
+                                        onClick = {
+                                            customHours = timePickerState.hour
+                                            customMinutes = timePickerState.minute
+                                            val duration = timePickerState.hour * DURATION_60_MINUTES + timePickerState.minute
+                                            onSaveMuteDuration(duration)
+                                            if (isTimerActive) {
+                                                onStartTimer(duration)
+                                            }
+                                            showTimeSelectorDialog = false
+                                        },
+                                        type = AppButtonType.FILLED
+                                    )
+                                }
+                            },
+                            dismissButton = {
+                                // unused
+                            }
+                        ) {
+                            TimePicker(
+                                state = timePickerState
+                            )
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    @Composable
+    private fun RenderAlertDialogButtons() {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            AppButton(
+                text = stringResource(R.string.open_app_button),
+                onClick = {
+                    val intent = Intent(
+                        this@TilePreferencesActivity,
+                        MainActivity::class.java
+                    ).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    }
+                    try {
+                        startActivity(intent)
+                    } catch (_: ActivityNotFoundException) {
+                        Toast.makeText(
+                            this@TilePreferencesActivity,
+                            this@TilePreferencesActivity.getString(R.string.toast_intent_failed),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    finish()
+                },
+                type = AppButtonType.OUTLINED
+            )
+            AppButton(
+                text = stringResource(R.string.alert_button_close),
+                onClick = { finish() },
+                type = AppButtonType.FILLED
+            )
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun openExactAlarmSettings(ctx: Context) {
+        val intent = Intent(
+            Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+            "package:$packageName".toUri()
+        )
+        try {
+            startActivity(intent)
+        } catch (_: ActivityNotFoundException) {
+            Toast.makeText(
+                ctx,
+                ctx.getString(R.string.toast_intent_failed),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+    }
+
+    private suspend fun applyModeImmediately(targetMode: Int) {
+        val ruleId = resolveZenRuleId()
+        val activate = (targetMode == AudioManager.RINGER_MODE_SILENT)
+        ZenRuleUtils.applyZenRuleAndRingerMode(this, ruleId, activate, targetMode)
+
+        val alarmManager = getSystemService(AlarmManager::class.java)
+        val intent = Intent(this, TimerExpiredReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+        )
+        if (pendingIntent != null) {
+            alarmManager.cancel(pendingIntent)
+            pendingIntent.cancel()
+        }
+        dataStoreManager.clearTimer()
+
+        TileService.requestListeningState(
+            this,
+            ComponentName(this, SoundProfileTileService::class.java)
+        )
+    }
+
+    @Composable
+    private fun SoundModeCard(
+        title: String,
+        iconRes: Int,
+        isSelected: Boolean,
+        onClick: () -> Unit,
+        modifier: Modifier = Modifier
+    ) {
+        Card(
+            onClick = onClick,
+            modifier = modifier,
+            colors = CardDefaults.cardColors(
+                containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
+            ),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = title,
+                    tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                    color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                RadioButton(
+                    selected = isSelected,
+                    onClick = null
+                )
+            }
+        }
+    }
+
+    private suspend fun startTimer(durationMinutes: Int) {
+        val audioManager = getSystemService(AudioManager::class.java)
+        val previousMode = audioManager.ringerMode
+
+        val durationMillis = durationMinutes * 60 * 1000L
+        val endTime = System.currentTimeMillis() + durationMillis
+
+        // Save timer and last duration in DataStore
+        dataStoreManager.saveMuteDurationMinutes(durationMinutes)
+        dataStoreManager.saveTimer(endTime, previousMode)
+
+        // Schedule AlarmManager
+        val alarmManager = getSystemService(AlarmManager::class.java) as AlarmManager
+        val intent = Intent(this, TimerExpiredReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (alarmManager.canScheduleExactAlarms()) {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC,
+                    endTime,
+                    pendingIntent
+                )
+            }
+            else {
+                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC, endTime, pendingIntent)
+            }
+        } else {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC, endTime, pendingIntent)
+        }
+
+        // Refresh Tile
+        TileService.requestListeningState(
+            this,
+            ComponentName(this, SoundProfileTileService::class.java)
+        )
+    }
+
+    private suspend fun cancelTimer() {
+        val alarmManager = getSystemService(AlarmManager::class.java)
+        val intent = Intent(this, TimerExpiredReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+        )
+        if (pendingIntent != null) {
+            alarmManager.cancel(pendingIntent)
+            pendingIntent.cancel()
+        }
+
+        dataStoreManager.clearTimer()
+        Log.i("TilePreferencesActivity", "Timer canceled ${dataStoreManager.timerEndTime}")
+
+        TileService.requestListeningState(
+            this,
+            ComponentName(this, SoundProfileTileService::class.java)
+        )
+    }
+
+    private suspend fun resolveZenRuleId(): String {
+        val notificationManager = getSystemService(NotificationManager::class.java)
+        var cachedId = dataStoreManager.zenRuleId.first()
+        if (cachedId.isEmpty() || notificationManager.getAutomaticZenRule(cachedId) == null) {
+            cachedId = ZenRuleUtils.syncAutomaticZenRule(this@TilePreferencesActivity, dataStoreManager)
+        }
+        return cachedId
+    }
+}
