@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.R
 
 @Composable
-fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier) {
+fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier, outerPadding: Int = 16) {
     var showDialog by remember { mutableStateOf(false) }
 
     if (showDialog) {
@@ -56,7 +56,7 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(outerPadding.dp),
         shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
