@@ -8,6 +8,7 @@
     <string name="alert_grant_do_not_disturb_permission_desc">Auf dem nächsten Bildschirm wird eine Liste mit Apps angezeigt. Bitte wähle \„Quick Settings Sound Profile\“ aus und erteile der App die entsprechende Berechtigung.</string>
     <string name="alert_button_confirm">Verstanden</string>
     <string name="alert_button_cancel">Abbrechen</string>
+    <string name="alert_button_close">Schließen</string>
     <string name="button_grant_permission">Berechtigung erteilen</string>
     <string name="button_add_tile">Kachel hinzufügen</string>
     <string name="tile_added_success">Kachel erfolgreich hinzugefügt</string>
@@ -31,4 +32,26 @@
     <string name="no_user_managed_modes_available_description">Dein Gerät unterstützt keine benutzerverwalteten Modi. Das bedeutet, dass dein Gerät automatisch einen eigenen \„Bitte nicht stören\“-Zeitplan mit den oben genannten Standardeinstellungen der App anwendet, sobald der Stumm-Modus aktiv ist. Du kannst das spezifische Verhalten jedoch nicht individuell anpassen.</string>
     <string name="new_category_title">Icon Design</string>
     <string name="new_category_description">Wähle das Design der Icons für die Schnelleinstellungs-Kachel</string>
+    <string name="open_app_button">App öffnen</string>
+    <string name="timer_title">Timer &amp; Sound-Profil</string>
+    <string name="select_mode">Ziel-Modus</string>
+    <string name="select_duration">Dauer</string>
+    <string name="duration_30m">30 Min</string>
+    <string name="duration_1h">1 Std</string>
+    <string name="duration_2h">2 Std</string>
+    <string name="duration_3h">3 Std</string>
+    <string name="custom_minutes">Eigene Min.</string>
+    <string name="start_timer">Starten</string>
+    <string name="cancel_timer">Timer beenden</string>
+    <string name="timer_active_until">Bis %s</string>
+    <string name="time_remaining">Verbleibend: %s</string>
+    <string name="grant_exact_alarm_title">Exakte Alarme erlauben</string>
+    <string name="grant_exact_alarm_desc">Damit der Timer pünktlich abläuft, erteile der App in den Einstellungen bitte die Berechtigung für exakte Alarme.</string>
+    <string name="button_grant_exact_alarm">Berechtigung erteilen</string>
+    <string name="time_format_hours_minutes">%1$d Std. %2$d Min.</string>
+    <string name="time_format_minutes_seconds">%1$d Min. %2$02d Sek.</string>
+    <string name="time_format_seconds_only">%1$d Sek.</string>
+    <string name="temporary_mute_title">Zeitweises Stummschalten</string>
+    <string name="temporary_mute_desc">Lege fest, wie lange dein Telefon stummgeschaltet bleiben soll, bevor zum vorherigen Sound-Modus zurückgekehrt wird.</string>
+    <string name="sound_mode_selection_title">Sound-Modus</string>
 </resources>

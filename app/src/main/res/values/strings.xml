@@ -8,6 +8,7 @@
     <string name="alert_grant_do_not_disturb_permission_desc">The next screen will display a list of apps. Please select \'Quick Settings Sound Profile\' and allow the app to use this permission.</string>
     <string name="alert_button_confirm">Understood</string>
     <string name="alert_button_cancel">Cancel</string>
+    <string name="alert_button_close">Close</string>
     <string name="button_grant_permission">Grant Permission</string>
     <string name="button_add_tile">Add Sound Tile</string>
     <string name="tile_added_success">Tile added successfully</string>
@@ -31,4 +32,26 @@
     <string name="no_user_managed_modes_available_description">Your device doesn\'t support user-managed modes. This means your device will automatically apply a standard \'Do Not Disturb\' schedule with the app\'s default settings mentioned above whenever Silent Mode is active. However, you won\'t be able to customize its specific behavior.</string>
     <string name="new_category_title">Icon Design</string>
     <string name="new_category_description">Select the icon design for the Quick Settings tile</string>
+    <string name="open_app_button">Open App</string>
+    <string name="timer_title">Timer &amp; Sound Profile</string>
+    <string name="select_mode">Target Mode</string>
+    <string name="select_duration">Duration</string>
+    <string name="duration_30m">30m</string>
+    <string name="duration_1h">1h</string>
+    <string name="duration_2h">2h</string>
+    <string name="duration_3h">3h</string>
+    <string name="custom_minutes">Custom (min)</string>
+    <string name="start_timer">Start</string>
+    <string name="cancel_timer">Stop Timer</string>
+    <string name="timer_active_until">Until %s</string>
+    <string name="time_remaining">Remaining: %s</string>
+    <string name="grant_exact_alarm_title">Exact Alarms Permission</string>
+    <string name="grant_exact_alarm_desc">To ensure your timer expires precisely on time, please allow exact alarms for this app in settings.</string>
+    <string name="button_grant_exact_alarm">Grant Permission</string>
+    <string name="time_format_hours_minutes">%1$d h %2$d m</string>
+    <string name="time_format_minutes_seconds">%1$d m %2$02d s</string>
+    <string name="time_format_seconds_only">%1$d s</string>
+    <string name="temporary_mute_title">Temporary mute</string>
+    <string name="temporary_mute_desc">Set how long to keep your phone muted before returning to the previous sound mode.</string>
+    <string name="sound_mode_selection_title">Sound Mode</string>
 </resources>
