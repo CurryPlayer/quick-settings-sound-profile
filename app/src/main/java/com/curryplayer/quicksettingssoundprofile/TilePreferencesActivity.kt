@@ -1,11 +1,8 @@
 package com.curryplayer.quicksettingssoundprofile
 
-import android.app.AlarmManager
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.ActivityNotFoundException
 import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -13,8 +10,6 @@ import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.service.quicksettings.TileService
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -77,9 +72,10 @@ import com.curryplayer.quicksettingssoundprofile.composables.AppButton
 import com.curryplayer.quicksettingssoundprofile.composables.AppButtonType
 import com.curryplayer.quicksettingssoundprofile.composables.RenderGrantPermissionCard
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
+import com.curryplayer.quicksettingssoundprofile.models.AlarmItem
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
-import com.curryplayer.quicksettingssoundprofile.receivers.TimerExpiredReceiver
-import com.curryplayer.quicksettingssoundprofile.services.SoundProfileTileService
+import com.curryplayer.quicksettingssoundprofile.scheduler.AlarmScheduler
+import com.curryplayer.quicksettingssoundprofile.scheduler.AlarmSchedulerImpl
 import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProfileTheme
 import com.curryplayer.quicksettingssoundprofile.utils.AlarmExactUtils
 import com.curryplayer.quicksettingssoundprofile.utils.NotificationPolicyUtils
@@ -99,6 +95,7 @@ class TilePreferencesActivity : ComponentActivity() {
     private var dndPermissionGrantedState by mutableStateOf(false)
     private var selectedSoundModeState by mutableIntStateOf(AudioManager.RINGER_MODE_NORMAL)
     private lateinit var dataStoreManager: DataStoreManager
+    private lateinit var alarmScheduler: AlarmScheduler
 
     private val ringerModeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -114,6 +111,7 @@ class TilePreferencesActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         dataStoreManager = DataStoreManager(this)
+        alarmScheduler = AlarmSchedulerImpl(this, dataStoreManager)
         updateRingerModeState()
 
         setContent {
@@ -239,12 +237,12 @@ class TilePreferencesActivity : ComponentActivity() {
                             },
                             onStartTimer = { minutes ->
                                 scope.launch {
-                                    startTimer(minutes)
+                                    alarmScheduler.schedule(AlarmItem(minutes))
                                 }
                             },
                             onCancelTimer = {
                                 scope.launch {
-                                    cancelTimer()
+                                    alarmScheduler.cancel()
                                 }
                             }
                         )
@@ -359,7 +357,6 @@ class TilePreferencesActivity : ComponentActivity() {
                     onClick = {
                         onSelectedMode(AudioManager.RINGER_MODE_NORMAL)
                         lifecycleScope.launch {
-                            cancelTimer()
                             applyModeImmediately(AudioManager.RINGER_MODE_NORMAL)
                         }
 
@@ -375,7 +372,6 @@ class TilePreferencesActivity : ComponentActivity() {
                     onClick = {
                         onSelectedMode(AudioManager.RINGER_MODE_VIBRATE)
                         lifecycleScope.launch {
-                            cancelTimer()
                             applyModeImmediately(AudioManager.RINGER_MODE_VIBRATE)
                         }
                     },
@@ -594,6 +590,7 @@ class TilePreferencesActivity : ComponentActivity() {
                                 }
                             },
                             label = {
+                                // TODO: Fix text representation for different translations (min, m, h, Std....)
                                 val customText = if (isCustomSelected && finalMinutes > 0) {
                                     "${stringResource(R.string.custom_minutes)} (${finalMinutes}m)"
                                 } else {
@@ -619,6 +616,7 @@ class TilePreferencesActivity : ComponentActivity() {
                             onDismissRequest = { showTimeSelectorDialog = false },
                             title = {
                                 Text(
+                                    // TODO: translate text
                                     text = "Dauer einstellen",
                                     style = MaterialTheme.typography.titleMedium,
                                     color = MaterialTheme.colorScheme.primary
@@ -726,24 +724,7 @@ class TilePreferencesActivity : ComponentActivity() {
         val activate = (targetMode == AudioManager.RINGER_MODE_SILENT)
         ZenRuleUtils.applyZenRuleAndRingerMode(this, ruleId, activate, targetMode)
 
-        val alarmManager = getSystemService(AlarmManager::class.java)
-        val intent = Intent(this, TimerExpiredReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
-            this,
-            0,
-            intent,
-            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
-        )
-        if (pendingIntent != null) {
-            alarmManager.cancel(pendingIntent)
-            pendingIntent.cancel()
-        }
-        dataStoreManager.clearTimer()
-
-        TileService.requestListeningState(
-            this,
-            ComponentName(this, SoundProfileTileService::class.java)
-        )
+        alarmScheduler.cancel()
     }
 
     @Composable
@@ -787,72 +768,6 @@ class TilePreferencesActivity : ComponentActivity() {
                 )
             }
         }
-    }
-
-    private suspend fun startTimer(durationMinutes: Int) {
-        val audioManager = getSystemService(AudioManager::class.java)
-        val previousMode = audioManager.ringerMode
-
-        val durationMillis = durationMinutes * 60 * 1000L
-        val endTime = System.currentTimeMillis() + durationMillis
-
-        // Save timer and last duration in DataStore
-        dataStoreManager.saveMuteDurationMinutes(durationMinutes)
-        dataStoreManager.saveTimer(endTime, previousMode)
-
-        // Schedule AlarmManager
-        val alarmManager = getSystemService(AlarmManager::class.java) as AlarmManager
-        val intent = Intent(this, TimerExpiredReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
-            this,
-            0,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (alarmManager.canScheduleExactAlarms()) {
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC,
-                    endTime,
-                    pendingIntent
-                )
-            }
-            else {
-                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC, endTime, pendingIntent)
-            }
-        } else {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC, endTime, pendingIntent)
-        }
-
-        // Refresh Tile
-        TileService.requestListeningState(
-            this,
-            ComponentName(this, SoundProfileTileService::class.java)
-        )
-    }
-
-    private suspend fun cancelTimer() {
-        val alarmManager = getSystemService(AlarmManager::class.java)
-        val intent = Intent(this, TimerExpiredReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
-            this,
-            0,
-            intent,
-            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
-        )
-        if (pendingIntent != null) {
-            alarmManager.cancel(pendingIntent)
-            pendingIntent.cancel()
-        }
-
-        dataStoreManager.clearTimer()
-        Log.i("TilePreferencesActivity", "Timer canceled ${dataStoreManager.timerEndTime}")
-
-        TileService.requestListeningState(
-            this,
-            ComponentName(this, SoundProfileTileService::class.java)
-        )
     }
 
     private suspend fun resolveZenRuleId(): String {

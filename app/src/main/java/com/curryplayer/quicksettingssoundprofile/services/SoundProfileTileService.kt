@@ -13,6 +13,8 @@ import android.service.quicksettings.TileService
 import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
+import com.curryplayer.quicksettingssoundprofile.scheduler.AlarmScheduler
+import com.curryplayer.quicksettingssoundprofile.scheduler.AlarmSchedulerImpl
 import com.curryplayer.quicksettingssoundprofile.utils.NotificationPolicyUtils
 import com.curryplayer.quicksettingssoundprofile.utils.ZenRuleUtils
 import kotlinx.coroutines.CoroutineScope
@@ -29,6 +31,7 @@ class SoundProfileTileService : TileService() {
 
     private val _serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private lateinit var _dataStoreManager: DataStoreManager
+    private lateinit var _alarmScheduler: AlarmScheduler
 
     /**
      * Cache the last known ringer mode to avoid redundant tile updates.
@@ -62,6 +65,7 @@ class SoundProfileTileService : TileService() {
     override fun onCreate() {
         super.onCreate()
         _dataStoreManager = DataStoreManager(this)
+        _alarmScheduler = AlarmSchedulerImpl(this, _dataStoreManager)
         _serviceScope.launch {
             _dataStoreManager.zenRuleId.collect { id ->
                 _cachedRuleId = id
@@ -107,7 +111,6 @@ class SoundProfileTileService : TileService() {
 
     override fun onClick() {
         super.onClick()
-        // TODO: Deactivate Timer if present
         changeSoundProfileAndUpdateTileState()
     }
 
@@ -155,6 +158,8 @@ class SoundProfileTileService : TileService() {
         val audioManager = getSystemService(AudioManager::class.java)
 
         _serviceScope.launch {
+            _alarmScheduler.cancel()
+
             when (audioManager.ringerMode) {
                 AudioManager.RINGER_MODE_NORMAL -> {
                     audioManager.ringerMode = AudioManager.RINGER_MODE_VIBRATE
