@@ -35,7 +35,6 @@ class AlarmSchedulerImpl(
 
         // Schedule AlarmManager
         val intent = Intent(context, TimerExpiredReceiver::class.java)
-        // TODO: check requestCode
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             TIMER_REQUEST_CODE,
@@ -62,7 +61,6 @@ class AlarmSchedulerImpl(
 
     override suspend fun cancel() {
         val intent = Intent(context, TimerExpiredReceiver::class.java)
-        // TODO: check requestCode
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             TIMER_REQUEST_CODE,
