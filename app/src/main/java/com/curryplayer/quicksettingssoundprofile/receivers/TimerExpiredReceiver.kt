@@ -17,10 +17,9 @@ class TimerExpiredReceiver : BroadcastReceiver() {
     // TODO: remove logs, check logic
     override fun onReceive(context: Context, intent: Intent?) {
         val pendingResult = goAsync()
-        Log.i("TimerExpiredReceiver", pendingResult.toString())
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                Log.i("TimerExpiredReceiver", "Timer expired")
                 val dataStoreManager = DataStoreManager(context)
                 val previousMode = dataStoreManager.previousRingerMode.first()
                 Log.i("TimerExpiredReceiver", "previousMode = $previousMode")
@@ -28,7 +27,12 @@ class TimerExpiredReceiver : BroadcastReceiver() {
                 if (previousMode != -1) {
                     val ruleId = dataStoreManager.zenRuleId.first()
                     val activateZenRule = (previousMode == AudioManager.RINGER_MODE_SILENT)
-                    ZenRuleUtils.applyZenRuleAndRingerMode(context, ruleId, activateZenRule, previousMode)
+                    ZenRuleUtils.applyZenRuleAndRingerMode(
+                        context,
+                        ruleId,
+                        activateZenRule,
+                        previousMode
+                    )
 
                     dataStoreManager.clearTimer()
                 }
