@@ -1,14 +1,11 @@
 package com.curryplayer.quicksettingssoundprofile.receivers
 
 import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
-import android.service.quicksettings.TileService
 import android.util.Log
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
-import com.curryplayer.quicksettingssoundprofile.services.SoundProfileTileService
 import com.curryplayer.quicksettingssoundprofile.utils.ZenRuleUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,11 +31,6 @@ class TimerExpiredReceiver : BroadcastReceiver() {
                     ZenRuleUtils.applyZenRuleAndRingerMode(context, ruleId, activateZenRule, previousMode)
 
                     dataStoreManager.clearTimer()
-
-                    TileService.requestListeningState(
-                        context,
-                        ComponentName(context, SoundProfileTileService::class.java)
-                    )
                 }
             } catch (_: Exception) {
                 // Ignore
