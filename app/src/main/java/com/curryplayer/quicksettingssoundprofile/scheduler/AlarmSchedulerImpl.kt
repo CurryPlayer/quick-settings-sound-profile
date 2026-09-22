@@ -15,6 +15,10 @@ class AlarmSchedulerImpl(
     private val dataStoreManager: DataStoreManager = DataStoreManager(context)
 ) : AlarmScheduler {
 
+    companion object {
+        private const val TIMER_REQUEST_CODE: Int = 1001
+    }
+
     private val alarmManager = context.getSystemService(AlarmManager::class.java)
     private val audioManager = context.getSystemService(AudioManager::class.java)
 
@@ -34,7 +38,7 @@ class AlarmSchedulerImpl(
         // TODO: check requestCode
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            0,
+            TIMER_REQUEST_CODE,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -61,7 +65,7 @@ class AlarmSchedulerImpl(
         // TODO: check requestCode
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            0,
+            TIMER_REQUEST_CODE,
             intent,
             PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
         )
