@@ -2,16 +2,13 @@ package com.curryplayer.quicksettingssoundprofile.scheduler
 
 import android.app.AlarmManager
 import android.app.PendingIntent
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.os.Build
-import android.service.quicksettings.TileService
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.models.AlarmItem
 import com.curryplayer.quicksettingssoundprofile.receivers.TimerExpiredReceiver
-import com.curryplayer.quicksettingssoundprofile.services.SoundProfileTileService
 
 class AlarmSchedulerImpl(
     private val context: Context,
@@ -57,12 +54,6 @@ class AlarmSchedulerImpl(
                 am.setExactAndAllowWhileIdle(AlarmManager.RTC, endTime, pendingIntent)
             }
         }
-
-        // Refresh Tile
-        TileService.requestListeningState(
-            context,
-            ComponentName(context, SoundProfileTileService::class.java)
-        )
     }
 
     override suspend fun cancel() {
