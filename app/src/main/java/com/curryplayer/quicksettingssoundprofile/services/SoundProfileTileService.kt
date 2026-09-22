@@ -1,10 +1,6 @@
 package com.curryplayer.quicksettingssoundprofile.services
 
 import android.app.NotificationManager
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.graphics.drawable.Icon
 import android.media.AudioManager
 import android.os.Build
@@ -13,6 +9,7 @@ import android.service.quicksettings.TileService
 import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
+import com.curryplayer.quicksettingssoundprofile.receivers.RingerModeReceiver
 import com.curryplayer.quicksettingssoundprofile.scheduler.AlarmScheduler
 import com.curryplayer.quicksettingssoundprofile.scheduler.AlarmSchedulerImpl
 import com.curryplayer.quicksettingssoundprofile.utils.NotificationPolicyUtils
@@ -30,8 +27,10 @@ import java.time.format.FormatStyle
 class SoundProfileTileService : TileService() {
 
     private val _serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
     private lateinit var _dataStoreManager: DataStoreManager
     private lateinit var _alarmScheduler: AlarmScheduler
+    private lateinit var _ringerModeReceiver: RingerModeReceiver
 
     /**
      * Cache the last known ringer mode to avoid redundant tile updates.
@@ -46,26 +45,13 @@ class SoundProfileTileService : TileService() {
     private var _lastKnownTimerEndTime: Long = 0
     private var _timerEndTime: Long = 0
 
-    /**
-     * A [BroadcastReceiver] that listens for changes in the device's ringer mode and DnD
-     * interruption filter. When a change is detected (e.g., 'Sound' -> 'Vibrate',
-     * 'Vibrate' -> 'Silent', or a DnD filter change), it triggers an update to the Quick Settings
-     * tile to reflect the new state. This ensures the tile is always in sync with the actual
-     * system sound profile, including changes made via Android's native switches.
-     */
-    private val _ringerModeChangedReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == AudioManager.RINGER_MODE_CHANGED_ACTION ||
-                intent?.action == NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED) {
-                updateTileState()
-            }
-        }
-    }
-
     override fun onCreate() {
         super.onCreate()
         _dataStoreManager = DataStoreManager(this)
         _alarmScheduler = AlarmSchedulerImpl(this, _dataStoreManager)
+        _ringerModeReceiver = RingerModeReceiver(this) {
+            updateTileState()
+        }
         _serviceScope.launch {
             _dataStoreManager.zenRuleId.collect { id ->
                 _cachedRuleId = id
@@ -100,13 +86,13 @@ class SoundProfileTileService : TileService() {
 
     override fun onStartListening() {
         super.onStartListening()
-        registerRingerModeReceiver()
+        _ringerModeReceiver.register()
         updateTileState()
     }
 
     override fun onStopListening() {
         super.onStopListening()
-        unregisterRingerModeChangedReceiver()
+        _ringerModeReceiver.unregister()
     }
 
     override fun onClick() {
@@ -116,29 +102,8 @@ class SoundProfileTileService : TileService() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterRingerModeChangedReceiver()
+        _ringerModeReceiver.unregister()
         _serviceScope.cancel()
-    }
-
-    private fun registerRingerModeReceiver() {
-        val filter = IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION).apply {
-            // it seems that an interruption filter also has an effect on the audioManager.ringerMode to change its behavior
-            addAction(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED)
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(_ringerModeChangedReceiver, filter, RECEIVER_NOT_EXPORTED)
-        } else {
-            registerReceiver(_ringerModeChangedReceiver, filter)
-        }
-    }
-
-    private fun unregisterRingerModeChangedReceiver() {
-        try {
-            unregisterReceiver(_ringerModeChangedReceiver)
-        } catch (_: IllegalArgumentException) {
-            // Receiver previously not registered or already unregistered
-        }
     }
 
     private fun changeSoundProfileAndUpdateTileState() {
