@@ -127,10 +127,12 @@ class SoundProfileTileService : TileService() {
 
             when (audioManager.ringerMode) {
                 AudioManager.RINGER_MODE_NORMAL -> {
+                    _dataStoreManager.setPreviousRingerMode(AudioManager.RINGER_MODE_NORMAL)
                     audioManager.ringerMode = AudioManager.RINGER_MODE_VIBRATE
                 }
 
                 AudioManager.RINGER_MODE_VIBRATE -> {
+                    _dataStoreManager.setPreviousRingerMode(AudioManager.RINGER_MODE_VIBRATE)
                     val ruleId = resolveZenRuleId()
                     ZenRuleUtils.applyZenRuleAndRingerMode(
                         this@SoundProfileTileService,

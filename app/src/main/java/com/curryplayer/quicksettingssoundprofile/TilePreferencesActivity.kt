@@ -117,6 +117,7 @@ class TilePreferencesActivity : ComponentActivity() {
         setContent {
             QuickSettingsSoundProfileTheme {
                 val timerEndTime by _dataStoreManager.timerEndTime.collectAsState(initial = 0L)
+                val previousRingerMode by _dataStoreManager.previousRingerMode.collectAsState(initial = AudioManager.RINGER_MODE_NORMAL)
                 val savedIconThemeIndex by _dataStoreManager.iconTheme.collectAsState(initial = IconTheme.VOLUME_DEFAULT.ordinal)
                 val savedMuteDurationMinutes by _dataStoreManager.lastMuteDurationMinutes.collectAsState(initial = DURATION_60_MINUTES)
                 val iconTheme = remember(savedIconThemeIndex) { IconTheme.fromOrdinal(savedIconThemeIndex) }
@@ -125,6 +126,7 @@ class TilePreferencesActivity : ComponentActivity() {
                 RenderFloatingAlertActivity(
                     selectedMode = _selectedSoundModeState,
                     timerEndTime = timerEndTime,
+                    previousRingerMode = previousRingerMode,
                     savedMuteDurationMinutes = savedMuteDurationMinutes,
                     scope = scope,
                     iconTheme = iconTheme
@@ -171,6 +173,7 @@ class TilePreferencesActivity : ComponentActivity() {
     private fun RenderFloatingAlertActivity(
         selectedMode: Int,
         timerEndTime: Long,
+        previousRingerMode: Int,
         savedMuteDurationMinutes: Int,
         scope: CoroutineScope,
         iconTheme: IconTheme
@@ -222,6 +225,7 @@ class TilePreferencesActivity : ComponentActivity() {
 
                         RenderTemporaryMuteSelection(
                             selectedMode = selectedMode,
+                            previousRingerMode = previousRingerMode,
                             isTimerActive = isTimerActive,
                             timerEndTime = timerEndTime,
                             currentTime = currentTime,
@@ -402,6 +406,7 @@ class TilePreferencesActivity : ComponentActivity() {
     @Composable
     private fun RenderTemporaryMuteSelection(
         selectedMode: Int,
+        previousRingerMode: Int,
         isTimerActive: Boolean,
         timerEndTime: Long,
         currentTime: Long,
@@ -458,9 +463,14 @@ class TilePreferencesActivity : ComponentActivity() {
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
+                        val targetModeLabel = when (previousRingerMode) {
+                            AudioManager.RINGER_MODE_VIBRATE -> stringResource(R.string.profile_vibrate_label)
+                            else -> stringResource(R.string.profile_sound_label)
+                        }
+
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = stringResource(R.string.temporary_mute_desc),
+                            text = stringResource(R.string.temporary_mute_desc, targetModeLabel),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -736,6 +746,13 @@ class TilePreferencesActivity : ComponentActivity() {
     }
 
     private suspend fun applyModeImmediately(targetMode: Int) {
+        val currentMode = getSystemService(AudioManager::class.java).ringerMode
+        if (targetMode == AudioManager.RINGER_MODE_SILENT && currentMode != AudioManager.RINGER_MODE_SILENT) {
+            _dataStoreManager.setPreviousRingerMode(currentMode)
+        } else if (targetMode != AudioManager.RINGER_MODE_SILENT) {
+            _dataStoreManager.setPreviousRingerMode(targetMode)
+        }
+
         val ruleId = resolveZenRuleId()
         val activate = (targetMode == AudioManager.RINGER_MODE_SILENT)
         ZenRuleUtils.applyZenRuleAndRingerMode(this, ruleId, activate, targetMode)

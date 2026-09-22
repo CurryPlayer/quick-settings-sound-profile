@@ -9,6 +9,7 @@ import android.os.Build
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.models.AlarmItem
 import com.curryplayer.quicksettingssoundprofile.receivers.TimerExpiredReceiver
+import kotlinx.coroutines.flow.first
 
 class AlarmSchedulerImpl(
     private val context: Context,
@@ -24,7 +25,8 @@ class AlarmSchedulerImpl(
 
     override suspend fun schedule(item: AlarmItem) {
         val durationMinutes = item.durationMinutes
-        val previousMode = audioManager.ringerMode
+        val currentRingerMode = audioManager.ringerMode
+        val previousMode = getPreviousRingerMode(currentRingerMode)
 
         val durationMillis = durationMinutes * 60 * 1000L
         val endTime = System.currentTimeMillis() + durationMillis
@@ -73,5 +75,23 @@ class AlarmSchedulerImpl(
         }
 
         dataStoreManager.clearTimer()
+    }
+
+    private suspend fun getPreviousRingerMode(currentRingerMode: Int): Int {
+        val previousMode = if (currentRingerMode != AudioManager.RINGER_MODE_SILENT) {
+            currentRingerMode
+        } else {
+            val savedPrevious = dataStoreManager.previousRingerMode.first()
+            if (isValidPreviousRingerMode(savedPrevious)) {
+                savedPrevious
+            } else {
+                AudioManager.RINGER_MODE_NORMAL
+            }
+        }
+        return previousMode
+    }
+
+    private fun isValidPreviousRingerMode(mode: Int): Boolean {
+        return mode == AudioManager.RINGER_MODE_NORMAL || mode == AudioManager.RINGER_MODE_VIBRATE
     }
 }

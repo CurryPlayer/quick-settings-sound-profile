@@ -54,7 +54,7 @@
     <string name="time_format_minutes_seconds">%1$d m %2$02d s</string>
     <string name="time_format_seconds_only">%1$d s</string>
     <string name="temporary_mute_title">Temporary mute</string>
-    <string name="temporary_mute_desc">Set how long to keep your phone muted before returning to the previous sound mode.</string>
+    <string name="temporary_mute_desc">Set how long to keep your phone muted before returning to the previous sound mode (%s).</string>
     <string name="sound_mode_selection_title">Sound Mode</string>
     <string name="tile_options_tip">Tap and hold the Quick Settings tile to access timer options and sound profile settings.</string>
 </resources>

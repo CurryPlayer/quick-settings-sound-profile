@@ -1,6 +1,7 @@
 package com.curryplayer.quicksettingssoundprofile.data
 
 import android.content.Context
+import android.media.AudioManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -60,17 +61,34 @@ class DataStoreManager(private val context: Context) {
         }
     }
 
+    suspend fun setPreviousRingerMode(mode: Int) {
+        // only accept normal and vibrate mode as previous ringer mode
+        if (isValidPreviousRingerMode(mode)) {
+            context.dataStore.edit { preferences ->
+                preferences[PREVIOUS_RINGER_MODE] = mode
+            }
+        }
+    }
+
     suspend fun saveTimer(endTime: Long, previousMode: Int) {
         context.dataStore.edit { preferences ->
             preferences[TIMER_END_TIME] = endTime
-            preferences[PREVIOUS_RINGER_MODE] = previousMode
+            // only accept normal and vibrate mode as previous ringer mode
+            if (isValidPreviousRingerMode(previousMode)) {
+                preferences[PREVIOUS_RINGER_MODE] = previousMode
+            } else if (preferences[PREVIOUS_RINGER_MODE] == null) {
+                preferences[PREVIOUS_RINGER_MODE] = AudioManager.RINGER_MODE_NORMAL
+            }
         }
     }
 
     suspend fun clearTimer() {
         context.dataStore.edit { preferences ->
             preferences[TIMER_END_TIME] = 0L
-            //preferences[PREVIOUS_RINGER_MODE] = -1
         }
+    }
+
+    private fun isValidPreviousRingerMode(mode: Int): Boolean {
+        return mode == AudioManager.RINGER_MODE_NORMAL || mode == AudioManager.RINGER_MODE_VIBRATE
     }
 }
