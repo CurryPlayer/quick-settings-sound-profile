@@ -649,14 +649,14 @@ class TilePreferencesActivity : ComponentActivity() {
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     AppButton(
-                                        text = stringResource(R.string.alert_button_close),
+                                        text = stringResource(R.string.alert_button_cancel),
                                         onClick = {
                                             showTimeSelectorDialog = false
                                         },
                                         type = AppButtonType.OUTLINED
                                     )
                                     AppButton(
-                                        text = stringResource(R.string.start_timer),
+                                        text = stringResource(R.string.alert_button_apply),
                                         onClick = {
                                             customHours = timePickerState.hour
                                             customMinutes = timePickerState.minute
@@ -676,7 +676,9 @@ class TilePreferencesActivity : ComponentActivity() {
                             }
                         ) {
                             TimePicker(
-                                state = timePickerState
+                                state = timePickerState,
+                                modifier = Modifier
+                                    .padding(top = 16.dp)
                             )
                         }
                     }

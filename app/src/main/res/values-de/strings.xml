@@ -7,6 +7,7 @@
     <string name="alert_grant_do_not_disturb_permission_title">Berechtigung erteilen</string>
     <string name="alert_grant_do_not_disturb_permission_desc">Auf dem nächsten Bildschirm wird eine Liste mit Apps angezeigt. Bitte wähle \„Quick Settings Sound Profile\“ aus und erteile der App die entsprechende Berechtigung.</string>
     <string name="alert_button_confirm">Verstanden</string>
+    <string name="alert_button_apply">Anwenden</string>
     <string name="alert_button_cancel">Abbrechen</string>
     <string name="alert_button_close">Schließen</string>
     <string name="button_grant_permission">Berechtigung erteilen</string>
