@@ -39,6 +39,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -539,8 +540,9 @@ class TilePreferencesActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
+                        val is30mSelected = !isCustomSelected && selectedPresetMinutes == DURATION_30_MINUTES
                         FilterChip(
-                            selected = !isCustomSelected && selectedPresetMinutes == DURATION_30_MINUTES,
+                            selected = is30mSelected,
                             onClick = {
                                 isCustomSelected = false
                                 selectedPresetMinutes = DURATION_30_MINUTES
@@ -556,13 +558,26 @@ class TilePreferencesActivity : ComponentActivity() {
                                     textAlign = TextAlign.Center
                                 )
                             },
+                            colors = FilterChipDefaults.filterChipColors(
+                                containerColor = Color.Transparent,
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = is30mSelected,
+                                borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = 1.dp,
+                                selectedBorderWidth = 2.dp
+                            ),
                             modifier = Modifier.weight(1f)
                         )
 
                         Spacer(modifier = Modifier.padding(horizontal = 4.dp))
 
+                        val is60mSelected = !isCustomSelected && selectedPresetMinutes == DURATION_60_MINUTES
                         FilterChip(
-                            selected = !isCustomSelected && selectedPresetMinutes == DURATION_60_MINUTES,
+                            selected = is60mSelected,
                             onClick = {
                                 isCustomSelected = false
                                 selectedPresetMinutes = DURATION_60_MINUTES
@@ -578,13 +593,26 @@ class TilePreferencesActivity : ComponentActivity() {
                                     textAlign = TextAlign.Center
                                 )
                             },
+                            colors = FilterChipDefaults.filterChipColors(
+                                containerColor = Color.Transparent,
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = is60mSelected,
+                                borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = 1.dp,
+                                selectedBorderWidth = 2.dp
+                            ),
                             modifier = Modifier.weight(1f)
                         )
 
                         Spacer(modifier = Modifier.padding(horizontal = 4.dp))
 
+                        val is180mSelected = !isCustomSelected && selectedPresetMinutes == DURATION_180_MINUTES
                         FilterChip(
-                            selected = !isCustomSelected && selectedPresetMinutes == DURATION_180_MINUTES,
+                            selected = is180mSelected,
                             onClick = {
                                 isCustomSelected = false
                                 selectedPresetMinutes = DURATION_180_MINUTES
@@ -600,6 +628,18 @@ class TilePreferencesActivity : ComponentActivity() {
                                     textAlign = TextAlign.Center
                                 )
                             },
+                            colors = FilterChipDefaults.filterChipColors(
+                                containerColor = Color.Transparent,
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = is180mSelected,
+                                borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = 1.dp,
+                                selectedBorderWidth = 2.dp
+                            ),
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -629,7 +669,19 @@ class TilePreferencesActivity : ComponentActivity() {
                                     modifier = Modifier.fillMaxWidth(),
                                     textAlign = TextAlign.Center
                                 )
-                            }
+                            },
+                            colors = FilterChipDefaults.filterChipColors(
+                                containerColor = Color.Transparent,
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = isCustomSelected,
+                                borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
                         )
                     }
 
