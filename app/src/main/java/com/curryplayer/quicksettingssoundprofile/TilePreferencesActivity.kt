@@ -13,7 +13,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,7 +29,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
@@ -41,9 +39,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
@@ -74,6 +70,7 @@ import androidx.lifecycle.lifecycleScope
 import com.curryplayer.quicksettingssoundprofile.composables.AppButton
 import com.curryplayer.quicksettingssoundprofile.composables.AppButtonType
 import com.curryplayer.quicksettingssoundprofile.composables.RenderGrantPermissionCard
+import com.curryplayer.quicksettingssoundprofile.composables.RenderSoundModeSelection
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.models.AlarmItem
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
@@ -223,6 +220,9 @@ class TilePreferencesActivity : ComponentActivity() {
                             iconTheme = iconTheme,
                             onSelectedMode = { mode ->
                                 _selectedSoundModeState = mode
+                                lifecycleScope.launch {
+                                    applyModeImmediately(mode)
+                                }
                             }
                         )
 
@@ -339,71 +339,7 @@ class TilePreferencesActivity : ComponentActivity() {
         }
     }
 
-    @Composable
-    private fun RenderSoundModeSelection(
-        selectedMode: Int,
-        iconTheme: IconTheme,
-        onSelectedMode: (Int) -> Unit,
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = stringResource(R.string.sound_mode_selection_title),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Sound Mode Card
-                SoundModeCard(
-                    title = stringResource(R.string.profile_sound_label),
-                    iconRes = iconTheme.ringIcon,
-                    isSelected = selectedMode == AudioManager.RINGER_MODE_NORMAL,
-                    onClick = {
-                        onSelectedMode(AudioManager.RINGER_MODE_NORMAL)
-                        lifecycleScope.launch {
-                            applyModeImmediately(AudioManager.RINGER_MODE_NORMAL)
-                        }
-
-                    },
-                    modifier = Modifier.weight(1f)
-                )
-
-                // Vibrate Mode Card
-                SoundModeCard(
-                    title = stringResource(R.string.profile_vibrate_label),
-                    iconRes = iconTheme.vibrateIcon,
-                    isSelected = selectedMode == AudioManager.RINGER_MODE_VIBRATE,
-                    onClick = {
-                        onSelectedMode(AudioManager.RINGER_MODE_VIBRATE)
-                        lifecycleScope.launch {
-                            applyModeImmediately(AudioManager.RINGER_MODE_VIBRATE)
-                        }
-                    },
-                    modifier = Modifier.weight(1f)
-                )
-
-                // Mute / Silent Mode Card
-                SoundModeCard(
-                    title = stringResource(R.string.profile_silent_label),
-                    iconRes = iconTheme.silentIcon,
-                    isSelected = selectedMode == AudioManager.RINGER_MODE_SILENT,
-                    onClick = {
-                        onSelectedMode(AudioManager.RINGER_MODE_SILENT)
-                        lifecycleScope.launch {
-                            applyModeImmediately(AudioManager.RINGER_MODE_SILENT)
-                        }
-                    },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-    }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -817,55 +753,6 @@ class TilePreferencesActivity : ComponentActivity() {
         ZenRuleUtils.applyZenRuleAndRingerMode(this, ruleId, activate, targetMode)
 
         _alarmScheduler.cancel()
-    }
-
-    @Composable
-    private fun SoundModeCard(
-        title: String,
-        iconRes: Int,
-        isSelected: Boolean,
-        onClick: () -> Unit,
-        modifier: Modifier = Modifier
-    ) {
-        Card(
-            onClick = onClick,
-            modifier = modifier,
-            colors = CardDefaults.outlinedCardColors(
-                containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f) else Color.Transparent
-            ),
-            border = BorderStroke(
-                width = if (isSelected) 2.dp else 1.dp,
-                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(
-                    alpha = 0.5f
-                )
-            ),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    painter = painterResource(id = iconRes),
-                    contentDescription = title,
-                    tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                    color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                RadioButton(
-                    selected = isSelected,
-                    onClick = null
-                )
-            }
-        }
     }
 
     private suspend fun resolveZenRuleId(): String {
