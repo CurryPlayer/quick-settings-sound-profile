@@ -658,9 +658,15 @@ class TilePreferencesActivity : ComponentActivity() {
                                 }
                             },
                             label = {
-                                // TODO: Fix text representation for different translations (min, m, h, Std....)
                                 val customText = if (isCustomSelected && finalMinutes > 0) {
-                                    "${stringResource(R.string.custom_minutes)} (${finalMinutes}m)"
+                                    val h = finalMinutes / DURATION_60_MINUTES
+                                    val m = finalMinutes % DURATION_60_MINUTES
+                                    val formattedDuration = when {
+                                        h > 0 && m > 0 -> stringResource(R.string.time_format_hours_minutes, h, m)
+                                        h > 0 -> stringResource(R.string.time_format_hours_only, h)
+                                        else -> stringResource(R.string.time_format_minutes_only, m)
+                                    }
+                                    stringResource(R.string.custom_duration_format, stringResource(R.string.custom_minutes), formattedDuration)
                                 } else {
                                     stringResource(R.string.custom_minutes)
                                 }
@@ -696,8 +702,7 @@ class TilePreferencesActivity : ComponentActivity() {
                             onDismissRequest = { showTimeSelectorDialog = false },
                             title = {
                                 Text(
-                                    // TODO: translate text
-                                    text = "Dauer einstellen",
+                                    text = stringResource(R.string.set_duration_title),
                                     style = MaterialTheme.typography.titleMedium,
                                     color = MaterialTheme.colorScheme.primary
                                 )

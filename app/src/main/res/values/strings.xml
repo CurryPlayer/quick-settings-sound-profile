@@ -41,6 +41,8 @@
     <string name="duration_2h">2h</string>
     <string name="duration_3h">3h</string>
     <string name="custom_minutes">Custom</string>
+    <string name="custom_duration_format">%1$s (%2$s)</string>
+    <string name="set_duration_title">Set duration</string>
     <string name="start_timer">Start</string>
     <string name="cancel_timer">Stop Timer</string>
     <string name="timer_active_until">Until %s</string>
