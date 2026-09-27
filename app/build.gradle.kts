@@ -7,7 +7,7 @@ android {
     namespace = "com.curryplayer.quicksettingssoundprofile"
     compileSdk {
         version = release(37) {
-            minorApiLevel = 0
+            minorApiLevel = 2
         }
     }
 
