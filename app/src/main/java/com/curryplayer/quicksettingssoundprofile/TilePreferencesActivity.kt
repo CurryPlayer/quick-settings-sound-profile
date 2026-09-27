@@ -741,18 +741,22 @@ class TilePreferencesActivity : ComponentActivity() {
     }
 
     private suspend fun applyModeImmediately(targetMode: Int) {
-        val currentMode = getSystemService(AudioManager::class.java).ringerMode
-        if (targetMode == AudioManager.RINGER_MODE_SILENT && currentMode != AudioManager.RINGER_MODE_SILENT) {
-            _dataStoreManager.setPreviousRingerMode(currentMode)
-        } else if (targetMode != AudioManager.RINGER_MODE_SILENT) {
-            _dataStoreManager.setPreviousRingerMode(targetMode)
-        }
+        savePreviousRingerMode(targetMode)
 
         val ruleId = resolveZenRuleId()
         val activate = (targetMode == AudioManager.RINGER_MODE_SILENT)
         ZenRuleUtils.applyZenRuleAndRingerMode(this, ruleId, activate, targetMode)
 
         _alarmScheduler.cancel()
+    }
+
+    private suspend fun savePreviousRingerMode(targetMode: Int) {
+        val currentMode = getSystemService(AudioManager::class.java).ringerMode
+        if (targetMode == AudioManager.RINGER_MODE_SILENT && currentMode != AudioManager.RINGER_MODE_SILENT) {
+            _dataStoreManager.setPreviousRingerMode(currentMode)
+        } else if (targetMode != AudioManager.RINGER_MODE_SILENT) {
+            _dataStoreManager.setPreviousRingerMode(targetMode)
+        }
     }
 
     private suspend fun resolveZenRuleId(): String {
