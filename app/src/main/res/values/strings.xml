@@ -44,8 +44,6 @@
     <string name="custom_minutes">Custom</string>
     <string name="custom_duration_format">%1$s (%2$s)</string>
     <string name="set_duration_title">Set duration</string>
-    <string name="start_timer">Start</string>
-    <string name="cancel_timer">Stop Timer</string>
     <string name="timer_active_until">Until %s</string>
     <string name="time_remaining">Remaining: %s</string>
     <string name="grant_exact_alarm_title">Exact Alarms Permission</string>
