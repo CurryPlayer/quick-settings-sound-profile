@@ -1,5 +1,8 @@
 # Quick Settings Sound Profile
 
+[![GitHub Release](https://img.shields.io/github/v/release/CurryPlayer/quick-settings-sound-profile?logo=github)](https://github.com/CurryPlayer/quick-settings-sound-profile/releases)
+[![F-Droid](https://img.shields.io/f-droid/v/com.curryplayer.quicksettingssoundprofile?logo=f-droid)](https://f-droid.org/packages/com.curryplayer.quicksettingssoundprofile/)
+
 An app that lets you change your sound profile (ring, vibrate, mute) via a Quick Settings tile.  
 The app is written 100% in Kotlin :D
 
