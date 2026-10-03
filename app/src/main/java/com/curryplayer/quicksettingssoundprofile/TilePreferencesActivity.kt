@@ -66,24 +66,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.curryplayer.quicksettingssoundprofile.composables.AppButton
 import com.curryplayer.quicksettingssoundprofile.composables.AppButtonType
 import com.curryplayer.quicksettingssoundprofile.composables.RenderGrantPermissionCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderSoundModeSelection
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
+import com.curryplayer.quicksettingssoundprofile.manager.SoundProfileManager
 import com.curryplayer.quicksettingssoundprofile.models.AlarmItem
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 import com.curryplayer.quicksettingssoundprofile.receivers.RingerModeReceiver
 import com.curryplayer.quicksettingssoundprofile.scheduler.AlarmScheduler
-import com.curryplayer.quicksettingssoundprofile.scheduler.AlarmSchedulerImpl
 import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProfileTheme
 import com.curryplayer.quicksettingssoundprofile.utils.AlarmExactUtils
-import com.curryplayer.quicksettingssoundprofile.utils.NotificationPolicyUtils
-import com.curryplayer.quicksettingssoundprofile.utils.ZenRuleUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
@@ -95,9 +94,9 @@ class TilePreferencesActivity : ComponentActivity() {
         private const val DURATION_180_MINUTES = 180
     }
 
+    private lateinit var _soundProfileManager: SoundProfileManager
     private lateinit var _dataStoreManager: DataStoreManager
     private lateinit var _alarmScheduler: AlarmScheduler
-    private lateinit var _ringerModeReceiver: RingerModeReceiver
 
     private var _scheduleExactAlarmsPermissionGrantedState by mutableStateOf(false)
     private var _dndPermissionGrantedState by mutableStateOf(false)
@@ -107,12 +106,18 @@ class TilePreferencesActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        _dataStoreManager = DataStoreManager(this)
-        _alarmScheduler = AlarmSchedulerImpl(this, _dataStoreManager)
-        _ringerModeReceiver = RingerModeReceiver(this) {
-            updateRingerModeState()
+        _soundProfileManager = SoundProfileManager(this)
+        _dataStoreManager = _soundProfileManager.dataStoreManager
+        _alarmScheduler = _soundProfileManager.alarmScheduler
+        _selectedSoundModeState = _soundProfileManager.currentRingerMode
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                _soundProfileManager.ringerMode.collect { mode ->
+                    _selectedSoundModeState = mode
+                }
+            }
         }
-        updateRingerModeState()
 
         setContent {
             QuickSettingsSoundProfileTheme {
@@ -138,29 +143,21 @@ class TilePreferencesActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         checkPermissionsAndSyncRule()
-        updateRingerModeState()
-        _ringerModeReceiver.register()
     }
 
     override fun onPause() {
         super.onPause()
-        _ringerModeReceiver.unregister()
         if (!isFinishing) {
             finish()
         }
     }
 
-    private fun updateRingerModeState() {
-        _selectedSoundModeState = getSystemService(AudioManager::class.java).ringerMode
-    }
-
     private fun checkPermissionsAndSyncRule() {
-        _dndPermissionGrantedState = NotificationPolicyUtils.isDoNotDisturbPermissionGranted(this)
+        _dndPermissionGrantedState = _soundProfileManager.canChangeSoundProfile()
         if (_dndPermissionGrantedState) {
             lifecycleScope.launch {
-                ZenRuleUtils.syncAutomaticZenRule(this@TilePreferencesActivity, _dataStoreManager)
+                _soundProfileManager.resolveZenRuleId()
             }
-
         }
         checkExactAlarmPermission()
     }
@@ -743,30 +740,6 @@ class TilePreferencesActivity : ComponentActivity() {
     }
 
     private suspend fun applyModeImmediately(targetMode: Int) {
-        savePreviousRingerMode(targetMode)
-
-        val ruleId = resolveZenRuleId()
-        val activate = (targetMode == AudioManager.RINGER_MODE_SILENT)
-        ZenRuleUtils.applyZenRuleAndRingerMode(this, ruleId, activate, targetMode)
-
-        _alarmScheduler.cancel()
-    }
-
-    private suspend fun savePreviousRingerMode(targetMode: Int) {
-        val currentMode = getSystemService(AudioManager::class.java).ringerMode
-        if (targetMode == AudioManager.RINGER_MODE_SILENT && currentMode != AudioManager.RINGER_MODE_SILENT) {
-            _dataStoreManager.setPreviousRingerMode(currentMode)
-        } else if (targetMode != AudioManager.RINGER_MODE_SILENT) {
-            _dataStoreManager.setPreviousRingerMode(targetMode)
-        }
-    }
-
-    private suspend fun resolveZenRuleId(): String {
-        val notificationManager = getSystemService(NotificationManager::class.java)
-        var cachedId = _dataStoreManager.zenRuleId.first()
-        if (cachedId.isEmpty() || notificationManager.getAutomaticZenRule(cachedId) == null) {
-            cachedId = ZenRuleUtils.syncAutomaticZenRule(this@TilePreferencesActivity, _dataStoreManager)
-        }
-        return cachedId
+        _soundProfileManager.setSoundMode(targetMode)
     }
 }

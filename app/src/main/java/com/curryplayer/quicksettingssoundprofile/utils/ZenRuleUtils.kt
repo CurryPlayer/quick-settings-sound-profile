@@ -10,7 +10,6 @@ import android.os.Build
 import android.service.notification.Condition
 import android.service.notification.ZenDeviceEffects
 import android.service.notification.ZenPolicy
-//import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
@@ -18,16 +17,17 @@ import com.curryplayer.quicksettingssoundprofile.MainActivity
 import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
+import com.curryplayer.quicksettingssoundprofile.receivers.RingerModeReceiver
 import com.curryplayer.quicksettingssoundprofile.services.SoundProfileConditionProviderService
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
-import kotlin.time.Duration.Companion.milliseconds
 
 object ZenRuleUtils {
 
     const val SILENT_CONDITION_DND_AND_MODE_URI = "condition://com.curryplayer.quicksettingssoundprofile/silent_profile_active"
-    private val SYNCHRONIZATION_DURATION_DELAY_MS = 50.milliseconds
-    private const val MAX_SYNCHRONIZATION_RETIRES = 10
+    private const val TIMEOUT_ADJUST_NORMAL_MS = 400L
+    private const val TIMEOUT_ACTIVATE_SILENT_MS = 800L
+    private const val TIMEOUT_DEACTIVATE_FILTER_MS = 800L
+    private const val TIMEOUT_SYNCHRONIZE_RINGER_MS = 500L
 
     /**
      * This method ensures a valid AutomaticZenRule exists by retrieving a saved ID or searching
@@ -48,10 +48,13 @@ object ZenRuleUtils {
 
         // check if there is already an existing rule with the same name
         if (savedRuleId.isEmpty()) {
-            val allRules = notificationManager.automaticZenRules
-            val existingRuleEntry = allRules.entries.find { it.value.name == applicationContext.getString(R.string.zen_rule_name) }
-            if (existingRuleEntry != null) {
-                savedRuleId = existingRuleEntry.key
+            val targetRuleName = applicationContext.getString(R.string.zen_rule_name)
+            val existingRuleId = notificationManager.automaticZenRules?.entries
+                ?.firstOrNull { it.value?.name == targetRuleName }
+                ?.key
+
+            if (!existingRuleId.isNullOrEmpty()) {
+                savedRuleId = existingRuleId
                 dataStoreManager.setZenRuleId(savedRuleId)
             }
         }
@@ -292,50 +295,67 @@ object ZenRuleUtils {
      * changes with ringer mode changes can cause race conditions (e.g., the `AudioService` ignoring commands
      * or getting stuck in `SILENT` mode).
      *
-     * This method resolves these issues by applying the [AutomaticZenRule] first and synchronizes the [AudioManager.ringerMode] afterward.
+     * This method resolves these issues by applying the [AutomaticZenRule] and synchronizing the [AudioManager.ringerMode]
+     * reactively using system broadcasts via [RingerModeReceiver] instead of active polling.
      *
      * @param context The context used to access the [NotificationManager] and [AudioManager].
      * @param ruleId The unique identifier of the rule to apply.
      * @param activate True if the rule should be activated, false otherwise.
      * @param targetRingerMode The desired ringer mode after activating / deactivating the rule.
      */
-    // the correct way to handle this would probably be to implement it using intents and a broadcast receiver.
     suspend fun applyZenRuleAndRingerMode(
         context: Context,
         ruleId: String,
         activate: Boolean,
         targetRingerMode: Int
     ) {
-
-        val audioManager = context.getSystemService(AudioManager::class.java)
-
-        // set ringerMode to 'NORMAL' before activating zenRule to allow notification sounds for excluded content (contacts, apps, etc.)
-        // should this be a toggleable option??
-        val needToAdjustRingerMode = audioManager.ringerMode != AudioManager.RINGER_MODE_NORMAL && audioManager.ringerMode != AudioManager.RINGER_MODE_SILENT
-        if (activate && needToAdjustRingerMode) {
-            audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
-        }
-
-        setAutomaticZenRuleState(context, ruleId, activate)
+        val appContext = context.applicationContext ?: context
+        val audioManager = appContext.getSystemService(AudioManager::class.java)
+        val notificationManager = appContext.getSystemService(NotificationManager::class.java)
 
         if (activate) {
-            // waiting for ringerMode 'SILENT' to get synchronized
-            var retries = 0
-            while (audioManager.ringerMode != targetRingerMode && retries < MAX_SYNCHRONIZATION_RETIRES) {
-                delay(SYNCHRONIZATION_DURATION_DELAY_MS)
-                retries++
+            // Android 17 fix: If current mode is VIBRATE, set ringerMode to 'NORMAL' before activating zenRule
+            // to prevent the vibration status bar icon from remaining visible alongside the mode icon.
+            val needToAdjustRingerMode = audioManager.ringerMode != AudioManager.RINGER_MODE_NORMAL &&
+                    audioManager.ringerMode != AudioManager.RINGER_MODE_SILENT
+            if (needToAdjustRingerMode) {
+                audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+                RingerModeReceiver.awaitCondition(appContext, TIMEOUT_ADJUST_NORMAL_MS) {
+                    audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL
+                }
             }
-            // fallback: set ringer mode manually (this should always be 'SILENT'!)
-            if (audioManager.ringerMode != targetRingerMode) {
+
+            setAutomaticZenRuleState(appContext, ruleId, activate = true)
+
+            // Await system transitioning ringerMode to target (SILENT) via the applied ZenRule / priority filter
+            val isSilent = RingerModeReceiver.awaitCondition(appContext, TIMEOUT_ACTIVATE_SILENT_MS) {
+                audioManager.ringerMode == targetRingerMode
+            }
+
+            // Fallback: in case the system/OEM does not automatically switch ringerMode to SILENT
+            if (!isSilent && audioManager.ringerMode != targetRingerMode) {
                 audioManager.ringerMode = targetRingerMode
             }
         } else {
-            // applying ringerMode 'NORMAL' or 'VIBRATE' until it is synchronized
-            var retries = 0
-            while (audioManager.ringerMode != targetRingerMode && retries < MAX_SYNCHRONIZATION_RETIRES) {
+            // Deactivate the ZenRule
+            setAutomaticZenRuleState(appContext, ruleId, activate = false)
+
+            // Await interruption filter to return to ALL so AudioService accepts ringer mode changes without getting clamped
+            RingerModeReceiver.awaitCondition(appContext, TIMEOUT_DEACTIVATE_FILTER_MS) {
+                notificationManager.currentInterruptionFilter == NotificationManager.INTERRUPTION_FILTER_ALL
+            }
+
+            // Apply desired ringer mode (NORMAL or VIBRATE)
+            audioManager.ringerMode = targetRingerMode
+
+            // Await confirmation of target ringer mode from AudioService
+            val isSynchronized = RingerModeReceiver.awaitCondition(appContext, TIMEOUT_SYNCHRONIZE_RINGER_MS) {
+                audioManager.ringerMode == targetRingerMode
+            }
+
+            // Fallback retry if needed
+            if (!isSynchronized && audioManager.ringerMode != targetRingerMode) {
                 audioManager.ringerMode = targetRingerMode
-                delay(SYNCHRONIZATION_DURATION_DELAY_MS)
-                retries++
             }
         }
     }
