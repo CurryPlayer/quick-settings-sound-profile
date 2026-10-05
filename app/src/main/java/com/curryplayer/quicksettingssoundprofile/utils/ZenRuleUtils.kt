@@ -43,7 +43,7 @@ object ZenRuleUtils {
         applicationContext: Context,
         dataStoreManager: DataStoreManager
     ): String {
-        val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = applicationContext.getSystemService(NotificationManager::class.java)
         var savedRuleId = dataStoreManager.zenRuleId.first()
 
         // check if there is already an existing rule with the same name
@@ -184,7 +184,7 @@ object ZenRuleUtils {
      */
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     fun updateZenRuleIcon(context: Context, ruleId: String, iconResId: Int) {
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = context.getSystemService(NotificationManager::class.java)
         val existingRule = notificationManager.getAutomaticZenRule(ruleId)
         if (existingRule != null) {
             val updatedRule = AutomaticZenRule.Builder(existingRule)
