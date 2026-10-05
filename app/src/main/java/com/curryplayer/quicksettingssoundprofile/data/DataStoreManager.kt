@@ -35,10 +35,18 @@ class DataStoreManager(private val context: Context) {
         preferences[TIMER_END_TIME] ?: 0L
     }
 
+    /**
+     * Cold [Flow] emitting the previous ringer mode and subsequent updates.
+     * Emits -1 if no previous mode is set.
+     */
     val previousRingerMode: Flow<Int> = context.dataStore.data.map { preferences ->
         preferences[PREVIOUS_RINGER_MODE] ?: -1
     }
 
+    /**
+     * Cold [Flow] emitting the last selected mute duration in minutes and subsequent updates.
+     * Emits 60 if no previous duration is set.
+     */
     val lastMuteDurationMinutes: Flow<Int> = context.dataStore.data.map { preferences ->
         preferences[LAST_SELECTED_MUTE_DURATION_MINUTES] ?: 60
     }
