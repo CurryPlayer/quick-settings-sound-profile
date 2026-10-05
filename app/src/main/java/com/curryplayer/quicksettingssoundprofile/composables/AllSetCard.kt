@@ -133,7 +133,8 @@ fun RenderAllSetCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 14.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_round_info_outline_24),
@@ -146,7 +147,7 @@ fun RenderAllSetCard(
                         text = stringResource(id = R.string.tile_options_tip),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.85f),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f, fill = false)
                     )
                 }
             }
