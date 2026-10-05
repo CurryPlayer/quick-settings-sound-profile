@@ -77,12 +77,14 @@ import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.manager.SoundProfileManager
 import com.curryplayer.quicksettingssoundprofile.models.AlarmItem
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
+import com.curryplayer.quicksettingssoundprofile.models.MuteDurationOption
 import com.curryplayer.quicksettingssoundprofile.receivers.RingerModeReceiver
 import com.curryplayer.quicksettingssoundprofile.scheduler.AlarmScheduler
 import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProfileTheme
 import com.curryplayer.quicksettingssoundprofile.utils.AlarmExactUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
@@ -113,7 +115,7 @@ class TilePreferencesActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                _soundProfileManager.ringerMode.collect { mode ->
+                _soundProfileManager.ringerMode.collectLatest { mode ->
                     _selectedSoundModeState = mode
                 }
             }
@@ -351,25 +353,22 @@ class TilePreferencesActivity : ComponentActivity() {
         onStartTimer: (minutes: Int) -> Unit,
         onCancelTimer: () -> Unit,
     ) {
-        // FIXME: This will result in one of these three options is selected when custom time has the same value
-        var isCustomSelected by remember(savedMuteDurationMinutes) {
-            mutableStateOf(savedMuteDurationMinutes !in listOf(DURATION_30_MINUTES, DURATION_60_MINUTES, DURATION_180_MINUTES))
+        var selectedOption by remember {
+            mutableStateOf(MuteDurationOption.fromMinutes(savedMuteDurationMinutes))
         }
-        var selectedPresetMinutes by remember(savedMuteDurationMinutes) {
-            mutableIntStateOf(if (savedMuteDurationMinutes in listOf(DURATION_30_MINUTES, DURATION_60_MINUTES, DURATION_180_MINUTES)) savedMuteDurationMinutes else DURATION_60_MINUTES)
+        var customHours by remember {
+            mutableIntStateOf(savedMuteDurationMinutes / 60)
         }
-        var customHours by remember(savedMuteDurationMinutes) {
-            mutableIntStateOf(savedMuteDurationMinutes / DURATION_60_MINUTES)
-        }
-        var customMinutes by remember(savedMuteDurationMinutes) {
-            mutableIntStateOf(savedMuteDurationMinutes % DURATION_60_MINUTES)
+        var customMinutes by remember {
+            mutableIntStateOf(savedMuteDurationMinutes % 60)
         }
         var showTimeSelectorDialog by remember { mutableStateOf(false) }
 
-        val finalMinutes = if (isCustomSelected) {
-            customHours * DURATION_60_MINUTES + customMinutes
-        } else {
-            selectedPresetMinutes
+        val finalMinutes = when (selectedOption) {
+            MuteDurationOption.MINUTES_30 -> DURATION_30_MINUTES
+            MuteDurationOption.MINUTES_60 -> DURATION_60_MINUTES
+            MuteDurationOption.MINUTES_180 -> DURATION_180_MINUTES
+            MuteDurationOption.CUSTOM -> customHours * 60 + customMinutes
         }
 
         Column(
@@ -473,12 +472,11 @@ class TilePreferencesActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        val is30mSelected = !isCustomSelected && selectedPresetMinutes == DURATION_30_MINUTES
+                        val is30mSelected = selectedOption == MuteDurationOption.MINUTES_30
                         FilterChip(
                             selected = is30mSelected,
                             onClick = {
-                                isCustomSelected = false
-                                selectedPresetMinutes = DURATION_30_MINUTES
+                                selectedOption = MuteDurationOption.MINUTES_30
                                 onSaveMuteDuration(DURATION_30_MINUTES)
                                 if (isTimerActive) {
                                     onStartTimer(DURATION_30_MINUTES)
@@ -508,12 +506,11 @@ class TilePreferencesActivity : ComponentActivity() {
 
                         Spacer(modifier = Modifier.padding(horizontal = 4.dp))
 
-                        val is60mSelected = !isCustomSelected && selectedPresetMinutes == DURATION_60_MINUTES
+                        val is60mSelected = selectedOption == MuteDurationOption.MINUTES_60
                         FilterChip(
                             selected = is60mSelected,
                             onClick = {
-                                isCustomSelected = false
-                                selectedPresetMinutes = DURATION_60_MINUTES
+                                selectedOption = MuteDurationOption.MINUTES_60
                                 onSaveMuteDuration(DURATION_60_MINUTES)
                                 if (isTimerActive) {
                                     onStartTimer(DURATION_60_MINUTES)
@@ -543,12 +540,11 @@ class TilePreferencesActivity : ComponentActivity() {
 
                         Spacer(modifier = Modifier.padding(horizontal = 4.dp))
 
-                        val is180mSelected = !isCustomSelected && selectedPresetMinutes == DURATION_180_MINUTES
+                        val is180mSelected = selectedOption == MuteDurationOption.MINUTES_180
                         FilterChip(
                             selected = is180mSelected,
                             onClick = {
-                                isCustomSelected = false
-                                selectedPresetMinutes = DURATION_180_MINUTES
+                                selectedOption = MuteDurationOption.MINUTES_180
                                 onSaveMuteDuration(DURATION_180_MINUTES)
                                 if (isTimerActive) {
                                     onStartTimer(DURATION_180_MINUTES)
@@ -581,19 +577,24 @@ class TilePreferencesActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        val isCustomSelected = selectedOption == MuteDurationOption.CUSTOM
                         FilterChip(
                             selected = isCustomSelected,
                             onClick = {
-                                isCustomSelected = true
+                                selectedOption = MuteDurationOption.CUSTOM
                                 showTimeSelectorDialog = true
-                                if (isTimerActive) {
-                                    onStartTimer(customHours * DURATION_60_MINUTES + customMinutes)
+                                val duration = customHours * 60 + customMinutes
+                                if (duration > 0) {
+                                    onSaveMuteDuration(duration)
+                                    if (isTimerActive) {
+                                        onStartTimer(duration)
+                                    }
                                 }
                             },
                             label = {
                                 val customText = if (isCustomSelected && finalMinutes > 0) {
-                                    val h = finalMinutes / DURATION_60_MINUTES
-                                    val m = finalMinutes % DURATION_60_MINUTES
+                                    val h = finalMinutes / 60
+                                    val m = finalMinutes % 60
                                     val formattedDuration = when {
                                         h > 0 && m > 0 -> stringResource(R.string.time_format_hours_minutes, h, m)
                                         h > 0 -> stringResource(R.string.time_format_hours_only, h)
@@ -657,7 +658,7 @@ class TilePreferencesActivity : ComponentActivity() {
                                         onClick = {
                                             customHours = timePickerState.hour
                                             customMinutes = timePickerState.minute
-                                            val duration = timePickerState.hour * DURATION_60_MINUTES + timePickerState.minute
+                                            val duration = timePickerState.hour * 60 + timePickerState.minute
                                             onSaveMuteDuration(duration)
                                             if (isTimerActive) {
                                                 onStartTimer(duration)
