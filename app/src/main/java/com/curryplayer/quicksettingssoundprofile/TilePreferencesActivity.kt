@@ -81,6 +81,7 @@ import com.curryplayer.quicksettingssoundprofile.scheduler.AlarmScheduler
 import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProfileTheme
 import com.curryplayer.quicksettingssoundprofile.utils.AlarmExactUtils
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -100,6 +101,7 @@ class TilePreferencesActivity : ComponentActivity() {
     private var _scheduleExactAlarmsPermissionGrantedState by mutableStateOf(false)
     private var _dndPermissionGrantedState by mutableStateOf(false)
     private var _selectedSoundModeState by mutableIntStateOf(AudioManager.RINGER_MODE_NORMAL)
+    private var _pendingTargetMode: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,7 +115,13 @@ class TilePreferencesActivity : ComponentActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 _soundProfileManager.ringerMode.collect { mode ->
-                    _selectedSoundModeState = mode
+                    val target = _pendingTargetMode
+                    if (target == null) {
+                        _selectedSoundModeState = mode
+                    } else if (mode == target) {
+                        _pendingTargetMode = null
+                        _selectedSoundModeState = mode
+                    }
                 }
             }
         }
@@ -215,6 +223,7 @@ class TilePreferencesActivity : ComponentActivity() {
                             selectedMode = selectedMode,
                             iconTheme = iconTheme,
                             onSelectedMode = { mode ->
+                                _pendingTargetMode = mode
                                 _selectedSoundModeState = mode
                                 lifecycleScope.launch {
                                     applyModeImmediately(mode)
