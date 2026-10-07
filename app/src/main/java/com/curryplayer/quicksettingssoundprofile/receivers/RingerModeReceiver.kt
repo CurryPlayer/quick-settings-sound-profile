@@ -18,14 +18,15 @@ import kotlin.coroutines.resume
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * A [BroadcastReceiver] that monitors changes to the system ringer mode ([AudioManager.RINGER_MODE_CHANGED_ACTION])
- * as well as Do Not Disturb / Android Modes ([NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED]).
+ * A [BroadcastReceiver] that monitors changes to the system ringer mode ([AudioManager.RINGER_MODE_CHANGED_ACTION]),
+ * Do Not Disturb / Android Modes ([NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED]),
+ * as well as AutomaticZenRule status updates ([NotificationManager.ACTION_AUTOMATIC_ZEN_RULE_STATUS_CHANGED]).
  *
- * Listening to both actions is required because activating Do Not Disturb or an [android.app.AutomaticZenRule]
+ * Listening to these actions is required because activating Do Not Disturb or an [android.app.AutomaticZenRule]
  * with an interruption filter can alter the effective ringer behavior without always broadcasting a standard
  * ringer mode change alone.
  *
- * Triggers the [onRingerModeChanged] callback whenever either of these states changes, and provides helper
+ * Triggers the [onRingerModeChanged] callback whenever any of these states change, and provides helper
  * methods to safely [register] and [unregister] the receiver (including Android 13+ export safety).
  *
  * @param context The [Context] used for registering and unregistering the receiver.
@@ -41,8 +42,11 @@ class RingerModeReceiver(
 
     override fun onReceive(context: Context?, intent: Intent?) {
         val action = intent?.action
+        val isZenRuleStatusChanged = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+                action == NotificationManager.ACTION_AUTOMATIC_ZEN_RULE_STATUS_CHANGED
         if ((action == AudioManager.RINGER_MODE_CHANGED_ACTION) ||
-            (action == NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED)
+            (action == NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED) ||
+            isZenRuleStatusChanged
         ) {
             onRingerModeChanged()
         }
@@ -52,6 +56,9 @@ class RingerModeReceiver(
         if (isReceiverRegistered.compareAndSet(false, true)) {
             val filter = IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION).apply {
                 addAction(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    addAction(NotificationManager.ACTION_AUTOMATIC_ZEN_RULE_STATUS_CHANGED)
+                }
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

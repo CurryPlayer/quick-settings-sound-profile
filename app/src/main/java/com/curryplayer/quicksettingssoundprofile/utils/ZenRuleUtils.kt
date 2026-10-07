@@ -340,9 +340,20 @@ object ZenRuleUtils {
             // Deactivate the ZenRule
             setAutomaticZenRuleState(appContext, ruleId, activate = false)
 
-            // Await interruption filter to return to ALL so AudioService accepts ringer mode changes without getting clamped
+            // Await interruption filter to return to ALL or rule confirmed deactivated (e.g. Android 15+)
+            // to avoid timing out if another ZenRule (e.g. Bedtime mode) keeps the interruption filter on PRIORITY.
             RingerModeReceiver.awaitCondition(appContext, TIMEOUT_DEACTIVATE_FILTER_MS) {
-                notificationManager.currentInterruptionFilter == NotificationManager.INTERRUPTION_FILTER_ALL
+                val isFilterAll = notificationManager.currentInterruptionFilter == NotificationManager.INTERRUPTION_FILTER_ALL
+                val isRuleDeactivated = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM && ruleId.isNotEmpty()) {
+                    try {
+                        notificationManager.getAutomaticZenRuleState(ruleId) == Condition.STATE_FALSE
+                    } catch (_: Exception) {
+                        false
+                    }
+                } else {
+                    false
+                }
+                isFilterAll || isRuleDeactivated
             }
 
             // Apply desired ringer mode (NORMAL or VIBRATE)
