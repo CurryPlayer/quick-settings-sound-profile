@@ -26,7 +26,7 @@ object ZenRuleUtils {
     const val SILENT_CONDITION_DND_AND_MODE_URI = "condition://com.curryplayer.quicksettingssoundprofile/silent_profile_active"
     private const val TIMEOUT_ADJUST_NORMAL_MS = 400L
     private const val TIMEOUT_ACTIVATE_SILENT_MS = 800L
-    private const val TIMEOUT_DEACTIVATE_FILTER_MS = 800L
+    private const val TIMEOUT_DEACTIVATE_FILTER_MS = 250L
     private const val TIMEOUT_SYNCHRONIZE_RINGER_MS = 500L
 
     /**
