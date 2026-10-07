@@ -101,7 +101,17 @@ class TilePreferencesActivity : ComponentActivity() {
     private var _scheduleExactAlarmsPermissionGrantedState by mutableStateOf(false)
     private var _dndPermissionGrantedState by mutableStateOf(false)
     private var _selectedSoundModeState by mutableIntStateOf(AudioManager.RINGER_MODE_NORMAL)
+    /**
+     * Holds the user-selected target ringer mode while an asynchronous mode transition is in flight.
+     * Used to filter out transient system broadcasts (e.g. temporary switch to NORMAL when entering or leaving SILENT)
+     * so the UI does not flicker between states.
+     */
     private var _pendingTargetMode: Int? = null
+
+    /**
+     * Tracks the active coroutine job performing the sound mode change.
+     * Allows cancelling prior operations when the user rapidly switches modes.
+     */
     private var _modeChangeJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -123,6 +133,7 @@ class TilePreferencesActivity : ComponentActivity() {
                         _pendingTargetMode = null
                         _selectedSoundModeState = mode
                     }
+                    // Transient broadcasts differing from _pendingTargetMode are ignored
                 }
             }
         }
@@ -224,13 +235,17 @@ class TilePreferencesActivity : ComponentActivity() {
                             selectedMode = selectedMode,
                             iconTheme = iconTheme,
                             onSelectedMode = { mode ->
+                                // Optimistically update UI immediately and set pending target to filter intermediate system broadcasts
                                 _selectedSoundModeState = mode
                                 _pendingTargetMode = mode
+
+                                // Cancel any previously running mode change job to avoid concurrent executions on rapid taps
                                 _modeChangeJob?.cancel()
                                 val job = lifecycleScope.launch {
                                     try {
                                         applyModeImmediately(mode)
                                     } finally {
+                                        // Only clean up and sync if this coroutine is still the latest active job
                                         if (_modeChangeJob == coroutineContext[Job]) {
                                             _pendingTargetMode = null
                                             _selectedSoundModeState = _soundProfileManager.currentRingerMode
