@@ -102,6 +102,7 @@ class TilePreferencesActivity : ComponentActivity() {
     private var _dndPermissionGrantedState by mutableStateOf(false)
     private var _selectedSoundModeState by mutableIntStateOf(AudioManager.RINGER_MODE_NORMAL)
     private var _pendingTargetMode: Int? = null
+    private var _modeChangeJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -223,11 +224,20 @@ class TilePreferencesActivity : ComponentActivity() {
                             selectedMode = selectedMode,
                             iconTheme = iconTheme,
                             onSelectedMode = { mode ->
-                                _pendingTargetMode = mode
                                 _selectedSoundModeState = mode
-                                lifecycleScope.launch {
-                                    applyModeImmediately(mode)
+                                _pendingTargetMode = mode
+                                _modeChangeJob?.cancel()
+                                val job = lifecycleScope.launch {
+                                    try {
+                                        applyModeImmediately(mode)
+                                    } finally {
+                                        if (_modeChangeJob == coroutineContext[Job]) {
+                                            _pendingTargetMode = null
+                                            _selectedSoundModeState = _soundProfileManager.currentRingerMode
+                                        }
+                                    }
                                 }
+                                _modeChangeJob = job
                             }
                         )
 
