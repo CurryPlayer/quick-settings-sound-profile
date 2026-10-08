@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.R
+import com.curryplayer.quicksettingssoundprofile.composables.RenderAddTileToStatusBarCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderAllSetCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderGrantPermissionCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderNoUserManagedModesAvailableCard
@@ -50,6 +51,8 @@ fun RenderSettingsPage(
                     RenderGrantPermissionCard(ctx)
                 } else {
                     RenderAllSetCard(ctx, iconTheme)
+                    // TODO: temporarily added
+                    RenderAddTileToStatusBarCard(ctx, iconTheme)
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
