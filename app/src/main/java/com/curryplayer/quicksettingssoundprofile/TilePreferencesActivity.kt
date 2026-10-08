@@ -10,21 +10,16 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -37,10 +32,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.curryplayer.quicksettingssoundprofile.composables.AppButton
 import com.curryplayer.quicksettingssoundprofile.composables.AppButtonType
-import com.curryplayer.quicksettingssoundprofile.composables.RenderGrantExactAlarmPermission
-import com.curryplayer.quicksettingssoundprofile.composables.RenderGrantPermissionCard
-import com.curryplayer.quicksettingssoundprofile.composables.RenderSoundModeSelection
-import com.curryplayer.quicksettingssoundprofile.composables.RenderTemporaryMuteSelection
+import com.curryplayer.quicksettingssoundprofile.composables.RenderSoundModeSelectionCard
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.manager.SoundProfileManager
 import com.curryplayer.quicksettingssoundprofile.models.AlarmItem
@@ -50,10 +42,7 @@ import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProf
 import com.curryplayer.quicksettingssoundprofile.utils.AlarmExactUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.milliseconds
 
 class TilePreferencesActivity : ComponentActivity() {
     companion object {
@@ -171,85 +160,51 @@ class TilePreferencesActivity : ComponentActivity() {
                 Text(text = stringResource(R.string.timer_title))
             },
             text = {
-                var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
+                RenderSoundModeSelectionCard(
+                    ctx = this@TilePreferencesActivity,
+                    dndPermissionGranted = _dndPermissionGrantedState,
+                    scheduleExactAlarmsPermissionGranted = _scheduleExactAlarmsPermissionGrantedState,
+                    selectedMode = selectedMode,
+                    iconTheme = iconTheme,
+                    onSelectedMode = { mode ->
+                        // Optimistically update UI immediately and set pending target to filter intermediate system broadcasts
+                        _selectedSoundModeState = mode
+                        _pendingTargetMode = mode
 
-                LaunchedEffect(timerEndTime) {
-                    while (isActive) {
-                        val now = System.currentTimeMillis()
-                        if (timerEndTime <= now) break
-                        currentTime = now
-
-                        val remainingMillis = timerEndTime - now
-                        val millisUntilNextMinute = remainingMillis % 60_000L
-                        val nextDelay = if (millisUntilNextMinute == 0L) 60_000L else millisUntilNextMinute
-                        delay(nextDelay.milliseconds)
-                    }
-                }
-
-                val isTimerActive = timerEndTime > currentTime
-
-                Column(
-                    modifier = Modifier.verticalScroll(rememberScrollState())
-                ) {
-                    if (!_dndPermissionGrantedState) {
-                        RenderGrantPermissionCard(ctx = this@TilePreferencesActivity, outerPadding = 0)
-                    } else {
-
-                        if (!_scheduleExactAlarmsPermissionGrantedState) {
-                            RenderGrantExactAlarmPermission()
+                        // Cancel any previously running mode change job to avoid concurrent executions on rapid taps
+                        _modeChangeJob?.cancel()
+                        val job = lifecycleScope.launch {
+                            try {
+                                applyModeImmediately(mode)
+                            } finally {
+                                // Only clean up and sync if this coroutine is still the latest active job
+                                if (_modeChangeJob == coroutineContext[Job]) {
+                                    _pendingTargetMode = null
+                                    _selectedSoundModeState = _soundProfileManager.currentRingerMode
+                                }
+                            }
                         }
-
-                        RenderSoundModeSelection(
-                            selectedMode = selectedMode,
-                            iconTheme = iconTheme,
-                            onSelectedMode = { mode ->
-                                // Optimistically update UI immediately and set pending target to filter intermediate system broadcasts
-                                _selectedSoundModeState = mode
-                                _pendingTargetMode = mode
-
-                                // Cancel any previously running mode change job to avoid concurrent executions on rapid taps
-                                _modeChangeJob?.cancel()
-                                val job = lifecycleScope.launch {
-                                    try {
-                                        applyModeImmediately(mode)
-                                    } finally {
-                                        // Only clean up and sync if this coroutine is still the latest active job
-                                        if (_modeChangeJob == coroutineContext[Job]) {
-                                            _pendingTargetMode = null
-                                            _selectedSoundModeState = _soundProfileManager.currentRingerMode
-                                        }
-                                    }
-                                }
-                                _modeChangeJob = job
-                            }
-                        )
-
-                        RenderTemporaryMuteSelection(
-                            selectedMode = selectedMode,
-                            previousRingerMode = previousRingerMode,
-                            isTimerActive = isTimerActive,
-                            timerEndTime = timerEndTime,
-                            currentTime = currentTime,
-                            savedMuteDurationMinutes = savedMuteDurationMinutes,
-                            onSaveMuteDuration = { minutes ->
-                                scope.launch {
-                                    _dataStoreManager.saveMuteDurationMinutes(minutes)
-                                }
-                            },
-                            onStartTimer = { minutes ->
-                                scope.launch {
-                                    _alarmScheduler.schedule(AlarmItem(minutes))
-                                }
-                            },
-                            onCancelTimer = {
-                                scope.launch {
-                                    _alarmScheduler.cancel()
-                                }
-                            }
-                        )
+                        _modeChangeJob = job
+                    },
+                    previousRingerMode = previousRingerMode,
+                    timerEndTime = timerEndTime,
+                    savedMuteDurationMinutes = savedMuteDurationMinutes,
+                    onSaveMuteDuration = { minutes ->
+                        scope.launch {
+                            _dataStoreManager.saveMuteDurationMinutes(minutes)
+                        }
+                    },
+                    onStartTimer = { minutes ->
+                        scope.launch {
+                            _alarmScheduler.schedule(AlarmItem(minutes))
+                        }
+                    },
+                    onCancelTimer = {
+                        scope.launch {
+                            _alarmScheduler.cancel()
+                        }
                     }
-                }
-
+                )
             },
             confirmButton = {
                 RenderAlertDialogButtons()
