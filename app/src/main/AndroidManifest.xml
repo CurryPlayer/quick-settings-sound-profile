@@ -29,6 +29,12 @@
                 <action android:name="android.app.action.AUTOMATIC_ZEN_RULE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <!--
+            Long pressing on the tile will open this dialog activity
+            -->
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
         </activity>
 
         <activity
@@ -41,12 +47,6 @@
             android:showForAllUsers="true"
             android:launchMode="singleInstance"
             android:theme="@style/Theme.QuickSettingsSoundProfile.Dialog">
-            <!--
-            Long pressing on the tile will open this dialog activity
-            -->
-            <intent-filter>
-                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
-            </intent-filter>
         </activity>
 
         <receiver
