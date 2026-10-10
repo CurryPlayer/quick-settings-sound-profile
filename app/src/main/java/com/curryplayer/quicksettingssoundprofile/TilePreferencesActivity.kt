@@ -12,6 +12,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +39,7 @@ import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.manager.SoundProfileManager
 import com.curryplayer.quicksettingssoundprofile.models.AlarmItem
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
+import com.curryplayer.quicksettingssoundprofile.models.MuteDurationOption
 import com.curryplayer.quicksettingssoundprofile.scheduler.AlarmScheduler
 import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProfileTheme
 import com.curryplayer.quicksettingssoundprofile.utils.AlarmExactUtils
@@ -45,9 +48,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class TilePreferencesActivity : ComponentActivity() {
-    companion object {
-        private const val DURATION_60_MINUTES = 60
-    }
 
     private lateinit var _soundProfileManager: SoundProfileManager
     private lateinit var _dataStoreManager: DataStoreManager
@@ -98,7 +98,7 @@ class TilePreferencesActivity : ComponentActivity() {
                 val timerEndTime by _dataStoreManager.timerEndTime.collectAsState(initial = 0L)
                 val previousRingerMode by _dataStoreManager.previousRingerMode.collectAsState(initial = AudioManager.RINGER_MODE_NORMAL)
                 val savedIconThemeIndex by _dataStoreManager.iconTheme.collectAsState(initial = IconTheme.VOLUME_DEFAULT.ordinal)
-                val savedMuteDurationMinutes by _dataStoreManager.lastMuteDurationMinutes.collectAsState(initial = DURATION_60_MINUTES)
+                val savedMuteDurationMinutes by _dataStoreManager.lastMuteDurationMinutes.collectAsState(initial = MuteDurationOption.MINUTES_60.minutes)
                 val iconTheme = remember(savedIconThemeIndex) { IconTheme.fromOrdinal(savedIconThemeIndex) }
                 val scope = rememberCoroutineScope()
 
@@ -161,6 +161,7 @@ class TilePreferencesActivity : ComponentActivity() {
             },
             text = {
                 RenderSoundModeSelectionCard(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
                     ctx = this@TilePreferencesActivity,
                     dndPermissionGranted = _dndPermissionGrantedState,
                     scheduleExactAlarmsPermissionGranted = _scheduleExactAlarmsPermissionGrantedState,

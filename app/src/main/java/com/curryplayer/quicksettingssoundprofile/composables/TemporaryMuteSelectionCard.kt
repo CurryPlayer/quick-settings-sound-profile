@@ -36,13 +36,10 @@ import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.models.MuteDurationOption
 
-private const val DURATION_30_MINUTES = 30
-private const val DURATION_60_MINUTES = 60
-private const val DURATION_180_MINUTES = 180
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RenderTemporaryMuteSelection(
+    scheduleExactAlarmsPermissionGranted: Boolean,
     selectedMode: Int,
     previousRingerMode: Int,
     isTimerActive: Boolean,
@@ -54,22 +51,20 @@ fun RenderTemporaryMuteSelection(
     onCancelTimer: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var selectedOption by remember {
+    var selectedOption by remember(savedMuteDurationMinutes) {
         mutableStateOf(MuteDurationOption.fromMinutes(savedMuteDurationMinutes))
     }
-    var customHours by remember {
+    var customHours by remember(savedMuteDurationMinutes) {
         mutableIntStateOf(savedMuteDurationMinutes / 60)
     }
-    var customMinutes by remember {
+    var customMinutes by remember(savedMuteDurationMinutes) {
         mutableIntStateOf(savedMuteDurationMinutes % 60)
     }
     var showTimeSelectorDialog by remember { mutableStateOf(value = false) }
 
     val finalMinutes = when (selectedOption) {
-        MuteDurationOption.MINUTES_30 -> DURATION_30_MINUTES
-        MuteDurationOption.MINUTES_60 -> DURATION_60_MINUTES
-        MuteDurationOption.MINUTES_180 -> DURATION_180_MINUTES
         MuteDurationOption.CUSTOM -> (customHours * 60) + customMinutes
+        else -> selectedOption.minutes
     }
 
     Column(
@@ -82,6 +77,10 @@ fun RenderTemporaryMuteSelection(
                 modifier = Modifier.padding(vertical = 16.dp),
                 color = MaterialTheme.colorScheme.outlineVariant,
             )
+
+            if (!scheduleExactAlarmsPermissionGranted) {
+                RenderGrantExactAlarmPermission()
+            }
 
             Row(
                 modifier = Modifier
@@ -178,9 +177,9 @@ fun RenderTemporaryMuteSelection(
                         selected = is30mSelected,
                         onClick = {
                             selectedOption = MuteDurationOption.MINUTES_30
-                            onSaveMuteDuration(DURATION_30_MINUTES)
+                            onSaveMuteDuration(MuteDurationOption.MINUTES_30.minutes)
                             if (isTimerActive) {
-                                onStartTimer(DURATION_30_MINUTES)
+                                onStartTimer(MuteDurationOption.MINUTES_30.minutes)
                             }
                         },
                         label = {
@@ -212,9 +211,9 @@ fun RenderTemporaryMuteSelection(
                         selected = is60mSelected,
                         onClick = {
                             selectedOption = MuteDurationOption.MINUTES_60
-                            onSaveMuteDuration(DURATION_60_MINUTES)
+                            onSaveMuteDuration(MuteDurationOption.MINUTES_60.minutes)
                             if (isTimerActive) {
-                                onStartTimer(DURATION_60_MINUTES)
+                                onStartTimer(MuteDurationOption.MINUTES_60.minutes)
                             }
                         },
                         label = {
@@ -246,9 +245,9 @@ fun RenderTemporaryMuteSelection(
                         selected = is180mSelected,
                         onClick = {
                             selectedOption = MuteDurationOption.MINUTES_180
-                            onSaveMuteDuration(DURATION_180_MINUTES)
+                            onSaveMuteDuration(MuteDurationOption.MINUTES_180.minutes)
                             if (isTimerActive) {
-                                onStartTimer(DURATION_180_MINUTES)
+                                onStartTimer(MuteDurationOption.MINUTES_180.minutes)
                             }
                         },
                         label = {

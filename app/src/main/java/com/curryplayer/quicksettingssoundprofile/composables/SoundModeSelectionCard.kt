@@ -3,8 +3,10 @@ package com.curryplayer.quicksettingssoundprofile.composables
 import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -12,6 +14,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -50,17 +53,22 @@ fun RenderSoundModeSelectionCard(
 
     val isTimerActive = timerEndTime > currentTime
 
-    Column(
+    Card(
         modifier = modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState()),
+            .padding(16.dp),
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        if (!dndPermissionGranted) {
-            RenderGrantPermissionCard(ctx = ctx, outerPadding = 0)
-        } else {
-            if (!scheduleExactAlarmsPermissionGranted) {
-                RenderGrantExactAlarmPermission()
-            }
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
 
             RenderSoundModeSelection(
                 selectedMode = selectedMode,
@@ -69,6 +77,7 @@ fun RenderSoundModeSelectionCard(
             )
 
             RenderTemporaryMuteSelection(
+                scheduleExactAlarmsPermissionGranted = scheduleExactAlarmsPermissionGranted,
                 selectedMode = selectedMode,
                 previousRingerMode = previousRingerMode,
                 isTimerActive = isTimerActive,
@@ -79,6 +88,7 @@ fun RenderSoundModeSelectionCard(
                 onStartTimer = onStartTimer,
                 onCancelTimer = onCancelTimer,
             )
+
         }
     }
 }

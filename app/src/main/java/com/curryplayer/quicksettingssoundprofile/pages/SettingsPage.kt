@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.composables.RenderAddTileToStatusBarCard
-import com.curryplayer.quicksettingssoundprofile.composables.RenderAllSetCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderGrantPermissionCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderNoUserManagedModesAvailableCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderNoticeCard
@@ -24,6 +23,7 @@ import com.curryplayer.quicksettingssoundprofile.composables.RenderTopAppBar
 import com.curryplayer.quicksettingssoundprofile.composables.RenderOpenZenModeSettings
 import com.curryplayer.quicksettingssoundprofile.composables.RenderIconThemeSelector
 import com.curryplayer.quicksettingssoundprofile.composables.RenderNewCategoryName
+import com.curryplayer.quicksettingssoundprofile.composables.RenderSoundModeSelectionCard
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 
 @Composable
@@ -33,6 +33,15 @@ fun RenderSettingsPage(
     ruleId: String,
     iconThemeIndex: Int,
     onIconThemeChangeIndex: (Int) -> Unit,
+    scheduleExactAlarmsPermissionGranted: Boolean,
+    selectedMode: Int,
+    onSelectedMode: (Int) -> Unit,
+    previousRingerMode: Int,
+    timerEndTime: Long,
+    savedMuteDurationMinutes: Int,
+    onSaveMuteDuration: (minutes: Int) -> Unit,
+    onStartTimer: (minutes: Int) -> Unit,
+    onCancelTimer: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val iconTheme = IconTheme.fromOrdinal(iconThemeIndex)
@@ -50,7 +59,21 @@ fun RenderSettingsPage(
                 if (!hasPermission) {
                     RenderGrantPermissionCard(ctx)
                 } else {
-                    RenderAllSetCard(ctx, iconTheme)
+                    RenderSoundModeSelectionCard(
+                        //modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        ctx = ctx,
+                        dndPermissionGranted = hasPermission,
+                        scheduleExactAlarmsPermissionGranted = scheduleExactAlarmsPermissionGranted,
+                        selectedMode = selectedMode,
+                        iconTheme = iconTheme,
+                        onSelectedMode = onSelectedMode,
+                        previousRingerMode = previousRingerMode,
+                        timerEndTime = timerEndTime,
+                        savedMuteDurationMinutes = savedMuteDurationMinutes,
+                        onSaveMuteDuration = onSaveMuteDuration,
+                        onStartTimer = onStartTimer,
+                        onCancelTimer = onCancelTimer,
+                    )
                     // TODO: temporarily added
                     RenderAddTileToStatusBarCard(ctx, iconTheme)
                 }

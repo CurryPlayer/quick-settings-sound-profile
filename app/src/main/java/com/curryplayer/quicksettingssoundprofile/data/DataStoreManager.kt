@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.curryplayer.quicksettingssoundprofile.models.MuteDurationOption
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -48,7 +49,7 @@ class DataStoreManager(private val context: Context) {
      * Emits 60 if no previous duration is set.
      */
     val lastMuteDurationMinutes: Flow<Int> = context.dataStore.data.map { preferences ->
-        preferences[LAST_SELECTED_MUTE_DURATION_MINUTES] ?: 60
+        preferences[LAST_SELECTED_MUTE_DURATION_MINUTES] ?: MuteDurationOption.MINUTES_60.minutes
     }
 
     suspend fun setZenRuleId(value: String) {
