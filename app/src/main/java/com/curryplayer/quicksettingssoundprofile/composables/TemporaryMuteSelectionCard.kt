@@ -286,14 +286,9 @@ fun RenderTemporaryMuteSelection(
                             }
                         },
                         label = {
+                            val context = LocalContext.current
                             val customText = if (isCustomSelected && (finalMinutes > 0)) {
-                                val h = finalMinutes / 60
-                                val m = finalMinutes % 60
-                                val formattedDuration = when {
-                                    (h > 0) && (m > 0) -> stringResource(R.string.time_format_hours_minutes, h, m)
-                                    h > 0 -> stringResource(R.string.time_format_hours_only, h)
-                                    else -> stringResource(R.string.time_format_minutes_only, m)
-                                }
+                                val formattedDuration = TimeUtils.getFormattedDuration(context, finalMinutes)
                                 stringResource(R.string.custom_duration_format, stringResource(R.string.custom_minutes), formattedDuration)
                             } else {
                                 stringResource(R.string.custom_minutes)
