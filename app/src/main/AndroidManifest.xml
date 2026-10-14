@@ -37,18 +37,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name="com.curryplayer.quicksettingssoundprofile.TilePreferencesActivity"
-            android:exported="true"
-            android:taskAffinity=""
-            android:excludeFromRecents="true"
-            android:noHistory="true"
-            android:autoRemoveFromRecents="true"
-            android:showForAllUsers="true"
-            android:launchMode="singleInstance"
-            android:theme="@style/Theme.QuickSettingsSoundProfile.Dialog">
-        </activity>
-
         <receiver
             android:name="com.curryplayer.quicksettingssoundprofile.receivers.TimerExpiredReceiver"
             android:exported="false" />
