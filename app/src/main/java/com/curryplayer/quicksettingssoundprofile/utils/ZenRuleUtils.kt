@@ -25,7 +25,7 @@ object ZenRuleUtils {
 
     const val SILENT_CONDITION_DND_AND_MODE_URI = "condition://com.curryplayer.quicksettingssoundprofile/silent_profile_active"
     private const val TIMEOUT_ADJUST_NORMAL_MS = 400L
-    private const val TIMEOUT_ACTIVATE_SILENT_MS = 800L
+    private const val TIMEOUT_ACTIVATE_SILENT_MS = 400L
     private const val TIMEOUT_DEACTIVATE_FILTER_MS = 250L
     private const val TIMEOUT_SYNCHRONIZE_RINGER_MS = 500L
 
@@ -327,12 +327,16 @@ object ZenRuleUtils {
 
             setAutomaticZenRuleState(appContext, ruleId, activate = true)
 
-            // Await system transitioning ringerMode to target (SILENT) via the applied ZenRule / priority filter
+            // Await system transitioning ringerMode to target (SILENT) via the applied ZenRule / priority filter.
+            // When ZenRule (on Android15+) or alternatively DND schedule is disabled by user in system settings,
+            // this will run in a timeout. Making changes to the ringerMode while a ZenRule / DND schedule is active,
+            // will be ignored by the system.
             val isSilent = RingerModeReceiver.awaitCondition(appContext, TIMEOUT_ACTIVATE_SILENT_MS) {
                 audioManager.ringerMode == targetRingerMode
             }
 
             // Fallback: in case the system/OEM does not automatically switch ringerMode to SILENT
+            // or DND (ZenRule / schedule) was disabled by the user in system settings
             if (!isSilent && audioManager.ringerMode != targetRingerMode) {
                 audioManager.ringerMode = targetRingerMode
             }
