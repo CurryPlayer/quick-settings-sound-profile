@@ -13,11 +13,7 @@ object AlarmExactUtils {
      * @return True if the permission is granted, false otherwise.
      */
     fun isScheduleExactAlarmsPermissionGranted(ctx: Context): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            ctx.getSystemService(AlarmManager::class.java).canScheduleExactAlarms()
-        } else {
-            true
-        }
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.S || ctx.getSystemService(AlarmManager::class.java).canScheduleExactAlarms()
     }
 
 }
