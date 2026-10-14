@@ -29,12 +29,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.models.MuteDurationOption
+import com.curryplayer.quicksettingssoundprofile.utils.TimeUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -113,16 +115,8 @@ fun RenderTemporaryMuteSelection(
                     if (isTimerActive) {
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        val remainingMillis = (timerEndTime - currentTime).coerceAtLeast(0L)
-                        val totalMinutes = (remainingMillis + 59_999L) / 60_000L
-                        val hours = totalMinutes / 60
-                        val minutes = totalMinutes % 60
-
-                        val timeString = when {
-                            (hours > 0) && (minutes > 0) -> stringResource(R.string.time_format_hours_minutes, hours, minutes)
-                            hours > 0 -> stringResource(R.string.time_format_hours_only, hours)
-                            else -> stringResource(R.string.time_format_minutes_only, minutes)
-                        }
+                        val context = LocalContext.current
+                        val timeString = TimeUtils.getFormattedRemainingTime(context, timerEndTime, currentTime)
 
                         Text(
                             text = stringResource(R.string.time_remaining, timeString),

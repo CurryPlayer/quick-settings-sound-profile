@@ -46,6 +46,7 @@
     <string name="set_duration_title">Dauer einstellen</string>
     <string name="timer_active_until">Bis %s</string>
     <string name="time_remaining">Verbleibend: %s</string>
+    <string name="time_remaining_qsTile_subtitle">Noch %s</string>
     <string name="grant_exact_alarm_title">Exakte Alarme erlauben</string>
     <string name="grant_exact_alarm_desc">Damit der Timer pünktlich abläuft, erteile der App in den Einstellungen bitte die Berechtigung für exakte Alarme.</string>
     <string name="button_grant_exact_alarm">Berechtigung erteilen</string>

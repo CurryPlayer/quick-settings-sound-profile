@@ -46,6 +46,7 @@
     <string name="set_duration_title">Set duration</string>
     <string name="timer_active_until">Until %s</string>
     <string name="time_remaining">Remaining: %s</string>
+    <string name="time_remaining_qsTile_subtitle">%s left</string>
     <string name="grant_exact_alarm_title">Exact Alarms Permission</string>
     <string name="grant_exact_alarm_desc">To ensure your timer expires precisely on time, please allow exact alarms for this app in settings.</string>
     <string name="button_grant_exact_alarm">Grant Permission</string>

@@ -9,16 +9,13 @@ import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.manager.SoundProfileManager
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
+import com.curryplayer.quicksettingssoundprofile.utils.TimeUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
 class SoundProfileTileService : TileService() {
 
@@ -152,10 +149,8 @@ class SoundProfileTileService : TileService() {
                 qsTile.label = getString(R.string.profile_silent_label)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     if (_timerEndTime > System.currentTimeMillis()) {
-                        val formattedLocalTime = Instant.ofEpochMilli(_timerEndTime)
-                            .atZone(ZoneId.systemDefault())
-                            .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
-                        qsTile.subtitle = getString(R.string.timer_active_until, formattedLocalTime)
+                        val remainingTime = TimeUtils.getFormattedRemainingTime(this, _timerEndTime)
+                        qsTile.subtitle = getString(R.string.time_remaining_qsTile_subtitle, remainingTime)
                     } else {
                         qsTile.subtitle = null
                     }
