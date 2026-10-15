@@ -303,6 +303,12 @@ object ZenRuleUtils {
      * @param activate True if the rule should be activated, false otherwise.
      * @param targetRingerMode The desired ringer mode after activating / deactivating the rule.
      */
+    /*
+     TODO - Investigation:
+        Android 7–10 cause the ring mode to automatically switch to “SILENT” when “VIBRATE” is selected,
+        which results in the “Do Not Disturb” schedule not being activated properly.
+        Should this still be relevant for this app?
+     */
     suspend fun applyZenRuleAndRingerMode(
         context: Context,
         ruleId: String,
