@@ -48,15 +48,13 @@
     <string name="time_remaining">Remaining: %s</string>
     <string name="time_remaining_qsTile_subtitle">%s left</string>
     <string name="grant_exact_alarm_title">Exact Alarms Permission</string>
-    <string name="grant_exact_alarm_desc">To ensure your timer expires precisely on time, please allow exact alarms for this app in settings.</string>
+    <string name="grant_exact_alarm_desc">To ensure your timer expires precisely on time, please grant permission for exact alarms. Without this permission, canceling mute mode may be delayed by several minutes up to an hour.</string>
     <string name="button_grant_exact_alarm">Grant Permission</string>
     <string name="time_format_hours_minutes">%1$d h %2$d m</string>
     <string name="time_format_hours_only">%1$d h</string>
     <string name="time_format_minutes_only">%1$d m</string>
-    <string name="time_format_minutes_seconds">%1$d m %2$02d s</string>
     <string name="time_format_seconds_only">%1$d s</string>
     <string name="temporary_mute_title">Temporary mute</string>
     <string name="temporary_mute_desc">Set how long to keep your phone muted before returning to the previous sound mode (%s).</string>
     <string name="sound_mode_selection_title">Sound Mode</string>
-    <string name="tile_options_tip">Tap and hold the Quick Settings tile to access timer options and sound profile settings.</string>
 </resources>
