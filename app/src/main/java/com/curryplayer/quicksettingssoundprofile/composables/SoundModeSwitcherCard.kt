@@ -107,7 +107,7 @@ fun SoundModeCard(
                 alpha = 0.5f
             )
         ),
-        shape = RoundedCornerShape(12.dp)
+        shape = MaterialTheme.shapes.medium
     ) {
         Column(
             modifier = Modifier
