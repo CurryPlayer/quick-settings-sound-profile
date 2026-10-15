@@ -7,6 +7,7 @@ import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -52,9 +53,14 @@ fun RenderGrantExactAlarmPermission(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
+            border = BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+            ),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
-            )
+            ),
+            shape = MaterialTheme.shapes.medium
         ) {
             Column(
                 modifier = Modifier
