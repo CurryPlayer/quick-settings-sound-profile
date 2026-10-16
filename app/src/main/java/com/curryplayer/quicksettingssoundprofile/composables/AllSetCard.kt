@@ -34,7 +34,6 @@ import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProf
 @Composable
 fun RenderAllSetCard(
     ctx: Context,
-    iconTheme: IconTheme,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -98,8 +97,7 @@ fun RenderAllSetCard(
 private fun AllSetCardPreview() {
     QuickSettingsSoundProfileTheme {
         RenderAllSetCard(
-            ctx = LocalContext.current,
-            iconTheme = IconTheme.VOLUME_DEFAULT
+            ctx = LocalContext.current
         )
     }
 }
