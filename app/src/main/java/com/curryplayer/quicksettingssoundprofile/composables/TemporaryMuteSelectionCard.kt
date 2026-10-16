@@ -175,7 +175,8 @@ fun RenderTemporaryMuteSelection(
                             Text(
                                 text = stringResource(R.string.duration_30m),
                                 modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
+                                fontWeight = if (is30mSelected) FontWeight.Bold else FontWeight.Normal
                             )
                         },
                         colors = FilterChipDefaults.filterChipColors(
@@ -190,7 +191,8 @@ fun RenderTemporaryMuteSelection(
                             borderWidth = 1.dp,
                             selectedBorderWidth = 2.dp
                         ),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        shape = MaterialTheme.shapes.medium
                     )
 
                     Spacer(modifier = Modifier.padding(horizontal = 4.dp))
@@ -209,7 +211,8 @@ fun RenderTemporaryMuteSelection(
                             Text(
                                 text = stringResource(R.string.duration_1h),
                                 modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
+                                fontWeight = if (is60mSelected) FontWeight.Bold else FontWeight.Normal
                             )
                         },
                         colors = FilterChipDefaults.filterChipColors(
@@ -224,7 +227,8 @@ fun RenderTemporaryMuteSelection(
                             borderWidth = 1.dp,
                             selectedBorderWidth = 2.dp
                         ),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        shape = MaterialTheme.shapes.medium
                     )
 
                     Spacer(modifier = Modifier.padding(horizontal = 4.dp))
@@ -243,7 +247,8 @@ fun RenderTemporaryMuteSelection(
                             Text(
                                 text = stringResource(R.string.duration_3h),
                                 modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
+                                fontWeight = if (is180mSelected) FontWeight.Bold else FontWeight.Normal
                             )
                         },
                         colors = FilterChipDefaults.filterChipColors(
@@ -258,7 +263,8 @@ fun RenderTemporaryMuteSelection(
                             borderWidth = 1.dp,
                             selectedBorderWidth = 2.dp
                         ),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        shape = MaterialTheme.shapes.medium
                     )
                 }
 
@@ -291,7 +297,8 @@ fun RenderTemporaryMuteSelection(
                             Text(
                                 text = customText,
                                 modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
+                                fontWeight = if (isCustomSelected) FontWeight.Bold else FontWeight.Normal
                             )
                         },
                         colors = FilterChipDefaults.filterChipColors(
@@ -306,6 +313,7 @@ fun RenderTemporaryMuteSelection(
                             borderWidth = 1.dp,
                             selectedBorderWidth = 2.dp
                         )
+                        ,shape = MaterialTheme.shapes.medium
                     )
                 }
 
