@@ -9,17 +9,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TimePicker
-import androidx.compose.material3.TimePickerDialog
 import androidx.compose.material3.VerticalDivider
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -38,7 +34,6 @@ import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.models.MuteDurationOption
 import com.curryplayer.quicksettingssoundprofile.utils.TimeUtils
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RenderTemporaryMuteSelection(
     scheduleExactAlarmsPermissionGranted: Boolean,
@@ -62,7 +57,7 @@ fun RenderTemporaryMuteSelection(
     var customMinutes by remember(savedMuteDurationMinutes) {
         mutableIntStateOf(savedMuteDurationMinutes % 60)
     }
-    var showTimeSelectorDialog by remember { mutableStateOf(value = false) }
+    var showTimePickerDialog by remember { mutableStateOf(value = false) }
 
     val finalMinutes = when (selectedOption) {
         MuteDurationOption.CUSTOM -> (customHours * 60) + customMinutes
@@ -276,7 +271,7 @@ fun RenderTemporaryMuteSelection(
                         selected = isCustomSelected,
                         onClick = {
                             selectedOption = MuteDurationOption.CUSTOM
-                            showTimeSelectorDialog = true
+                            showTimePickerDialog = true
                             val duration = (customHours * 60) + customMinutes
                             if (duration > 0) {
                                 onSaveMuteDuration(duration)
@@ -314,61 +309,24 @@ fun RenderTemporaryMuteSelection(
                     )
                 }
 
-                if (showTimeSelectorDialog) {
-                    val timePickerState = rememberTimePickerState(
-                        initialHour = customHours,
-                        initialMinute = customMinutes,
-                        is24Hour = true
-                    )
-
-                    TimePickerDialog(
-                        onDismissRequest = { showTimeSelectorDialog = false },
-                        title = {
-                            Text(
-                                text = stringResource(R.string.set_duration_title),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        },
-                        confirmButton = {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                AppButton(
-                                    text = stringResource(R.string.alert_button_cancel),
-                                    onClick = {
-                                        showTimeSelectorDialog = false
-                                    },
-                                    type = AppButtonType.OUTLINED
-                                )
-                                AppButton(
-                                    text = stringResource(R.string.alert_button_apply),
-                                    onClick = {
-                                        customHours = timePickerState.hour
-                                        customMinutes = timePickerState.minute
-                                        val duration = timePickerState.hour * 60 + timePickerState.minute
-                                        onSaveMuteDuration(duration)
-                                        if (isTimerActive) {
-                                            onStartTimer(duration)
-                                        }
-                                        showTimeSelectorDialog = false
-                                    },
-                                    type = AppButtonType.FILLED
-                                )
+                if (showTimePickerDialog) {
+                    RenderTimePickerDialog(
+                        initialHours = customHours,
+                        initialMinutes = customMinutes,
+                        onDismiss = { showTimePickerDialog = false },
+                        onConfirm = { hours, minutes ->
+                            customHours = hours
+                            customMinutes = minutes
+                            val duration = hours * 60 + minutes
+                            onSaveMuteDuration(duration)
+                            if (isTimerActive) {
+                                onStartTimer(duration)
                             }
-                        },
-                        dismissButton = {
-                            // unused
+                            showTimePickerDialog = false
                         }
-                    ) {
-                        TimePicker(
-                            state = timePickerState,
-                            modifier = Modifier
-                                .padding(top = 16.dp)
-                        )
-                    }
+                    )
                 }
+
             }
 
         }
