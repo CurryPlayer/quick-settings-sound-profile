@@ -27,7 +27,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.R
-import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProfileTheme
 
 // TODO: Remove or reuse some assets from this card
