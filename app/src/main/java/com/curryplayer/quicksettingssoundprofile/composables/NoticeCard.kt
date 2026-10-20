@@ -25,7 +25,10 @@ import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.R
 
 @Composable
-fun RenderNoticeCard(ctx: Context, modifier: Modifier = Modifier) {
+fun RenderNoticeCard(
+    ctx: Context,
+    modifier: Modifier = Modifier
+) {
     Card(
         modifier = modifier
             .fillMaxWidth()
