@@ -1,6 +1,8 @@
 package com.curryplayer.quicksettingssoundprofile.composables
 
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,8 +19,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.R
 
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 @Composable
-fun RenderNoUserManagedModesAvailableCard(ctx: Context, modifier: Modifier = Modifier) {
+fun RenderNoUserManagedModesAvailableCard(
+    ctx: Context,
+    modifier: Modifier = Modifier
+) {
     Card(
         modifier = modifier
             .fillMaxWidth()
