@@ -1,19 +1,11 @@
 package com.curryplayer.quicksettingssoundprofile.composables.soundmodeswitcher
 
 import android.media.AudioManager
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -23,13 +15,12 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.R
+import com.curryplayer.quicksettingssoundprofile.composables.RenderSettingsSwitchRow
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.models.MuteDurationOption
 import com.curryplayer.quicksettingssoundprofile.utils.TimeUtils
@@ -106,69 +97,32 @@ fun RenderTemporaryMuteSelection(
                 RenderGrantExactAlarmPermission()
             }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Min),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = stringResource(R.string.temporary_mute_title),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    val targetModeLabel = when (previousRingerMode) {
-                        AudioManager.RINGER_MODE_VIBRATE -> stringResource(R.string.profile_vibrate_label)
-                        else -> stringResource(R.string.profile_sound_label)
-                    }
+            val targetModeLabel = when (previousRingerMode) {
+                AudioManager.RINGER_MODE_VIBRATE -> stringResource(R.string.profile_vibrate_label)
+                else -> stringResource(R.string.profile_sound_label)
+            }
 
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = stringResource(R.string.temporary_mute_desc, targetModeLabel),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+            val statusText = if (isTimerActive) {
+                val timeString = TimeUtils.getFormattedRemainingTime(context, timerEndTime, currentTime)
+                stringResource(R.string.time_remaining, timeString)
+            } else {
+                null
+            }
 
-                    if (isTimerActive) {
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        val timeString = TimeUtils.getFormattedRemainingTime(context, timerEndTime, currentTime)
-
-                        Text(
-                            text = stringResource(R.string.time_remaining, timeString),
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-
+            RenderSettingsSwitchRow(
+                title = stringResource(R.string.temporary_mute_title),
+                description = stringResource(R.string.temporary_mute_desc, targetModeLabel),
+                statusText = statusText,
+                checked = isTimerActive,
+                onCheckedChange = { isChecked ->
+                    if (isChecked) {
+                        onSaveMuteDuration(finalMinutes)
+                        onStartTimer(finalMinutes)
+                    } else {
+                        onCancelTimer()
                     }
                 }
-
-                VerticalDivider(
-                    modifier = Modifier.padding(
-                        horizontal = 12.dp,
-                        vertical = 2.dp
-                    ),
-                    color = MaterialTheme.colorScheme.outlineVariant
-                )
-
-                Switch(
-                    checked = isTimerActive,
-                    onCheckedChange = { isChecked ->
-                        if (isChecked) {
-                            onSaveMuteDuration(finalMinutes)
-                            onStartTimer(finalMinutes)
-                        } else {
-                            onCancelTimer()
-                        }
-                    }
-                )
-            }
+            )
 
             if (isTimerActive) {
                 RenderMuteDurationSelection(
