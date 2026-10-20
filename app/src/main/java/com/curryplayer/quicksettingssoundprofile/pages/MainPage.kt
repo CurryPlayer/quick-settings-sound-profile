@@ -25,6 +25,7 @@ import com.curryplayer.quicksettingssoundprofile.composables.RenderIconThemeSele
 import com.curryplayer.quicksettingssoundprofile.composables.RenderNewCategoryName
 import com.curryplayer.quicksettingssoundprofile.composables.soundmodeswitcher.RenderSoundModeSelectionCard
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
+import com.curryplayer.quicksettingssoundprofile.models.MuteDurationOption
 
 @Composable
 fun RenderMainPage(
@@ -39,7 +40,11 @@ fun RenderMainPage(
     previousRingerMode: Int,
     timerEndTime: Long,
     savedMuteDurationMinutes: Int,
+    savedMuteDurationOption: MuteDurationOption,
+    savedCustomMuteDurationMinutes: Int,
     onSaveMuteDuration: (minutes: Int) -> Unit,
+    onSaveMuteDurationOption: (MuteDurationOption) -> Unit,
+    onSaveCustomMuteDuration: (minutes: Int) -> Unit,
     onStartTimer: (minutes: Int) -> Unit,
     onCancelTimer: () -> Unit,
     modifier: Modifier = Modifier
@@ -70,7 +75,11 @@ fun RenderMainPage(
                         previousRingerMode = previousRingerMode,
                         timerEndTime = timerEndTime,
                         savedMuteDurationMinutes = savedMuteDurationMinutes,
+                        savedMuteDurationOption = savedMuteDurationOption,
+                        savedCustomMuteDurationMinutes = savedCustomMuteDurationMinutes,
                         onSaveMuteDuration = onSaveMuteDuration,
+                        onSaveMuteDurationOption = onSaveMuteDurationOption,
+                        onSaveCustomMuteDuration = onSaveCustomMuteDuration,
                         onStartTimer = onStartTimer,
                         onCancelTimer = onCancelTimer,
                     )

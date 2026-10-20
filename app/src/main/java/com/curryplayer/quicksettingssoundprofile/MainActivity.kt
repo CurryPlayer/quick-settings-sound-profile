@@ -82,6 +82,8 @@ class MainActivity : ComponentActivity() {
                 val timerEndTime by dataStoreManager.timerEndTime.collectAsState(initial = 0L)
                 val previousRingerMode by dataStoreManager.previousRingerMode.collectAsState(initial = AudioManager.RINGER_MODE_NORMAL)
                 val savedMuteDurationMinutes by dataStoreManager.lastMuteDurationMinutes.collectAsState(initial = MuteDurationOption.MINUTES_60.minutes)
+                val savedMuteDurationOption by dataStoreManager.lastMuteDurationOption.collectAsState(initial = MuteDurationOption.MINUTES_60)
+                val savedCustomMuteDurationMinutes by dataStoreManager.customMuteDurationMinutes.collectAsState(initial = MuteDurationOption.CUSTOM.minutes)
                 val scope = rememberCoroutineScope()
 
                 RenderMainPage(
@@ -126,9 +128,21 @@ class MainActivity : ComponentActivity() {
                     previousRingerMode = previousRingerMode,
                     timerEndTime = timerEndTime,
                     savedMuteDurationMinutes = savedMuteDurationMinutes,
+                    savedMuteDurationOption = savedMuteDurationOption,
+                    savedCustomMuteDurationMinutes = savedCustomMuteDurationMinutes,
                     onSaveMuteDuration = { minutes ->
                         scope.launch {
                             dataStoreManager.saveMuteDurationMinutes(minutes)
+                        }
+                    },
+                    onSaveMuteDurationOption = { option ->
+                        scope.launch {
+                            dataStoreManager.saveMuteDurationOption(option)
+                        }
+                    },
+                    onSaveCustomMuteDuration = { minutes ->
+                        scope.launch {
+                            dataStoreManager.saveCustomMuteDurationMinutes(minutes)
                         }
                     },
                     onStartTimer = { minutes ->
