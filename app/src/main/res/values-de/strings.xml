@@ -44,6 +44,7 @@
     <string name="custom_minutes">Benutzerdefiniert</string>
     <string name="custom_duration_format">%1$s (%2$s)</string>
     <string name="set_duration_title">Dauer einstellen</string>
+    <string name="timer_min_duration_error">Es ist mindestens 1 Minute notwendig, um den Timer einzustellen.</string>
     <string name="timer_active_until">Bis %s</string>
     <string name="time_remaining">Verbleibend: %s</string>
     <string name="time_remaining_qsTile_subtitle">Noch %s</string>
