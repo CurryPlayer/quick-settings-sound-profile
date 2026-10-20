@@ -48,4 +48,12 @@ class MuteDurationOptionTest {
         assertEquals(MuteDurationOption.CUSTOM, MuteDurationOption.fromMinutes(45))
         assertEquals(MuteDurationOption.CUSTOM, MuteDurationOption.fromMinutes(-1))
     }
+
+    @Test
+    fun testMinutesMapping() {
+        assertEquals(30, MuteDurationOption.MINUTES_30.minutes)
+        assertEquals(60, MuteDurationOption.MINUTES_60.minutes)
+        assertEquals(180, MuteDurationOption.MINUTES_180.minutes)
+        assertEquals("CUSTOM should always return 42 (the answer to everything :)", 42, MuteDurationOption.CUSTOM.minutes)
+    }
 }
