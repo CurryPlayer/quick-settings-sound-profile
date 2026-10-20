@@ -1,4 +1,4 @@
-package com.curryplayer.quicksettingssoundprofile.composables
+package com.curryplayer.quicksettingssoundprofile.composables.soundmodeswitcher
 
 import android.content.Context
 import androidx.compose.foundation.layout.Column
@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
+import com.curryplayer.quicksettingssoundprofile.models.MuteDurationOption
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlin.time.Duration.Companion.milliseconds
@@ -31,7 +32,11 @@ fun RenderSoundModeSelectionCard(
     previousRingerMode: Int,
     timerEndTime: Long,
     savedMuteDurationMinutes: Int,
+    savedMuteDurationOption: MuteDurationOption,
+    savedCustomMuteDurationMinutes: Int,
     onSaveMuteDuration: (minutes: Int) -> Unit,
+    onSaveMuteDurationOption: (MuteDurationOption) -> Unit,
+    onSaveCustomMuteDuration: (minutes: Int) -> Unit,
     onStartTimer: (minutes: Int) -> Unit,
     onCancelTimer: () -> Unit,
     modifier: Modifier = Modifier,
@@ -84,7 +89,11 @@ fun RenderSoundModeSelectionCard(
                 timerEndTime = timerEndTime,
                 currentTime = currentTime,
                 savedMuteDurationMinutes = savedMuteDurationMinutes,
+                savedMuteDurationOption = savedMuteDurationOption,
+                savedCustomMuteDurationMinutes = savedCustomMuteDurationMinutes,
                 onSaveMuteDuration = onSaveMuteDuration,
+                onSaveMuteDurationOption = onSaveMuteDurationOption,
+                onSaveCustomMuteDuration = onSaveCustomMuteDuration,
                 onStartTimer = onStartTimer,
                 onCancelTimer = onCancelTimer,
             )

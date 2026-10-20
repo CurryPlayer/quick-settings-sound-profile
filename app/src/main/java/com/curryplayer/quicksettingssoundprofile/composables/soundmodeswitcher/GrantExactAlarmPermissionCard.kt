@@ -1,4 +1,4 @@
-package com.curryplayer.quicksettingssoundprofile.composables
+package com.curryplayer.quicksettingssoundprofile.composables.soundmodeswitcher
 
 import android.content.ActivityNotFoundException
 import android.content.Context
