@@ -15,8 +15,11 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -27,17 +30,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.R
+import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.models.MuteDurationOption
 import com.curryplayer.quicksettingssoundprofile.utils.TimeUtils
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun RenderTemporaryMuteSelection(
     scheduleExactAlarmsPermissionGranted: Boolean,
     selectedMode: Int,
     previousRingerMode: Int,
-    isTimerActive: Boolean,
-    timerEndTime: Long,
-    currentTime: Long,
     savedMuteDurationMinutes: Int,
     savedMuteDurationOption: MuteDurationOption,
     savedCustomMuteDurationMinutes: Int,
@@ -48,6 +52,27 @@ fun RenderTemporaryMuteSelection(
     onCancelTimer: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+    val dataStoreManager = remember { DataStoreManager(context.applicationContext) }
+    val timerEndTime by dataStoreManager.timerEndTime.collectAsState(initial = 0L)
+
+    var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
+
+    LaunchedEffect(timerEndTime) {
+        while (isActive) {
+            val now = System.currentTimeMillis()
+            if (timerEndTime <= now) break
+            currentTime = now
+
+            val remainingMillis = timerEndTime - now
+            val millisUntilNextMinute = remainingMillis % 60_000L
+            val nextDelay = if (millisUntilNextMinute == 0L) 60_000L else millisUntilNextMinute
+            delay(nextDelay.milliseconds)
+        }
+    }
+
+    val isTimerActive = timerEndTime > currentTime
+
     var selectedOption by remember(savedMuteDurationOption) {
         mutableStateOf(savedMuteDurationOption)
     }
@@ -112,7 +137,6 @@ fun RenderTemporaryMuteSelection(
                     if (isTimerActive) {
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        val context = LocalContext.current
                         val timeString = TimeUtils.getFormattedRemainingTime(context, timerEndTime, currentTime)
 
                         Text(

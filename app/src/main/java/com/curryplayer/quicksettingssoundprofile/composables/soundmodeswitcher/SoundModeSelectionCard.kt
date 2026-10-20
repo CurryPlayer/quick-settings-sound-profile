@@ -8,18 +8,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 import com.curryplayer.quicksettingssoundprofile.models.MuteDurationOption
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun RenderSoundModeSelectionCard(
@@ -30,7 +22,6 @@ fun RenderSoundModeSelectionCard(
     iconTheme: IconTheme,
     onSelectedMode: (Int) -> Unit,
     previousRingerMode: Int,
-    timerEndTime: Long,
     savedMuteDurationMinutes: Int,
     savedMuteDurationOption: MuteDurationOption,
     savedCustomMuteDurationMinutes: Int,
@@ -41,23 +32,6 @@ fun RenderSoundModeSelectionCard(
     onCancelTimer: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
-
-    LaunchedEffect(timerEndTime) {
-        while (isActive) {
-            val now = System.currentTimeMillis()
-            if (timerEndTime <= now) break
-            currentTime = now
-
-            val remainingMillis = timerEndTime - now
-            val millisUntilNextMinute = remainingMillis % 60_000L
-            val nextDelay = if (millisUntilNextMinute == 0L) 60_000L else millisUntilNextMinute
-            delay(nextDelay.milliseconds)
-        }
-    }
-
-    val isTimerActive = timerEndTime > currentTime
-
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -85,9 +59,6 @@ fun RenderSoundModeSelectionCard(
                 scheduleExactAlarmsPermissionGranted = scheduleExactAlarmsPermissionGranted,
                 selectedMode = selectedMode,
                 previousRingerMode = previousRingerMode,
-                isTimerActive = isTimerActive,
-                timerEndTime = timerEndTime,
-                currentTime = currentTime,
                 savedMuteDurationMinutes = savedMuteDurationMinutes,
                 savedMuteDurationOption = savedMuteDurationOption,
                 savedCustomMuteDurationMinutes = savedCustomMuteDurationMinutes,

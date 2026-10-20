@@ -79,7 +79,6 @@ class MainActivity : ComponentActivity() {
             QuickSettingsSoundProfileTheme {
                 val savedZenRuleId by dataStoreManager.zenRuleId.collectAsState(initial = "")
                 val savedIconThemeIndex by dataStoreManager.iconTheme.collectAsState(initial = IconTheme.VOLUME_DEFAULT.ordinal)
-                val timerEndTime by dataStoreManager.timerEndTime.collectAsState(initial = 0L)
                 val previousRingerMode by dataStoreManager.previousRingerMode.collectAsState(initial = AudioManager.RINGER_MODE_NORMAL)
                 val savedMuteDurationMinutes by dataStoreManager.lastMuteDurationMinutes.collectAsState(initial = MuteDurationOption.MINUTES_60.minutes)
                 val savedMuteDurationOption by dataStoreManager.lastMuteDurationOption.collectAsState(initial = MuteDurationOption.MINUTES_60)
@@ -126,7 +125,6 @@ class MainActivity : ComponentActivity() {
                         modeChangeJob = job
                     },
                     previousRingerMode = previousRingerMode,
-                    timerEndTime = timerEndTime,
                     savedMuteDurationMinutes = savedMuteDurationMinutes,
                     savedMuteDurationOption = savedMuteDurationOption,
                     savedCustomMuteDurationMinutes = savedCustomMuteDurationMinutes,
