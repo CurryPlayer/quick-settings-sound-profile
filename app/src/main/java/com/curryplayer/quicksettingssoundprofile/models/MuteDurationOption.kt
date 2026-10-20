@@ -1,12 +1,15 @@
 package com.curryplayer.quicksettingssoundprofile.models
 
 enum class MuteDurationOption(val minutes: Int) {
-    MINUTES_30(30),
-    MINUTES_60(60), // should be considered as default
-    MINUTES_180(180),
-    CUSTOM(0);
+    // The ordinal is used for the index
+    MINUTES_30(30),     // ordinal 0
+    MINUTES_60(60),     // ordinal 1, should be considered as default
+    MINUTES_180(180),   // ordinal 2
+    CUSTOM(42);         // ordinal 3, answer to everything :)
 
     companion object {
+        fun fromOrdinal(ordinal: Int): MuteDurationOption = entries.getOrNull(ordinal) ?: MINUTES_60
+
         fun fromMinutes(minutes: Int): MuteDurationOption {
             return when (minutes) {
                 MINUTES_30.minutes -> MINUTES_30
