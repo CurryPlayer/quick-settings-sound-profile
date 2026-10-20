@@ -22,6 +22,7 @@ class DataStoreManager(private val context: Context) {
         val TIMER_END_TIME = longPreferencesKey("timer_end_time")
         val PREVIOUS_RINGER_MODE = intPreferencesKey("previous_ringer_mode")
         val LAST_SELECTED_MUTE_DURATION_MINUTES = intPreferencesKey("last_selected_mute_duration_minutes")
+        val LAST_SELECTED_MUTE_OPTION = intPreferencesKey("last_selected_mute_option")
     }
 
     val zenRuleId: Flow<String> = context.dataStore.data.map { preferences ->
@@ -52,6 +53,20 @@ class DataStoreManager(private val context: Context) {
         preferences[LAST_SELECTED_MUTE_DURATION_MINUTES] ?: MuteDurationOption.MINUTES_60.minutes
     }
 
+    /**
+     * Cold [Flow] emitting the last selected mute duration option and subsequent updates.
+     * Falls back to deriving the option from [LAST_SELECTED_MUTE_DURATION_MINUTES] if not explicitly saved yet.
+     */
+    val lastMuteDurationOption: Flow<MuteDurationOption> = context.dataStore.data.map { preferences ->
+        val optionOrdinal = preferences[LAST_SELECTED_MUTE_OPTION]
+        if (optionOrdinal != null) {
+            MuteDurationOption.fromOrdinal(optionOrdinal)
+        } else {
+            val minutes = preferences[LAST_SELECTED_MUTE_DURATION_MINUTES] ?: MuteDurationOption.MINUTES_60.minutes
+            MuteDurationOption.fromMinutes(minutes)
+        }
+    }
+
     suspend fun setZenRuleId(value: String) {
         context.dataStore.edit { preferences ->
             preferences[ZEN_RULE_ID] = value
@@ -67,6 +82,12 @@ class DataStoreManager(private val context: Context) {
     suspend fun saveMuteDurationMinutes(minutes: Int) {
         context.dataStore.edit { preferences ->
             preferences[LAST_SELECTED_MUTE_DURATION_MINUTES] = minutes
+        }
+    }
+
+    suspend fun saveMuteDurationOption(option: MuteDurationOption) {
+        context.dataStore.edit { preferences ->
+            preferences[LAST_SELECTED_MUTE_OPTION] = option.ordinal
         }
     }
 
