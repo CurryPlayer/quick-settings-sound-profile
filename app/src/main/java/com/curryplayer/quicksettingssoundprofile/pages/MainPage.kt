@@ -23,11 +23,11 @@ import com.curryplayer.quicksettingssoundprofile.composables.RenderTopAppBar
 import com.curryplayer.quicksettingssoundprofile.composables.RenderOpenZenModeSettings
 import com.curryplayer.quicksettingssoundprofile.composables.RenderIconThemeSelector
 import com.curryplayer.quicksettingssoundprofile.composables.RenderNewCategoryName
-import com.curryplayer.quicksettingssoundprofile.composables.RenderSoundModeSelectionCard
+import com.curryplayer.quicksettingssoundprofile.composables.soundmodeswitcher.RenderSoundModeSelectionCard
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 
 @Composable
-fun RenderSettingsPage(
+fun RenderMainPage(
     ctx: Context,
     hasPermission: Boolean,
     ruleId: String,

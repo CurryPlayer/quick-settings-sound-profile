@@ -20,7 +20,7 @@ import com.curryplayer.quicksettingssoundprofile.manager.SoundProfileManager
 import com.curryplayer.quicksettingssoundprofile.models.AlarmItem
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 import com.curryplayer.quicksettingssoundprofile.models.MuteDurationOption
-import com.curryplayer.quicksettingssoundprofile.pages.RenderSettingsPage
+import com.curryplayer.quicksettingssoundprofile.pages.RenderMainPage
 import com.curryplayer.quicksettingssoundprofile.scheduler.AlarmScheduler
 import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProfileTheme
 import com.curryplayer.quicksettingssoundprofile.utils.AlarmExactUtils
@@ -84,7 +84,7 @@ class MainActivity : ComponentActivity() {
                 val savedMuteDurationMinutes by dataStoreManager.lastMuteDurationMinutes.collectAsState(initial = MuteDurationOption.MINUTES_60.minutes)
                 val scope = rememberCoroutineScope()
 
-                RenderSettingsPage(
+                RenderMainPage(
                     ctx = this,
                     hasPermission = dndPermissionGrantedState,
                     ruleId = savedZenRuleId,
