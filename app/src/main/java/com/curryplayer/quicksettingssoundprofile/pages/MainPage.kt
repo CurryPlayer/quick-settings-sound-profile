@@ -93,7 +93,7 @@ fun RenderMainPage(
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                     // Not every device running Android 15 has user managed modes. These devices use schedules instead, which cannot be modified directly.
-                    val notificationManager = ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    val notificationManager = ctx.getSystemService(NotificationManager::class.java)
                     if (notificationManager.areAutomaticZenRulesUserManaged()) {
                         RenderOpenZenModeSettings(ctx, ruleId, hasPermission)
                     } else {
