@@ -65,8 +65,6 @@ fun RenderMainPage(
                 } else {
                     RenderSoundModeSelectionCard(
                         //modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        ctx = ctx,
-                        dndPermissionGranted = hasPermission,
                         scheduleExactAlarmsPermissionGranted = scheduleExactAlarmsPermissionGranted,
                         selectedMode = selectedMode,
                         iconTheme = iconTheme,

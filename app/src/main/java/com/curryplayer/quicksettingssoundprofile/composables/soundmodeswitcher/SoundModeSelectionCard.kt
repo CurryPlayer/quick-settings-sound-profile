@@ -1,6 +1,5 @@
 package com.curryplayer.quicksettingssoundprofile.composables.soundmodeswitcher
 
-import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,8 +14,6 @@ import com.curryplayer.quicksettingssoundprofile.models.MuteDurationOption
 
 @Composable
 fun RenderSoundModeSelectionCard(
-    ctx: Context,
-    dndPermissionGranted: Boolean,
     scheduleExactAlarmsPermissionGranted: Boolean,
     selectedMode: Int,
     iconTheme: IconTheme,
