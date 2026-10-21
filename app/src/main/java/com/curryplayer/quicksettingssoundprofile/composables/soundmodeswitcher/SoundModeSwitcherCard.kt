@@ -37,12 +37,6 @@ fun RenderSoundModeSelection(
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
-        Text(
-            text = stringResource(R.string.sound_mode_selection_title),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(8.dp))
 
         Row(
             modifier = Modifier
