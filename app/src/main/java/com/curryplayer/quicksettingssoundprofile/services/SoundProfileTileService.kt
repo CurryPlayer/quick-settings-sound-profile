@@ -17,6 +17,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
+/** Process-wide scope for short writes that must finish even if the service is destroyed. */
+private val persistScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
 class SoundProfileTileService : TileService() {
 
     private val _serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
@@ -58,11 +61,15 @@ class SoundProfileTileService : TileService() {
 
     override fun onTileAdded() {
         super.onTileAdded()
+        persistTileAdded(true)
         updateTileState()
     }
 
     override fun onTileRemoved() {
         super.onTileRemoved()
+        persistTileAdded(false)
+        // Reset cache so the tile is refreshed correctly if it gets added again
+        _lastKnownRingerMode = -1
         if (qsTile != null) {
             qsTile.state = Tile.STATE_UNAVAILABLE
             qsTile.updateTile()
@@ -71,6 +78,8 @@ class SoundProfileTileService : TileService() {
 
     override fun onStartListening() {
         super.onStartListening()
+        // The tile is visible to the user, so it must be placed (self-heals a missed onTileAdded)
+        persistTileAdded(true)
         _listeningJob = _serviceScope.launch {
             _soundProfileManager.ringerMode.collect {
                 updateTileState()
@@ -92,6 +101,15 @@ class SoundProfileTileService : TileService() {
     override fun onDestroy() {
         super.onDestroy()
         _serviceScope.cancel()
+    }
+
+    /**
+     * Writes the tile state on a scope that outlives this service: the system destroys the service
+     * right after onTileRemoved(), which would cancel [_serviceScope] before the write finishes.
+     */
+    private fun persistTileAdded(added: Boolean) {
+        val dataStoreManager = _dataStoreManager
+        persistScope.launch { dataStoreManager.setTileAdded(added) }
     }
 
     private fun changeSoundProfileAndUpdateTileState() {
