@@ -104,8 +104,11 @@ class SoundProfileTileService : TileService() {
     }
 
     /**
-     * Writes the tile state on a scope that outlives this service: the system destroys the service
-     * right after onTileRemoved(), which would cancel [_serviceScope] before the write finishes.
+     * Persists the tile placement state to DataStore using [persistScope].
+     *
+     * This outlives the service instance, ensuring DataStore writes complete even if the system destroys
+     * the service immediately after [onTileAdded], [onTileRemoved] as they are unbound by the system immediately
+     * after execution, which triggers `onDestroy()` and cancels `_serviceScope`.
      */
     private fun persistTileAdded(added: Boolean) {
         val dataStoreManager = _dataStoreManager
@@ -155,6 +158,7 @@ class SoundProfileTileService : TileService() {
                     qsTile.subtitle = null
                 }
             }
+
             AudioManager.RINGER_MODE_VIBRATE -> {
                 qsTile.state = Tile.STATE_INACTIVE
                 qsTile.label = getString(R.string.profile_vibrate_label)
@@ -162,13 +166,15 @@ class SoundProfileTileService : TileService() {
                     qsTile.subtitle = null
                 }
             }
+
             AudioManager.RINGER_MODE_SILENT -> {
                 qsTile.state = Tile.STATE_INACTIVE
                 qsTile.label = getString(R.string.profile_silent_label)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     if (_timerEndTime > System.currentTimeMillis()) {
                         val remainingTime = TimeUtils.getFormattedRemainingTime(this, _timerEndTime)
-                        qsTile.subtitle = getString(R.string.time_remaining_qsTile_subtitle, remainingTime)
+                        qsTile.subtitle =
+                            getString(R.string.time_remaining_qsTile_subtitle, remainingTime)
                     } else {
                         qsTile.subtitle = null
                     }
