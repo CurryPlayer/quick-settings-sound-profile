@@ -58,4 +58,7 @@
     <string name="temporary_mute_title">Temporary mute</string>
     <string name="temporary_mute_desc">Set how long to keep your phone muted before returning to the previous sound mode (%s).</string>
     <string name="sound_mode_selection_title">Sound Mode</string>
+    <string name="section_quick_access_title">Quick Settings</string>
+    <string name="section_silent_mode_title">Silent Mode</string>
+    <string name="section_silent_mode_description">Behavior while the silent mode is active</string>
 </resources>
