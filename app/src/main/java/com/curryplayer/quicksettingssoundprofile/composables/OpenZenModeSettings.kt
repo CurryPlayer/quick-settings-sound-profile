@@ -7,15 +7,11 @@ import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,51 +28,33 @@ import com.curryplayer.quicksettingssoundprofile.R
 fun RenderOpenZenModeSettings(
     ctx: Context,
     ruleId: String,
-    hasPermission: Boolean
+    hasPermission: Boolean,
+    modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.End,
     ) {
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        FilledTonalButton(
+            onClick = { openZenRuleSettings(ctx, ruleId) },
+            enabled = hasPermission && ruleId.isNotEmpty(),
         ) {
-            Button(
-                onClick = {
-                    openZenRuleSettings(ctx, ruleId)
-                },
-                enabled = hasPermission && ruleId.isNotEmpty(),
-                shape = MaterialTheme.shapes.medium,
-                colors = ButtonDefaults.elevatedButtonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                ),
-                elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 2.dp)
-            ) {
-                Text(
-                    text = ctx.getString(R.string.open_mode_button),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            Text(
+                text = ctx.getString(R.string.open_mode_button),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold
+            )
+        }
 
-            if (!hasPermission) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = ctx.getString(R.string.open_mode_grant_permission_first),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.error,
-                    fontStyle = FontStyle.Italic,
-                )
-            }
-
+        if (!hasPermission) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = ctx.getString(R.string.open_mode_grant_permission_first),
+                textAlign = TextAlign.End,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error,
+                fontStyle = FontStyle.Italic,
+            )
         }
     }
 }
