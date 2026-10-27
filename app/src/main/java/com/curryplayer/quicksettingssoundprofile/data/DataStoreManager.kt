@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.AudioManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
@@ -24,6 +25,7 @@ class DataStoreManager(private val context: Context) {
         val LAST_SELECTED_MUTE_DURATION_MINUTES = intPreferencesKey("last_selected_mute_duration_minutes")
         val LAST_SELECTED_MUTE_OPTION = intPreferencesKey("last_selected_mute_option")
         val CUSTOM_MUTE_DURATION_MINUTES = intPreferencesKey("custom_mute_duration_minutes")
+        val TILE_ADDED = booleanPreferencesKey("tile_added")
     }
 
     val zenRuleId: Flow<String> = context.dataStore.data.map { preferences ->
@@ -74,6 +76,21 @@ class DataStoreManager(private val context: Context) {
      */
     val customMuteDurationMinutes: Flow<Int> = context.dataStore.data.map { preferences ->
         preferences[CUSTOM_MUTE_DURATION_MINUTES] ?: MuteDurationOption.CUSTOM.minutes
+    }
+
+    /**
+     * Cold [Flow] emitting whether the Quick Settings tile is currently placed by the user.
+     * Android offers no API to query this, so the flag is maintained by the tile service
+     * (onTileAdded / onTileRemoved / onStartListening) and by the result of the add tile request.
+     */
+    val tileAdded: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[TILE_ADDED] ?: false
+    }
+
+    suspend fun setTileAdded(value: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[TILE_ADDED] = value
+        }
     }
 
     suspend fun setZenRuleId(value: String) {
