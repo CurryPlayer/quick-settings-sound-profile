@@ -29,7 +29,7 @@ import com.curryplayer.quicksettingssoundprofile.R
  * @param actions An optional composable slot scoped to [ColumnScope] rendered below the description text.
  */
 @Composable
-fun RenderNoticeCard(
+fun RenderZenModeSettingsNoticeCard(
     ctx: Context,
     modifier: Modifier = Modifier,
     actions: (@Composable ColumnScope.() -> Unit)? = null,

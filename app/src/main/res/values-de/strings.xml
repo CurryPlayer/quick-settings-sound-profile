@@ -31,8 +31,8 @@
     <string name="notice_description">Wenn der Stumm-Modus aktiviert ist, werden nur Medien (z. B. Musik, Videos) und Wecker wiedergegeben. Ab Android 15 kann das Verhalten dieses Modus angepasst werden. Davon wird jedoch abgeraten, da dies die Stummschaltung umgeht und zu unerwünschten Unterbrechungen führen kann.</string>
     <string name="no_user_managed_modes_available_title">Einschränkungen</string>
     <string name="no_user_managed_modes_available_description">Dein Gerät unterstützt keine benutzerverwalteten Modi. Das bedeutet, dass dein Gerät automatisch einen eigenen \„Bitte nicht stören\“-Zeitplan mit den oben genannten Standardeinstellungen der App anwendet, sobald der Stumm-Modus aktiv ist. Du kannst das spezifische Verhalten jedoch nicht individuell anpassen.</string>
-    <string name="new_category_title">Icon Design</string>
-    <string name="new_category_description">Wähle das Design der Icons für die Schnelleinstellungs-Kachel</string>
+    <string name="category_icon_design_title">Icon Design</string>
+    <string name="category_icon_design_description">Wähle das Design der Icons für die Schnelleinstellungs-Kachel</string>
     <string name="open_app_button">App öffnen</string>
     <string name="timer_title">Timer &amp; Sound-Profil</string>
     <string name="select_mode">Ziel-Modus</string>
@@ -57,8 +57,8 @@
     <string name="time_format_seconds_only">%1$d Sek.</string>
     <string name="temporary_mute_title">Zeitweises Stummschalten</string>
     <string name="temporary_mute_desc">Lege fest, wie lange dein Telefon stummgeschaltet bleiben soll, bevor zum vorherigen Sound-Modus (%s) zurückgekehrt wird.</string>
-    <string name="sound_mode_selection_title">Sound-Modus</string>
+    <string name="category_sound_mode_title">Sound-Modus</string>
     <string name="section_quick_access_title">Schnelleinstellungen</string>
-    <string name="section_silent_mode_title">Stumm-Modus</string>
-    <string name="section_silent_mode_description">Verhalten, solange der Stumm-Modus aktiv ist</string>
+    <string name="category_silent_mode_title">Stumm-Modus</string>
+    <string name="category_silent_mode_description">Verhalten, solange der Stumm-Modus aktiv ist</string>
 </resources>
