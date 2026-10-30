@@ -32,7 +32,7 @@ fun RenderSoundModeSelectionCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(top = 6.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
         shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer,
