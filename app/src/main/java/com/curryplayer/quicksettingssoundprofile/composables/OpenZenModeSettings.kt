@@ -17,11 +17,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.R
+import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProfileTheme
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -56,6 +59,19 @@ fun RenderOpenZenModeSettings(
                 fontStyle = FontStyle.Italic,
             )
         }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(showBackground = true)
+@Composable
+private fun OpenZenModeSettingsPreview() {
+    QuickSettingsSoundProfileTheme {
+        RenderOpenZenModeSettings(
+            ctx = LocalContext.current,
+            ruleId = "real_ruleId_here",    // is needed for the button to be visible
+            hasPermission = true
+        )
     }
 }
 
