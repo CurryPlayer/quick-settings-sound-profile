@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -23,7 +24,9 @@ import com.curryplayer.quicksettingssoundprofile.composables.RenderNewCategoryNa
 import com.curryplayer.quicksettingssoundprofile.composables.RenderNoUserManagedModesAvailableCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderZenModeSettingsNoticeCard
 import com.curryplayer.quicksettingssoundprofile.composables.RenderOpenZenModeSettings
+import com.curryplayer.quicksettingssoundprofile.composables.RenderSettingsSwitchRow
 import com.curryplayer.quicksettingssoundprofile.composables.RenderTopAppBar
+import com.curryplayer.quicksettingssoundprofile.composables.SectionCard
 import com.curryplayer.quicksettingssoundprofile.composables.soundmodeswitcher.RenderSoundModeSelectionCard
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 import com.curryplayer.quicksettingssoundprofile.models.MuteDurationOption
@@ -44,6 +47,8 @@ fun RenderMainPage(
     hasPermission: Boolean,
     tileAdded: Boolean,
     onTileAddedChanged: (Boolean) -> Unit,
+    showTimerEndTime: Boolean,
+    onShowTimerEndTimeChanged: (Boolean) -> Unit,
     ruleId: String,
     iconThemeIndex: Int,
     onIconThemeChangeIndex: (Int) -> Unit,
@@ -94,12 +99,14 @@ fun RenderMainPage(
                         onCancelTimer = onCancelTimer,
                     )
 
-                    if (showAddTileCard) {
-                        AddQuickSettingsTileSection(
-                            ctx = ctx,
-                            iconTheme = iconTheme,
-                        ) { onTileAddedChanged(true) }
-                    }
+                    QuickSettingsSection(
+                        ctx = ctx,
+                        iconTheme = iconTheme,
+                        showAddTileCard = showAddTileCard,
+                        showTimerEndTime = showTimerEndTime,
+                        onShowTimerEndTimeChanged = onShowTimerEndTimeChanged,
+                        onTileAdded = { onTileAddedChanged(true) },
+                    )
                 }
 
                 SilentModeSettingsSection(ctx, zenModeSupport, hasPermission, ruleId)
@@ -163,16 +170,39 @@ private fun SoundProfileSection(
 }
 
 @Composable
-private fun AddQuickSettingsTileSection(
+private fun QuickSettingsSection(
     ctx: Context,
     iconTheme: IconTheme,
+    showAddTileCard: Boolean,
+    showTimerEndTime: Boolean,
+    onShowTimerEndTimeChanged: (Boolean) -> Unit,
     onTileAdded: () -> Unit,
 ) {
+    // The end time setting only affects the tile subtitle, which exists on Android 10 and above.
+    // Below that, the section is only needed for the add tile card.
+    val showEndTimeSetting = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+    if (!showAddTileCard && !showEndTimeSetting) return
+
     RenderNewCategoryName(
         title = ctx.getString(R.string.section_quick_access_title),
         description = null,
     )
-    RenderAddTileToStatusBarCard(ctx, iconTheme, onTileAdded)
+    if (showAddTileCard) {
+        RenderAddTileToStatusBarCard(ctx, iconTheme, onTileAdded)
+    }
+
+    if (showEndTimeSetting) {
+        SectionCard {
+            RenderSettingsSwitchRow(
+                title = ctx.getString(R.string.setting_show_end_time_title),
+                description = ctx.getString(R.string.setting_show_end_time_description),
+                checked = showTimerEndTime,
+                onCheckedChange = onShowTimerEndTimeChanged,
+            )
+        }
+    }
+
+    Spacer(Modifier.height(16.dp))
 }
 
 @Composable

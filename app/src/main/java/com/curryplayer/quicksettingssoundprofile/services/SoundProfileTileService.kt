@@ -39,6 +39,8 @@ class SoundProfileTileService : TileService() {
     private var _lastKnownIconTheme: IconTheme? = null
     private var _lastKnownTimerEndTime: Long = 0
     private var _timerEndTime: Long = 0
+    private var _showTimerEndTime: Boolean = false
+    private var _lastKnownShowTimerEndTime: Boolean? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -48,6 +50,12 @@ class SoundProfileTileService : TileService() {
         _serviceScope.launch {
             _dataStoreManager.iconTheme.collect { themeId ->
                 _iconTheme = IconTheme.fromOrdinal(themeId)
+                updateTileState()
+            }
+        }
+        _serviceScope.launch {
+            _dataStoreManager.showTimerEndTime.collect { show ->
+                _showTimerEndTime = show
                 updateTileState()
             }
         }
@@ -141,14 +149,15 @@ class SoundProfileTileService : TileService() {
 
         val currentMode = _soundProfileManager.currentRingerMode
 
-        // Only update tile if the mode, theme or timerEndTime has actually changed since the last update
-        if (currentMode == _lastKnownRingerMode && _iconTheme == _lastKnownIconTheme && _timerEndTime == _lastKnownTimerEndTime) {
+        // Only update tile if values have actually changed since the last update
+        if (currentMode == _lastKnownRingerMode && _iconTheme == _lastKnownIconTheme && _timerEndTime == _lastKnownTimerEndTime && _showTimerEndTime == _lastKnownShowTimerEndTime) {
             return
         }
 
         _lastKnownRingerMode = currentMode
         _lastKnownIconTheme = _iconTheme
         _lastKnownTimerEndTime = _timerEndTime
+        _lastKnownShowTimerEndTime = _showTimerEndTime
 
         when (currentMode) {
             AudioManager.RINGER_MODE_NORMAL -> {
@@ -172,9 +181,17 @@ class SoundProfileTileService : TileService() {
                 qsTile.label = getString(R.string.profile_silent_label)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     if (_timerEndTime > System.currentTimeMillis()) {
-                        val remainingTime = TimeUtils.getFormattedRemainingTime(this, _timerEndTime)
-                        qsTile.subtitle =
-                            getString(R.string.time_remaining_qsTile_subtitle, remainingTime)
+                        qsTile.subtitle = if (_showTimerEndTime) {
+                            getString(
+                                R.string.time_until_qsTile_subtitle,
+                                TimeUtils.getFormattedEndTime(this, _timerEndTime)
+                            )
+                        } else {
+                            getString(
+                                R.string.time_remaining_qsTile_subtitle,
+                                TimeUtils.getFormattedRemainingTime(this, _timerEndTime)
+                            )
+                        }
                     } else {
                         qsTile.subtitle = null
                     }

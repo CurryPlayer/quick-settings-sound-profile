@@ -1,6 +1,8 @@
 package com.curryplayer.quicksettingssoundprofile.utils
 
 import android.content.Context
+import android.text.format.DateFormat
+import java.util.Date
 import com.curryplayer.quicksettingssoundprofile.R
 
 object TimeUtils {
@@ -69,4 +71,19 @@ object TimeUtils {
         return getFormattedDuration(context, totalMinutes)
     }
 
+
+    /**
+     * Formats the wall-clock time at which the timer ends ([timerEndTime]) as a localized time of day.
+     *
+     * Uses the system time format and time zone, so it respects the user's 12/24 hour setting,
+     * e.g. "12:49" (24 h) or "11:35 AM" (12 h, EN).
+     *
+     * @param context The [Context] used to resolve the system time format.
+     * @param timerEndTime The target end timestamp in milliseconds (epoch time).
+     * @return The formatted time of day.
+     */
+    fun getFormattedEndTime(
+        context: Context,
+        timerEndTime: Long,
+    ): String = DateFormat.getTimeFormat(context).format(Date(timerEndTime))
 }

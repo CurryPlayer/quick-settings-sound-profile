@@ -32,7 +32,7 @@
     <string name="no_user_managed_modes_available_title">Limitations</string>
     <string name="no_user_managed_modes_available_description">Your device doesn\'t support user-managed modes. This means your device will automatically apply a standard \'Do Not Disturb\' schedule with the app\'s default settings mentioned above whenever Silent Mode is active. However, you won\'t be able to customize its specific behavior.</string>
     <string name="category_icon_design_title">Icon Design</string>
-    <string name="category_icon_design_description">Select the icon design for the Quick Settings tile</string>
+    <string name="category_icon_design_description">Select the icon design for the Quick Settings tile.</string>
     <string name="open_app_button">Open App</string>
     <string name="timer_title">Timer &amp; Sound Profile</string>
     <string name="select_mode">Target Mode</string>
@@ -48,6 +48,9 @@
     <string name="timer_active_until">Until %s</string>
     <string name="time_remaining">Remaining: %s</string>
     <string name="time_remaining_qsTile_subtitle">%s left</string>
+    <string name="time_until_qsTile_subtitle">Until %s</string>
+    <string name="setting_show_end_time_title">Show end time</string>
+    <string name="setting_show_end_time_description">Show the time at which the temporary mute ends on the tile instead of the remaining time.</string>
     <string name="grant_exact_alarm_title">Exact Alarms Permission</string>
     <string name="grant_exact_alarm_desc">To ensure your timer expires precisely on time, please grant permission for exact alarms. Without this permission, canceling mute mode may be delayed by several minutes up to an hour.</string>
     <string name="button_grant_exact_alarm">Grant Permission</string>
@@ -60,5 +63,5 @@
     <string name="category_sound_mode_title">Sound Mode</string>
     <string name="section_quick_access_title">Quick Settings</string>
     <string name="category_silent_mode_title">Silent Mode</string>
-    <string name="category_silent_mode_description">Behavior while the silent mode is active</string>
+    <string name="category_silent_mode_description">Behavior while the silent mode is active.</string>
 </resources>

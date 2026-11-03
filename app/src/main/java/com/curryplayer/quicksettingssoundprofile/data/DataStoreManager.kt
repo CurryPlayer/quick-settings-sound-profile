@@ -26,6 +26,7 @@ class DataStoreManager(private val context: Context) {
         val LAST_SELECTED_MUTE_OPTION = intPreferencesKey("last_selected_mute_option")
         val CUSTOM_MUTE_DURATION_MINUTES = intPreferencesKey("custom_mute_duration_minutes")
         val TILE_ADDED = booleanPreferencesKey("tile_added")
+        val SHOW_TIMER_END_TIME = booleanPreferencesKey("show_timer_end_time")
     }
 
     val zenRuleId: Flow<String> = context.dataStore.data.map { preferences ->
@@ -85,6 +86,21 @@ class DataStoreManager(private val context: Context) {
      */
     val tileAdded: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[TILE_ADDED] ?: false
+    }
+
+    /**
+     * Cold [Flow] emitting whether the tile subtitle shows the end time of the temporary mute
+     * (e.g. "Until 12:49") instead of the remaining duration (e.g. "1 h 5 m left").
+     * Emits false (remaining duration) by default.
+     */
+    val showTimerEndTime: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[SHOW_TIMER_END_TIME] ?: false
+    }
+
+    suspend fun setShowTimerEndTime(value: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[SHOW_TIMER_END_TIME] = value
+        }
     }
 
     suspend fun setTileAdded(value: Boolean) {

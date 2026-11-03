@@ -85,6 +85,7 @@ class MainActivity : ComponentActivity() {
                 val savedCustomMuteDurationMinutes by dataStoreManager.customMuteDurationMinutes.collectAsState(initial = MuteDurationOption.CUSTOM.minutes)
                 // Start with true so the "add tile" card doesn't flicker in before the stored value is loaded
                 val tileAdded by dataStoreManager.tileAdded.collectAsState(initial = true)
+                val showTimerEndTime by dataStoreManager.showTimerEndTime.collectAsState(initial = false)
                 val scope = rememberCoroutineScope()
 
                 RenderMainPage(
@@ -93,6 +94,10 @@ class MainActivity : ComponentActivity() {
                     tileAdded = tileAdded,
                     onTileAddedChanged = { added ->
                         scope.launch { dataStoreManager.setTileAdded(added) }
+                    },
+                    showTimerEndTime = showTimerEndTime,
+                    onShowTimerEndTimeChanged = { show ->
+                        scope.launch { dataStoreManager.setShowTimerEndTime(show) }
                     },
                     ruleId = savedZenRuleId,
                     iconThemeIndex = savedIconThemeIndex,
