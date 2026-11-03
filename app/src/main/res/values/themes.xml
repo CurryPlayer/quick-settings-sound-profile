@@ -4,4 +4,10 @@
     <style name="Theme.QuickSettingsSoundProfile" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@color/black</item>
     </style>
+
+    <style name="Theme.QuickSettingsSoundProfile.Dialog" parent="android:Theme.Translucent.NoTitleBar">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
 </resources>
