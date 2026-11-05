@@ -1,5 +1,8 @@
 # Quick Settings Sound Profile
 
+[![GitHub Release](https://img.shields.io/github/v/release/CurryPlayer/quick-settings-sound-profile?logo=github)](https://github.com/CurryPlayer/quick-settings-sound-profile/releases)
+[![F-Droid](https://img.shields.io/f-droid/v/com.curryplayer.quicksettingssoundprofile?logo=f-droid)](https://f-droid.org/packages/com.curryplayer.quicksettingssoundprofile/)
+
 An app that lets you change your sound profile (ring, vibrate, mute) via a Quick Settings tile.  
 The app is written 100% in Kotlin :D
 
@@ -23,14 +26,14 @@ On older versions (Android 7 to 9), the app acts as a legacy bridge. It lets you
 
 ## Why use an AutomaticZenRule?
 
-When activating Silent Mode via the app's Quick Settings tile, a small visual discrepancy occurs: the status bar shows a "silent" icon, but pressing the physical volume buttons reveals that the system volume panel still displays the **vibrate** icon.
+When activating Silent Mode via the app's Quick Settings tile, a small visual discrepancy occurs: the status bar shows a "silent" icon, but pressing the physical volume buttons reveals that the system volume panel still displays the **sound** icon.
 This behavior is an intentional workaround for a restrictive Android limitation.
 
 In theory, the native "Silent" icon could be forced to appear everywhere (status bar and volume panel) by quickly switching the `ringerMode` from `Normal` to `Silent`, skipping the `Vibrate` state entirely. However, doing this forces Android to always activate Do Not Disturb (DND) mode, showing the native DND icon in the status bar. This behavior cannot be bypassed directly.
 
 To prevent the system from forcing DND, this app utilizes an `AutomaticZenRule` (known as a **"Mode"** in Android 15+):
 
-* **Android 15+ (with user-managed modes support):** The app activates a dedicated, custom mode, which successfully bypasses the forced DND activation. Attempting to set the `ringerMode` to silent after the mode is active is ignored by the OS. This is why the volume panel continues to show the vibrate icon.
+* **Android 15+ (with user-managed modes support):** The app activates a dedicated, custom mode, which successfully bypasses the forced DND activation. Attempting to set the `ringerMode` to silent after the mode is active is ignored by the OS. This is why the volume panel continues to show the sound icon.
 * **Android 14 and below (or devices lacking user-managed modes support):** Not every device running Android 15+ supports user-managed modes. On these unsupported or older devices, the app falls back to activating the system DND and layering a custom schedule on top. However, you won't be able to customize its specific behavior.
 
 ## Why did I develop this app in the first place?
