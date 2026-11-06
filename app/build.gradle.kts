@@ -7,7 +7,7 @@ android {
     namespace = "com.curryplayer.quicksettingssoundprofile"
     compileSdk {
         version = release(37) {
-            minorApiLevel = 0
+            minorApiLevel = 2
         }
     }
 
@@ -15,8 +15,8 @@ android {
         applicationId = "com.curryplayer.quicksettingssoundprofile"
         minSdk = 24
         targetSdk = 37
-        versionCode = 11
-        versionName = "1.2.0"
+        versionCode = 12
+        versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

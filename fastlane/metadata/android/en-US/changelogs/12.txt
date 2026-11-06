@@ -1,0 +1,6 @@
+New:
+- Modern App Layout
+- Add functionality to temporarily mute the phone for a set time
+Fix:
+- Vibration icon is no longer visible in volume slider panel and status bar when the phone is put into silent mode
+- Native 'Do Not Disturb' mode will not be accidentally activated when switching to silent mode (Android 15+)
