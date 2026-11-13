@@ -143,7 +143,10 @@ private fun PermissionInstructionDialog(
         text = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = ctx.getString(R.string.alert_grant_do_not_disturb_permission_desc),
+                    text = ctx.getString(
+                        R.string.alert_grant_do_not_disturb_permission_desc,
+                        ctx.getString(R.string.app_name)
+                    ),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(24.dp))

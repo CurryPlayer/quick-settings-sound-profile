@@ -5,7 +5,7 @@
     <string name="grant_do_not_disturb_permission_title">Please grant the \'Do Not Disturb\' permission</string>
     <string name="grant_do_not_disturb_permission_desc">The \'Do Not Disturb\' permission is required to set the phone to Silent Mode. Please allow the app to use this permission.</string>
     <string name="alert_grant_do_not_disturb_permission_title">Grant Permission</string>
-    <string name="alert_grant_do_not_disturb_permission_desc">The next screen will display a list of apps. Please select \'Quick Settings Sound Profile\' and allow the app to use this permission.</string>
+    <string name="alert_grant_do_not_disturb_permission_desc">The next screen will display a list of apps. Please select \'%1$s\' and allow the app to use this permission.</string>
     <string name="alert_button_confirm">Understood</string>
     <string name="alert_button_apply">Apply</string>
     <string name="alert_button_cancel">Cancel</string>
