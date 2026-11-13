@@ -17,20 +17,21 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.manager.SoundProfileManager
+import com.curryplayer.quicksettingssoundprofile.manager.ZenRuleManager
 import com.curryplayer.quicksettingssoundprofile.models.AlarmItem
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 import com.curryplayer.quicksettingssoundprofile.models.MuteDurationOption
 import com.curryplayer.quicksettingssoundprofile.pages.RenderMainPage
 import com.curryplayer.quicksettingssoundprofile.scheduler.AlarmScheduler
 import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProfileTheme
-import com.curryplayer.quicksettingssoundprofile.utils.AlarmExactUtils
-import com.curryplayer.quicksettingssoundprofile.utils.ZenRuleUtils
+import com.curryplayer.quicksettingssoundprofile.utils.PermissionUtils
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var soundProfileManager: SoundProfileManager
+    private lateinit var zenRuleManager: ZenRuleManager
     private lateinit var dataStoreManager: DataStoreManager
     private lateinit var alarmScheduler: AlarmScheduler
 
@@ -56,6 +57,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         soundProfileManager = SoundProfileManager(this)
+        zenRuleManager = ZenRuleManager(this)
         dataStoreManager = soundProfileManager.dataStoreManager
         alarmScheduler = soundProfileManager.alarmScheduler
         selectedSoundModeState = soundProfileManager.currentRingerMode
@@ -105,8 +107,7 @@ class MainActivity : ComponentActivity() {
                         scope.launch {
                             dataStoreManager.setIconTheme(newIndexValue)
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM && savedZenRuleId.isNotEmpty()) {
-                                ZenRuleUtils.updateZenRuleIcon(
-                                    context = this@MainActivity,
+                                zenRuleManager.updateZenRuleIcon(
                                     ruleId = savedZenRuleId,
                                     iconResId = IconTheme.fromOrdinal(newIndexValue).silentIcon
                                 )
@@ -186,6 +187,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun checkExactAlarmPermission() {
-        scheduleExactAlarmsPermissionGrantedState = AlarmExactUtils.isScheduleExactAlarmsPermissionGranted(this)
+        scheduleExactAlarmsPermissionGrantedState = PermissionUtils.isScheduleExactAlarmsPermissionGranted(this)
     }
 }
