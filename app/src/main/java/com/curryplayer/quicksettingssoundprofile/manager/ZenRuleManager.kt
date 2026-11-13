@@ -141,13 +141,9 @@ class ZenRuleManager(
      * Checks if the ZenRule is confirmed deactivated on Android 15+.
      */
     fun isRuleDeactivated(ruleId: String): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM && ruleId.isNotEmpty()) {
-            try {
-                notificationManager.getAutomaticZenRuleState(ruleId) == Condition.STATE_FALSE
-            } catch (_: Exception) {
-                false
-            }
-        } else {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM && ruleId.isNotEmpty() && try {
+            notificationManager.getAutomaticZenRuleState(ruleId) == Condition.STATE_FALSE
+        } catch (_: Exception) {
             false
         }
     }

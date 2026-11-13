@@ -121,9 +121,7 @@ class RingerModeReceiver(
             timeoutMs: Long,
             predicate: () -> Boolean
         ): Boolean {
-            if (predicate()) return true
-
-            return withTimeoutOrNull(timeoutMs.milliseconds) {
+            return predicate() || withTimeoutOrNull(timeoutMs.milliseconds) {
                 suspendCancellableCoroutine { continuation ->
                     val isResumed = AtomicBoolean(false)
                     lateinit var receiver: RingerModeReceiver
