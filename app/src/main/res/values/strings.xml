@@ -9,13 +9,11 @@
     <string name="alert_button_confirm">Understood</string>
     <string name="alert_button_apply">Apply</string>
     <string name="alert_button_cancel">Cancel</string>
-    <string name="alert_button_close">Close</string>
     <string name="button_grant_permission">Grant Permission</string>
     <string name="button_add_tile">Add Sound Tile</string>
     <string name="tile_added_success">Tile added successfully</string>
     <string name="tile_already_added">Tile is already added</string>
     <string name="tile_not_added">Tile was not added</string>
-    <string name="all_set">You\'re all set and ready to go!</string>
     <string name="tile_placement_manual">Place the sound tile in your quick settings panel and toggle between the different sound profiles.</string>
     <string name="permission_required">Permission required</string>
     <string name="profile_sound_label">Sound</string>
@@ -33,9 +31,6 @@
     <string name="no_user_managed_modes_available_description">Your device doesn\'t support user-managed modes. This means your device will automatically apply a standard \'Do Not Disturb\' schedule with the app\'s default settings mentioned above whenever Silent Mode is active. However, you won\'t be able to customize its specific behavior.</string>
     <string name="category_icon_design_title">Icon Design</string>
     <string name="category_icon_design_description">Select the icon design for the Quick Settings tile.</string>
-    <string name="open_app_button">Open App</string>
-    <string name="timer_title">Timer &amp; Sound Profile</string>
-    <string name="select_mode">Target Mode</string>
     <string name="select_duration">Duration</string>
     <string name="duration_30m">30m</string>
     <string name="duration_1h">1h</string>
