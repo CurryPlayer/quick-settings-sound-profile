@@ -111,7 +111,7 @@ class ZenRuleManager(
      * @param iconResId The resource ID of the new icon.
      */
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    fun updateZenRuleIcon(ruleId: String, iconResId: Int) {
+    private fun updateZenRuleIcon(ruleId: String, iconResId: Int) {
         val existingRule = getAutomaticZenRule(ruleId)
         if (existingRule != null) {
             val updatedRule = AutomaticZenRule.Builder(existingRule)
