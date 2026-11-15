@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -29,11 +30,11 @@ import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProf
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RenderOpenZenModeSettings(
-    ctx: Context,
     ruleId: String,
     hasPermission: Boolean,
     modifier: Modifier = Modifier,
 ) {
+    val ctx = LocalContext.current
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.End,
@@ -43,7 +44,7 @@ fun RenderOpenZenModeSettings(
             enabled = hasPermission && ruleId.isNotEmpty(),
         ) {
             Text(
-                text = ctx.getString(R.string.open_mode_button),
+                text = stringResource(R.string.open_mode_button),
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -52,7 +53,7 @@ fun RenderOpenZenModeSettings(
         if (!hasPermission) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = ctx.getString(R.string.open_mode_grant_permission_first),
+                text = stringResource(R.string.open_mode_grant_permission_first),
                 textAlign = TextAlign.End,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.error,
@@ -68,7 +69,6 @@ fun RenderOpenZenModeSettings(
 private fun OpenZenModeSettingsPreview() {
     QuickSettingsSoundProfileTheme {
         RenderOpenZenModeSettings(
-            ctx = LocalContext.current,
             ruleId = "real_ruleId_here",    // is needed for the button to be visible
             hasPermission = true
         )

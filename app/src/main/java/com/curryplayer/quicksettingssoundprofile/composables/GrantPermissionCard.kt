@@ -32,14 +32,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.R
 
 @Composable
-fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier, outerPadding: Int = 16) {
+fun RenderGrantPermissionCard(modifier: Modifier = Modifier, outerPadding: Int = 16) {
+    val ctx = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
 
     if (showDialog) {
@@ -49,7 +52,6 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier, outer
                 launchPermissionIntent(ctx)
             },
             onDismiss = { showDialog = false },
-            ctx = ctx,
         )
     }
 
@@ -88,7 +90,7 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier, outer
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = ctx.getString(R.string.grant_do_not_disturb_permission_title),
+                text = stringResource(R.string.grant_do_not_disturb_permission_title),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
@@ -97,7 +99,7 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier, outer
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = ctx.getString(R.string.grant_do_not_disturb_permission_desc),
+                text = stringResource(R.string.grant_do_not_disturb_permission_desc),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge
             )
@@ -116,7 +118,7 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier, outer
                 elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 2.dp)
             ) {
                 Text(
-                    text = ctx.getString(R.string.button_grant_permission),
+                    text = stringResource(R.string.button_grant_permission),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -129,13 +131,12 @@ fun RenderGrantPermissionCard(ctx: Context, modifier: Modifier = Modifier, outer
 private fun PermissionInstructionDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
-    ctx: Context
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = ctx.getString(R.string.alert_grant_do_not_disturb_permission_title),
+                text = stringResource(R.string.alert_grant_do_not_disturb_permission_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
@@ -143,9 +144,9 @@ private fun PermissionInstructionDialog(
         text = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = ctx.getString(
+                    text = stringResource(
                         R.string.alert_grant_do_not_disturb_permission_desc,
-                        ctx.getString(R.string.app_name)
+                        stringResource(R.string.app_name)
                     ),
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -154,12 +155,12 @@ private fun PermissionInstructionDialog(
         },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text(text = ctx.getString(R.string.alert_button_confirm))
+                Text(text = stringResource(R.string.alert_button_confirm))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = ctx.getString(R.string.alert_button_cancel))
+                Text(text = stringResource(R.string.alert_button_cancel))
             }
         }
     )

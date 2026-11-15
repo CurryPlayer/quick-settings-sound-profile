@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
-import com.curryplayer.quicksettingssoundprofile.models.MuteDurationOption
 
 @Composable
 fun RenderSoundModeSelectionCard(
@@ -18,13 +17,6 @@ fun RenderSoundModeSelectionCard(
     selectedMode: Int,
     iconTheme: IconTheme,
     onSelectedMode: (Int) -> Unit,
-    previousRingerMode: Int,
-    savedMuteDurationMinutes: Int,
-    savedMuteDurationOption: MuteDurationOption,
-    savedCustomMuteDurationMinutes: Int,
-    onSaveMuteDuration: (minutes: Int) -> Unit,
-    onSaveMuteDurationOption: (MuteDurationOption) -> Unit,
-    onSaveCustomMuteDuration: (minutes: Int) -> Unit,
     onStartTimer: (minutes: Int) -> Unit,
     onCancelTimer: () -> Unit,
     modifier: Modifier = Modifier,
@@ -55,13 +47,6 @@ fun RenderSoundModeSelectionCard(
             RenderTemporaryMuteSelection(
                 scheduleExactAlarmsPermissionGranted = scheduleExactAlarmsPermissionGranted,
                 selectedMode = selectedMode,
-                previousRingerMode = previousRingerMode,
-                savedMuteDurationMinutes = savedMuteDurationMinutes,
-                savedMuteDurationOption = savedMuteDurationOption,
-                savedCustomMuteDurationMinutes = savedCustomMuteDurationMinutes,
-                onSaveMuteDuration = onSaveMuteDuration,
-                onSaveMuteDurationOption = onSaveMuteDurationOption,
-                onSaveCustomMuteDuration = onSaveCustomMuteDuration,
                 onStartTimer = onStartTimer,
                 onCancelTimer = onCancelTimer,
             )

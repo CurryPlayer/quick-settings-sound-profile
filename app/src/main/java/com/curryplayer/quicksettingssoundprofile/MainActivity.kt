@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -20,12 +19,12 @@ import com.curryplayer.quicksettingssoundprofile.manager.SoundProfileManager
 import com.curryplayer.quicksettingssoundprofile.manager.ZenRuleManager
 import com.curryplayer.quicksettingssoundprofile.models.AlarmItem
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
-import com.curryplayer.quicksettingssoundprofile.models.MuteDurationOption
 import com.curryplayer.quicksettingssoundprofile.pages.RenderMainPage
 import com.curryplayer.quicksettingssoundprofile.scheduler.AlarmScheduler
 import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProfileTheme
 import com.curryplayer.quicksettingssoundprofile.utils.PermissionUtils
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -79,38 +78,21 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             QuickSettingsSoundProfileTheme {
-                val savedZenRuleId by dataStoreManager.zenRuleId.collectAsState(initial = "")
-                val savedIconThemeIndex by dataStoreManager.iconTheme.collectAsState(initial = IconTheme.VOLUME_DEFAULT.ordinal)
-                val previousRingerMode by dataStoreManager.previousRingerMode.collectAsState(initial = AudioManager.RINGER_MODE_NORMAL)
-                val savedMuteDurationMinutes by dataStoreManager.lastMuteDurationMinutes.collectAsState(initial = MuteDurationOption.MINUTES_60.minutes)
-                val savedMuteDurationOption by dataStoreManager.lastMuteDurationOption.collectAsState(initial = MuteDurationOption.MINUTES_60)
-                val savedCustomMuteDurationMinutes by dataStoreManager.customMuteDurationMinutes.collectAsState(initial = MuteDurationOption.CUSTOM.minutes)
-                // Start with true so the "add tile" card doesn't flicker in before the stored value is loaded
-                val tileAdded by dataStoreManager.tileAdded.collectAsState(initial = true)
-                val showTimerEndTime by dataStoreManager.showTimerEndTime.collectAsState(initial = false)
                 val scope = rememberCoroutineScope()
 
                 RenderMainPage(
-                    ctx = this,
                     hasPermission = dndPermissionGrantedState,
-                    tileAdded = tileAdded,
-                    onTileAddedChanged = { added ->
-                        scope.launch { dataStoreManager.setTileAdded(added) }
-                    },
-                    showTimerEndTime = showTimerEndTime,
-                    onShowTimerEndTimeChanged = { show ->
-                        scope.launch { dataStoreManager.setShowTimerEndTime(show) }
-                    },
-                    ruleId = savedZenRuleId,
-                    iconThemeIndex = savedIconThemeIndex,
                     onIconThemeChangeIndex = { newIndexValue ->
                         scope.launch {
                             dataStoreManager.setIconTheme(newIndexValue)
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM && savedZenRuleId.isNotEmpty()) {
-                                zenRuleManager.updateZenRuleIcon(
-                                    ruleId = savedZenRuleId,
-                                    iconResId = IconTheme.fromOrdinal(newIndexValue).silentIcon
-                                )
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                                val ruleId = dataStoreManager.zenRuleId.first()
+                                if (ruleId.isNotEmpty()) {
+                                    zenRuleManager.updateZenRuleIcon(
+                                        ruleId = ruleId,
+                                        iconResId = IconTheme.fromOrdinal(newIndexValue).silentIcon
+                                    )
+                                }
                             }
                         }
                     },
@@ -135,25 +117,6 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         modeChangeJob = job
-                    },
-                    previousRingerMode = previousRingerMode,
-                    savedMuteDurationMinutes = savedMuteDurationMinutes,
-                    savedMuteDurationOption = savedMuteDurationOption,
-                    savedCustomMuteDurationMinutes = savedCustomMuteDurationMinutes,
-                    onSaveMuteDuration = { minutes ->
-                        scope.launch {
-                            dataStoreManager.saveMuteDurationMinutes(minutes)
-                        }
-                    },
-                    onSaveMuteDurationOption = { option ->
-                        scope.launch {
-                            dataStoreManager.saveMuteDurationOption(option)
-                        }
-                    },
-                    onSaveCustomMuteDuration = { minutes ->
-                        scope.launch {
-                            dataStoreManager.saveCustomMuteDurationMinutes(minutes)
-                        }
                     },
                     onStartTimer = { minutes ->
                         scope.launch {
