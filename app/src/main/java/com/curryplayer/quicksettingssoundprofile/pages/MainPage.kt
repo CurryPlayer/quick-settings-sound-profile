@@ -32,6 +32,7 @@ import com.curryplayer.quicksettingssoundprofile.composables.RenderTopAppBar
 import com.curryplayer.quicksettingssoundprofile.composables.SectionCard
 import com.curryplayer.quicksettingssoundprofile.composables.soundmodeswitcher.RenderSoundModeSelectionCard
 import com.curryplayer.quicksettingssoundprofile.data.rememberDataStoreManager
+import com.curryplayer.quicksettingssoundprofile.manager.ZenRuleManager
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 import com.curryplayer.quicksettingssoundprofile.models.ZenModesSupport
 import kotlinx.coroutines.launch
@@ -52,7 +53,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun RenderMainPage(
     hasPermission: Boolean,
-    onIconThemeChangeIndex: (Int) -> Unit,
     scheduleExactAlarmsPermissionGranted: Boolean,
     selectedMode: Int,
     onSelectedMode: (Int) -> Unit,
@@ -97,7 +97,6 @@ fun RenderMainPage(
 
                 IconThemeSelectionSection(
                     iconThemeIndex = iconThemeIndex,
-                    onIconThemeChangeIndex = onIconThemeChangeIndex,
                     hasPermission = hasPermission,
                 )
 
@@ -223,9 +222,12 @@ private fun ZenModesSettings(
 @Composable
 private fun IconThemeSelectionSection(
     iconThemeIndex: Int,
-    onIconThemeChangeIndex: (Int) -> Unit,
     hasPermission: Boolean,
 ) {
+    val context = LocalContext.current
+    val zenRuleManager = remember(context) { ZenRuleManager(context.applicationContext) }
+    val scope = rememberCoroutineScope()
+
     RenderNewCategoryName(
         title = stringResource(R.string.category_icon_design_title),
         description = stringResource(R.string.category_icon_design_description),
@@ -233,7 +235,7 @@ private fun IconThemeSelectionSection(
 
     RenderIconThemeSelector(
         selectedOptionIndex = iconThemeIndex,
-        onOptionSelectedIndex = onIconThemeChangeIndex,
+        onOptionSelectedIndex = { index -> scope.launch { zenRuleManager.setIconTheme(index) } },
         hasPermission = hasPermission
     )
 }

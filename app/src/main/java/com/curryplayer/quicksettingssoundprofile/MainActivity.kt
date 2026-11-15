@@ -1,7 +1,6 @@
 package com.curryplayer.quicksettingssoundprofile
 
 import android.media.AudioManager
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,24 +13,18 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.manager.SoundProfileManager
-import com.curryplayer.quicksettingssoundprofile.manager.ZenRuleManager
 import com.curryplayer.quicksettingssoundprofile.models.AlarmItem
-import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 import com.curryplayer.quicksettingssoundprofile.pages.RenderMainPage
 import com.curryplayer.quicksettingssoundprofile.scheduler.AlarmScheduler
 import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProfileTheme
 import com.curryplayer.quicksettingssoundprofile.utils.PermissionUtils
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var soundProfileManager: SoundProfileManager
-    private lateinit var zenRuleManager: ZenRuleManager
-    private lateinit var dataStoreManager: DataStoreManager
     private lateinit var alarmScheduler: AlarmScheduler
 
     private var dndPermissionGrantedState by mutableStateOf(false)
@@ -56,8 +49,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         soundProfileManager = SoundProfileManager(this)
-        zenRuleManager = ZenRuleManager(this)
-        dataStoreManager = soundProfileManager.dataStoreManager
         alarmScheduler = soundProfileManager.alarmScheduler
         selectedSoundModeState = soundProfileManager.currentRingerMode
 
@@ -82,20 +73,6 @@ class MainActivity : ComponentActivity() {
 
                 RenderMainPage(
                     hasPermission = dndPermissionGrantedState,
-                    onIconThemeChangeIndex = { newIndexValue ->
-                        scope.launch {
-                            dataStoreManager.setIconTheme(newIndexValue)
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                                val ruleId = dataStoreManager.zenRuleId.first()
-                                if (ruleId.isNotEmpty()) {
-                                    zenRuleManager.updateZenRuleIcon(
-                                        ruleId = ruleId,
-                                        iconResId = IconTheme.fromOrdinal(newIndexValue).silentIcon
-                                    )
-                                }
-                            }
-                        }
-                    },
                     scheduleExactAlarmsPermissionGranted = scheduleExactAlarmsPermissionGrantedState,
                     selectedMode = selectedSoundModeState,
                     onSelectedMode = { mode ->

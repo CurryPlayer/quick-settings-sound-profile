@@ -11,6 +11,7 @@ import androidx.core.net.toUri
 import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.factory.ZenRuleFactory
+import com.curryplayer.quicksettingssoundprofile.models.IconTheme
 import kotlinx.coroutines.flow.first
 
 /**
@@ -83,6 +84,22 @@ class ZenRuleManager(
      */
     fun getAutomaticZenRule(ruleId: String): AutomaticZenRule? {
         return if (ruleId.isNotEmpty()) notificationManager.getAutomaticZenRule(ruleId) else null
+    }
+
+    /**
+     * Persists the selected icon theme and, on Android 15 (API level 35) and above,
+     * applies the silent icon of the theme to the app's existing [AutomaticZenRule].
+     *
+     * @param index The ordinal of the selected [IconTheme].
+     */
+    suspend fun setIconTheme(index: Int) {
+        dataStoreManager.setIconTheme(index)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            val ruleId = dataStoreManager.zenRuleId.first()
+            if (ruleId.isNotEmpty()) {
+                updateZenRuleIcon(ruleId, IconTheme.fromOrdinal(index).silentIcon)
+            }
+        }
     }
 
     /**
