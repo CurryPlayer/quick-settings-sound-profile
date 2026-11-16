@@ -9,14 +9,26 @@ class MuteDurationOptionTest {
     fun ensureMuteDurationOptionOrdinalsAreStable() {
         // When new options are added, they must be added to the end of the list
         // and a corresponding check must be added here.
-        assertEquals("MINUTES_30 should be at ordinal 0", 0, MuteDurationOption.MINUTES_30.ordinal)
-        assertEquals("MINUTES_60 should be at ordinal 1", 1, MuteDurationOption.MINUTES_60.ordinal)
+        assertEquals(
+            "MINUTES_30 should be at ordinal 0",
+            0,
+            MuteDurationOption.MINUTES_30.ordinal
+        )
+        assertEquals(
+            "MINUTES_60 should be at ordinal 1",
+            1,
+            MuteDurationOption.MINUTES_60.ordinal
+        )
         assertEquals(
             "MINUTES_180 should be at ordinal 2",
             2,
             MuteDurationOption.MINUTES_180.ordinal
         )
-        assertEquals("CUSTOM should be at ordinal 3", 3, MuteDurationOption.CUSTOM.ordinal)
+        assertEquals(
+            "CUSTOM should be at ordinal 3",
+            3,
+            MuteDurationOption.CUSTOM.ordinal
+        )
     }
 
     @Test
@@ -54,6 +66,10 @@ class MuteDurationOptionTest {
         assertEquals(30, MuteDurationOption.MINUTES_30.minutes)
         assertEquals(60, MuteDurationOption.MINUTES_60.minutes)
         assertEquals(180, MuteDurationOption.MINUTES_180.minutes)
-        assertEquals("CUSTOM should always return 42 (the answer to everything :)", 42, MuteDurationOption.CUSTOM.minutes)
+        assertEquals(
+            "CUSTOM should always return 42 (the answer to everything :)",
+            42,
+            MuteDurationOption.CUSTOM.minutes
+        )
     }
 }
