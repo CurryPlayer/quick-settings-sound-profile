@@ -1,39 +1,49 @@
 package com.curryplayer.quicksettingssoundprofile.models
 
 import android.media.AudioManager
+import com.curryplayer.quicksettingssoundprofile.R
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class IconThemeTest {
 
     @Test
-    fun ensureIconThemeOrdinalsAreStable() {
+    fun ordinals_areStableAndComplete() {
         // When new themes are added, they must be added to the end of the list
-        // and a corresponding check must be added here.
+        // and this expected list must be updated accordingly.
         assertEquals(
-            "VOLUME_DEFAULT should be at ordinal 0",
-            0,
-            IconTheme.VOLUME_DEFAULT.ordinal
-        )
-        assertEquals(
-            "VOLUME_OUTLINE should be at ordinal 1",
-            1,
-            IconTheme.VOLUME_OUTLINE.ordinal
-        )
-        assertEquals(
-            "NOTIFICATIONS should be at ordinal 2",
-            2,
-            IconTheme.NOTIFICATIONS.ordinal
-        )
-        assertEquals(
-            "NOTIFICATIONS_OUTLINE should be at ordinal 3",
-            3,
-            IconTheme.NOTIFICATIONS_OUTLINE.ordinal
+            "IconTheme entries order and count must stay stable",
+            listOf(
+                IconTheme.VOLUME_DEFAULT,
+                IconTheme.VOLUME_OUTLINE,
+                IconTheme.NOTIFICATIONS,
+                IconTheme.NOTIFICATIONS_OUTLINE,
+            ),
+            IconTheme.entries,
         )
     }
 
     @Test
-    fun testFromOrdinalMapping() {
+    fun iconProperties_matchExpectedDrawables() {
+        assertEquals(R.drawable.ic_round_volume_up_24, IconTheme.VOLUME_DEFAULT.ringIcon)
+        assertEquals(R.drawable.ic_round_vibration_24, IconTheme.VOLUME_DEFAULT.vibrateIcon)
+        assertEquals(R.drawable.ic_round_volume_off_24, IconTheme.VOLUME_DEFAULT.silentIcon)
+
+        assertEquals(R.drawable.ic_round_volume_up_outline_24, IconTheme.VOLUME_OUTLINE.ringIcon)
+        assertEquals(R.drawable.ic_round_vibration_outline_24, IconTheme.VOLUME_OUTLINE.vibrateIcon)
+        assertEquals(R.drawable.ic_round_volume_off_outline_24, IconTheme.VOLUME_OUTLINE.silentIcon)
+
+        assertEquals(R.drawable.ic_round_notifications_active_24, IconTheme.NOTIFICATIONS.ringIcon)
+        assertEquals(R.drawable.ic_round_vibration_24, IconTheme.NOTIFICATIONS.vibrateIcon)
+        assertEquals(R.drawable.ic_round_notifications_off_24, IconTheme.NOTIFICATIONS.silentIcon)
+
+        assertEquals(R.drawable.ic_round_notifications_active_outline_24, IconTheme.NOTIFICATIONS_OUTLINE.ringIcon)
+        assertEquals(R.drawable.ic_round_vibration_outline_24, IconTheme.NOTIFICATIONS_OUTLINE.vibrateIcon)
+        assertEquals(R.drawable.ic_round_notifications_off_outline_24, IconTheme.NOTIFICATIONS_OUTLINE.silentIcon)
+    }
+
+    @Test
+    fun fromOrdinal_withValidOrdinal_returnsMatchingTheme() {
         assertEquals(IconTheme.VOLUME_DEFAULT, IconTheme.fromOrdinal(0))
         assertEquals(IconTheme.VOLUME_OUTLINE, IconTheme.fromOrdinal(1))
         assertEquals(IconTheme.NOTIFICATIONS, IconTheme.fromOrdinal(2))
@@ -41,88 +51,42 @@ class IconThemeTest {
     }
 
     @Test
-    fun testFromOrdinalFallback() {
+    fun fromOrdinal_withInvalidOrdinal_returnsDefaultTheme() {
         // Fallback should be VOLUME_DEFAULT
         assertEquals(IconTheme.VOLUME_DEFAULT, IconTheme.fromOrdinal(-1))
+        assertEquals(IconTheme.VOLUME_DEFAULT, IconTheme.fromOrdinal(IconTheme.entries.size))
         assertEquals(IconTheme.VOLUME_DEFAULT, IconTheme.fromOrdinal(999))
     }
 
     @Test
-    fun testGetIconForMode() {
-        // VOLUME_DEFAULT
-        assertEquals(
-            IconTheme.VOLUME_DEFAULT.ringIcon,
-            IconTheme.VOLUME_DEFAULT.getIconForMode(AudioManager.RINGER_MODE_NORMAL)
-        )
-        assertEquals(
-            IconTheme.VOLUME_DEFAULT.vibrateIcon,
-            IconTheme.VOLUME_DEFAULT.getIconForMode(AudioManager.RINGER_MODE_VIBRATE)
-        )
-        assertEquals(
-            IconTheme.VOLUME_DEFAULT.silentIcon,
-            IconTheme.VOLUME_DEFAULT.getIconForMode(AudioManager.RINGER_MODE_SILENT)
-        )
-        // Fallback
-        assertEquals(
-            IconTheme.VOLUME_DEFAULT.ringIcon,
-            IconTheme.VOLUME_DEFAULT.getIconForMode(-1)
-        )
+    fun getIconForMode_withValidRingerMode_returnsMatchingIcon() {
+        IconTheme.entries.forEach { theme ->
+            assertEquals(
+                "${theme.name}: RINGER_MODE_NORMAL should return ringIcon",
+                theme.ringIcon,
+                theme.getIconForMode(AudioManager.RINGER_MODE_NORMAL),
+            )
+            assertEquals(
+                "${theme.name}: RINGER_MODE_VIBRATE should return vibrateIcon",
+                theme.vibrateIcon,
+                theme.getIconForMode(AudioManager.RINGER_MODE_VIBRATE),
+            )
+            assertEquals(
+                "${theme.name}: RINGER_MODE_SILENT should return silentIcon",
+                theme.silentIcon,
+                theme.getIconForMode(AudioManager.RINGER_MODE_SILENT),
+            )
+        }
+    }
 
-        // VOLUME_OUTLINE
-        assertEquals(
-            IconTheme.VOLUME_OUTLINE.ringIcon,
-            IconTheme.VOLUME_OUTLINE.getIconForMode(AudioManager.RINGER_MODE_NORMAL)
-        )
-        assertEquals(
-            IconTheme.VOLUME_OUTLINE.vibrateIcon,
-            IconTheme.VOLUME_OUTLINE.getIconForMode(AudioManager.RINGER_MODE_VIBRATE)
-        )
-        assertEquals(
-            IconTheme.VOLUME_OUTLINE.silentIcon,
-            IconTheme.VOLUME_OUTLINE.getIconForMode(AudioManager.RINGER_MODE_SILENT)
-        )
-        // Fallback
-        assertEquals(
-            IconTheme.VOLUME_OUTLINE.ringIcon,
-            IconTheme.VOLUME_OUTLINE.getIconForMode(-1)
-        )
-
-        // NOTIFICATIONS
-        assertEquals(
-            IconTheme.NOTIFICATIONS.ringIcon,
-            IconTheme.NOTIFICATIONS.getIconForMode(AudioManager.RINGER_MODE_NORMAL)
-        )
-        assertEquals(
-            IconTheme.NOTIFICATIONS.vibrateIcon,
-            IconTheme.NOTIFICATIONS.getIconForMode(AudioManager.RINGER_MODE_VIBRATE)
-        )
-        assertEquals(
-            IconTheme.NOTIFICATIONS.silentIcon,
-            IconTheme.NOTIFICATIONS.getIconForMode(AudioManager.RINGER_MODE_SILENT)
-        )
-        // Fallback
-        assertEquals(
-            IconTheme.NOTIFICATIONS.ringIcon,
-            IconTheme.NOTIFICATIONS.getIconForMode(-1)
-        )
-
-        // NOTIFICATIONS_OUTLINE
-        assertEquals(
-            IconTheme.NOTIFICATIONS_OUTLINE.ringIcon,
-            IconTheme.NOTIFICATIONS_OUTLINE.getIconForMode(AudioManager.RINGER_MODE_NORMAL)
-        )
-        assertEquals(
-            IconTheme.NOTIFICATIONS_OUTLINE.vibrateIcon,
-            IconTheme.NOTIFICATIONS_OUTLINE.getIconForMode(AudioManager.RINGER_MODE_VIBRATE)
-        )
-        assertEquals(
-            IconTheme.NOTIFICATIONS_OUTLINE.silentIcon,
-            IconTheme.NOTIFICATIONS_OUTLINE.getIconForMode(AudioManager.RINGER_MODE_SILENT)
-        )
-        // Fallback
-        assertEquals(
-            IconTheme.NOTIFICATIONS_OUTLINE.ringIcon,
-            IconTheme.NOTIFICATIONS_OUTLINE.getIconForMode(-1)
-        )
+    @Test
+    fun getIconForMode_withUnknownRingerMode_returnsRingIconFallback() {
+        IconTheme.entries.forEach { theme ->
+            assertEquals(
+                "${theme.name}: unknown ringer mode should fall back to ringIcon",
+                theme.ringIcon,
+                theme.getIconForMode(-1),
+            )
+        }
     }
 }
