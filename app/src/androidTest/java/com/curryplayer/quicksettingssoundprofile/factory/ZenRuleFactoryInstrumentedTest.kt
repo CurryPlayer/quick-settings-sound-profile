@@ -39,7 +39,7 @@ import org.junit.runner.RunWith
  * see [ZenPolicyAssertions] and [ZenDeviceEffectsAssertions].
  */
 @RunWith(AndroidJUnit4::class)
-class ZenRuleFactoryTest {
+class ZenRuleFactoryInstrumentedTest {
 
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
 
