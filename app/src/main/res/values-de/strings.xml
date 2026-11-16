@@ -45,7 +45,7 @@
     <string name="time_remaining_qsTile_subtitle">Noch %s</string>
     <string name="time_until_qsTile_subtitle">Bis %s</string>
     <string name="setting_show_end_time_title">Endzeit anzeigen</string>
-    <string name="setting_show_end_time_description">Zeigt auf der Kachel die Uhrzeit an, zu der die zeitweise Stummschaltung endet, statt der Restzeit.</string>
+    <string name="setting_show_end_time_description">Zeigt auf der Kachel die Uhrzeit an, zu der die zeitweise Stummschaltung endet, statt der Restzeit (nur bei breiter Kachel).</string>
     <string name="grant_exact_alarm_title">Exakte Alarme erlauben</string>
     <string name="grant_exact_alarm_desc">Damit der Timer pünktlich abläuft, erteile der App bitte die Berechtigung für exakte Alarme. Ohne diese Berechtigung kann sich das Aufheben der Stummschaltung um mehrere Minuten bis zu einer Stunde verzögern.</string>
     <string name="button_grant_exact_alarm">Berechtigung erteilen</string>
