@@ -31,6 +31,8 @@
     <string name="no_user_managed_modes_available_description">Your device doesn\'t support user-managed modes. This means your device will automatically apply a standard \'Do Not Disturb\' schedule with the app\'s default settings mentioned above whenever Silent Mode is active. However, you won\'t be able to customize its specific behavior.</string>
     <string name="category_icon_design_title">Icon Design</string>
     <string name="category_icon_design_description">Select the icon design for the Quick Settings tile.</string>
+    <string name="zen_rule_icon_locked_title">Mode icon cannot be updated</string>
+    <string name="zen_rule_icon_locked_description">The selected icon design is applied to the app and Quick Settings tile. However, because the mode was manually modified in system settings, Android prevents the app from updating its status bar icon. You can either change the mode\'s icon directly in mode settings or delete the mode there. The app will then recreate it so it can be managed by the app again.</string>
     <string name="select_duration">Duration</string>
     <string name="duration_30m">30m</string>
     <string name="duration_1h">1h</string>

@@ -13,8 +13,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -29,6 +31,7 @@ import com.curryplayer.quicksettingssoundprofile.composables.RenderZenModeSettin
 import com.curryplayer.quicksettingssoundprofile.composables.RenderOpenZenModeSettings
 import com.curryplayer.quicksettingssoundprofile.composables.RenderSettingsSwitchRow
 import com.curryplayer.quicksettingssoundprofile.composables.RenderTopAppBar
+import com.curryplayer.quicksettingssoundprofile.composables.RenderZenRuleIconLockedNoticeCard
 import com.curryplayer.quicksettingssoundprofile.composables.SectionCard
 import com.curryplayer.quicksettingssoundprofile.composables.soundmodeswitcher.RenderSoundModeSelectionCard
 import com.curryplayer.quicksettingssoundprofile.data.rememberDataStoreManager
@@ -97,6 +100,7 @@ fun RenderMainPage(
 
                 IconThemeSelectionSection(
                     iconThemeIndex = iconThemeIndex,
+                    zenModes = zenModeSupport,
                     hasPermission = hasPermission,
                 )
 
@@ -222,20 +226,41 @@ private fun ZenModesSettings(
 @Composable
 private fun IconThemeSelectionSection(
     iconThemeIndex: Int,
+    zenModes: ZenModesSupport,
     hasPermission: Boolean,
 ) {
     val context = LocalContext.current
+    val dataStoreManager = rememberDataStoreManager()
     val zenRuleManager = remember(context) { ZenRuleManager(context.applicationContext) }
+    val ruleId by dataStoreManager.zenRuleId.collectAsState(initial = "")
     val scope = rememberCoroutineScope()
+    var isZenRuleIconLocked by remember { mutableStateOf(false) }
 
     RenderNewCategoryName(
         title = stringResource(R.string.category_icon_design_title),
         description = stringResource(R.string.category_icon_design_description),
     )
 
+    if (
+        hasPermission &&
+        isZenRuleIconLocked &&
+        (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) &&
+        (zenModes == ZenModesSupport.UserManaged)
+    ) {
+        RenderZenRuleIconLockedNoticeCard(
+            ruleId = ruleId,
+            hasPermission = true,
+        )
+    }
+
     RenderIconThemeSelector(
         selectedOptionIndex = iconThemeIndex,
-        onOptionSelectedIndex = { index -> scope.launch { zenRuleManager.setIconTheme(index) } },
+        onOptionSelectedIndex = { index ->
+            scope.launch {
+                val iconApplied = zenRuleManager.setIconTheme(index)
+                isZenRuleIconLocked = !iconApplied
+            }
+        },
         hasPermission = hasPermission
     )
 }

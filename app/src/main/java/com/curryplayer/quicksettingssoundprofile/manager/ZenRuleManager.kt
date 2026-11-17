@@ -90,35 +90,44 @@ class ZenRuleManager(
      * Persists the selected icon theme and, on Android 15 (API level 35) and above,
      * applies the silent icon of the theme to the app's existing [AutomaticZenRule].
      *
+     * If the user manually modified the rule in the system's Mode settings, Android locks
+     * app-side updates to user-modifiable fields while [NotificationManager.updateAutomaticZenRule]
+     * may still return `true`. Therefore, this method verifies whether the rule actually reflects
+     * the requested icon.
+     *
      * @param index The ordinal of the selected [IconTheme].
+     * @return `true` if the rule's icon matches the requested theme (or rule icon updates are
+     * not applicable on this Android version), `false` if the system did not apply the icon.
      */
-    suspend fun setIconTheme(index: Int) {
+    suspend fun setIconTheme(index: Int): Boolean {
         dataStoreManager.setIconTheme(index)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             val ruleId = dataStoreManager.zenRuleId.first()
             if (ruleId.isNotEmpty()) {
-                updateZenRuleIcon(ruleId, IconTheme.fromOrdinal(index).silentIcon)
+                return updateZenRuleIcon(ruleId, IconTheme.fromOrdinal(index).silentIcon)
             }
         }
+        return true
     }
 
     /**
-     * Updates the icon of an existing [AutomaticZenRule].
+     * Updates the icon of an existing [AutomaticZenRule] and verifies that the change took effect.
      *
      * This feature requires Android 15 (API level 35) or higher.
      *
      * @param ruleId The unique identifier of the rule to update.
      * @param iconResId The resource ID of the new icon.
+     * @return `true` if the update succeeded and the rule now uses [iconResId], `false` otherwise.
      */
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    private fun updateZenRuleIcon(ruleId: String, iconResId: Int) {
-        val existingRule = getAutomaticZenRule(ruleId)
-        if (existingRule != null) {
-            val updatedRule = AutomaticZenRule.Builder(existingRule)
-                .setIconResId(iconResId)
-                .build()
-            notificationManager.updateAutomaticZenRule(ruleId, updatedRule)
-        }
+    fun updateZenRuleIcon(ruleId: String, iconResId: Int): Boolean {
+        val existingRule = getAutomaticZenRule(ruleId) ?: return false
+        val updatedRule = AutomaticZenRule.Builder(existingRule)
+            .setIconResId(iconResId)
+            .build()
+        val wasRuleUpdated = notificationManager.updateAutomaticZenRule(ruleId, updatedRule)
+        val actualIconResId = getAutomaticZenRule(ruleId)?.iconResId
+        return wasRuleUpdated && actualIconResId == iconResId
     }
 
     /**
