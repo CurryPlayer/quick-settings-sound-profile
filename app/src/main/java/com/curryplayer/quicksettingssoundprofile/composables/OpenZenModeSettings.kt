@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,6 +35,7 @@ fun RenderOpenZenModeSettings(
     ruleId: String,
     hasPermission: Boolean,
     modifier: Modifier = Modifier,
+    colors: ButtonColors = ButtonDefaults.filledTonalButtonColors(),
 ) {
     val ctx = LocalContext.current
     Column(
@@ -42,6 +45,7 @@ fun RenderOpenZenModeSettings(
         FilledTonalButton(
             onClick = { openZenRuleSettings(ctx, ruleId) },
             enabled = hasPermission && ruleId.isNotEmpty(),
+            colors = colors,
         ) {
             Text(
                 text = stringResource(R.string.open_mode_button),
