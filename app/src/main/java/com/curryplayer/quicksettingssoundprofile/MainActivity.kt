@@ -1,12 +1,10 @@
 package com.curryplayer.quicksettingssoundprofile
 
 import android.media.AudioManager
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -15,23 +13,18 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.manager.SoundProfileManager
 import com.curryplayer.quicksettingssoundprofile.models.AlarmItem
-import com.curryplayer.quicksettingssoundprofile.models.IconTheme
-import com.curryplayer.quicksettingssoundprofile.models.MuteDurationOption
 import com.curryplayer.quicksettingssoundprofile.pages.RenderMainPage
 import com.curryplayer.quicksettingssoundprofile.scheduler.AlarmScheduler
 import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProfileTheme
-import com.curryplayer.quicksettingssoundprofile.utils.AlarmExactUtils
-import com.curryplayer.quicksettingssoundprofile.utils.ZenRuleUtils
+import com.curryplayer.quicksettingssoundprofile.utils.PermissionUtils
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var soundProfileManager: SoundProfileManager
-    private lateinit var dataStoreManager: DataStoreManager
     private lateinit var alarmScheduler: AlarmScheduler
 
     private var dndPermissionGrantedState by mutableStateOf(false)
@@ -56,7 +49,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         soundProfileManager = SoundProfileManager(this)
-        dataStoreManager = soundProfileManager.dataStoreManager
         alarmScheduler = soundProfileManager.alarmScheduler
         selectedSoundModeState = soundProfileManager.currentRingerMode
 
@@ -77,42 +69,10 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             QuickSettingsSoundProfileTheme {
-                val savedZenRuleId by dataStoreManager.zenRuleId.collectAsState(initial = "")
-                val savedIconThemeIndex by dataStoreManager.iconTheme.collectAsState(initial = IconTheme.VOLUME_DEFAULT.ordinal)
-                val previousRingerMode by dataStoreManager.previousRingerMode.collectAsState(initial = AudioManager.RINGER_MODE_NORMAL)
-                val savedMuteDurationMinutes by dataStoreManager.lastMuteDurationMinutes.collectAsState(initial = MuteDurationOption.MINUTES_60.minutes)
-                val savedMuteDurationOption by dataStoreManager.lastMuteDurationOption.collectAsState(initial = MuteDurationOption.MINUTES_60)
-                val savedCustomMuteDurationMinutes by dataStoreManager.customMuteDurationMinutes.collectAsState(initial = MuteDurationOption.CUSTOM.minutes)
-                // Start with true so the "add tile" card doesn't flicker in before the stored value is loaded
-                val tileAdded by dataStoreManager.tileAdded.collectAsState(initial = true)
-                val showTimerEndTime by dataStoreManager.showTimerEndTime.collectAsState(initial = false)
                 val scope = rememberCoroutineScope()
 
                 RenderMainPage(
-                    ctx = this,
                     hasPermission = dndPermissionGrantedState,
-                    tileAdded = tileAdded,
-                    onTileAddedChanged = { added ->
-                        scope.launch { dataStoreManager.setTileAdded(added) }
-                    },
-                    showTimerEndTime = showTimerEndTime,
-                    onShowTimerEndTimeChanged = { show ->
-                        scope.launch { dataStoreManager.setShowTimerEndTime(show) }
-                    },
-                    ruleId = savedZenRuleId,
-                    iconThemeIndex = savedIconThemeIndex,
-                    onIconThemeChangeIndex = { newIndexValue ->
-                        scope.launch {
-                            dataStoreManager.setIconTheme(newIndexValue)
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM && savedZenRuleId.isNotEmpty()) {
-                                ZenRuleUtils.updateZenRuleIcon(
-                                    context = this@MainActivity,
-                                    ruleId = savedZenRuleId,
-                                    iconResId = IconTheme.fromOrdinal(newIndexValue).silentIcon
-                                )
-                            }
-                        }
-                    },
                     scheduleExactAlarmsPermissionGranted = scheduleExactAlarmsPermissionGrantedState,
                     selectedMode = selectedSoundModeState,
                     onSelectedMode = { mode ->
@@ -134,25 +94,6 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         modeChangeJob = job
-                    },
-                    previousRingerMode = previousRingerMode,
-                    savedMuteDurationMinutes = savedMuteDurationMinutes,
-                    savedMuteDurationOption = savedMuteDurationOption,
-                    savedCustomMuteDurationMinutes = savedCustomMuteDurationMinutes,
-                    onSaveMuteDuration = { minutes ->
-                        scope.launch {
-                            dataStoreManager.saveMuteDurationMinutes(minutes)
-                        }
-                    },
-                    onSaveMuteDurationOption = { option ->
-                        scope.launch {
-                            dataStoreManager.saveMuteDurationOption(option)
-                        }
-                    },
-                    onSaveCustomMuteDuration = { minutes ->
-                        scope.launch {
-                            dataStoreManager.saveCustomMuteDurationMinutes(minutes)
-                        }
                     },
                     onStartTimer = { minutes ->
                         scope.launch {
@@ -186,6 +127,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun checkExactAlarmPermission() {
-        scheduleExactAlarmsPermissionGrantedState = AlarmExactUtils.isScheduleExactAlarmsPermissionGranted(this)
+        scheduleExactAlarmsPermissionGrantedState = PermissionUtils.isScheduleExactAlarmsPermissionGranted(this)
     }
 }

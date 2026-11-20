@@ -1,6 +1,5 @@
 package com.curryplayer.quicksettingssoundprofile.composables
 
-import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -25,7 +25,6 @@ import com.curryplayer.quicksettingssoundprofile.R
 @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 @Composable
 fun RenderNoUserManagedModesAvailableCard(
-    ctx: Context,
     modifier: Modifier = Modifier
 ) {
     SectionCard(
@@ -48,7 +47,7 @@ fun RenderNoUserManagedModesAvailableCard(
             Spacer(modifier = Modifier.width(10.dp))
 
             Text(
-                text = ctx.getString(R.string.no_user_managed_modes_available_title),
+                text = stringResource(R.string.no_user_managed_modes_available_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Start,
@@ -59,7 +58,7 @@ fun RenderNoUserManagedModesAvailableCard(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = ctx.getString(R.string.no_user_managed_modes_available_description),
+            text = stringResource(R.string.no_user_managed_modes_available_description),
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Start,
             modifier = Modifier.fillMaxWidth()

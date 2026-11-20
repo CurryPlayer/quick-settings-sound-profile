@@ -1,6 +1,5 @@
 package com.curryplayer.quicksettingssoundprofile.composables
 
-import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -16,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -24,13 +24,11 @@ import com.curryplayer.quicksettingssoundprofile.R
 /**
  * Displays a notice card informing the user about silent mode behavior and guidelines.
  *
- * @param ctx The [Context] used to resolve string resources.
  * @param modifier The [Modifier] to be applied to the [SectionCard].
  * @param actions An optional composable slot scoped to [ColumnScope] rendered below the description text.
  */
 @Composable
 fun RenderZenModeSettingsNoticeCard(
-    ctx: Context,
     modifier: Modifier = Modifier,
     actions: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
@@ -50,7 +48,7 @@ fun RenderZenModeSettingsNoticeCard(
             Spacer(modifier = Modifier.width(10.dp))
 
             Text(
-                text = ctx.getString(R.string.notice_title),
+                text = stringResource(R.string.notice_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Start,
@@ -61,7 +59,7 @@ fun RenderZenModeSettingsNoticeCard(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = ctx.getString(R.string.notice_description),
+            text = stringResource(R.string.notice_description),
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Start,
             modifier = Modifier.fillMaxWidth()

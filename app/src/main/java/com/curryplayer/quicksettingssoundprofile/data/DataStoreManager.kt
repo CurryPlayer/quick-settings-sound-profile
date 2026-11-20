@@ -2,6 +2,9 @@ package com.curryplayer.quicksettingssoundprofile.data
 
 import android.content.Context
 import android.media.AudioManager
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -15,6 +18,17 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+
+/**
+ * Provides a [DataStoreManager] to composables without passing a [Context] down.
+ * Uses the application context, so no Activity is retained. The underlying DataStore is a
+ * per-process singleton, so multiple managers are cheap and safe.
+ */
+@Composable
+fun rememberDataStoreManager(): DataStoreManager {
+    val appContext = LocalContext.current.applicationContext
+    return remember(appContext) { DataStoreManager(appContext) }
+}
 
 class DataStoreManager(private val context: Context) {
     companion object {

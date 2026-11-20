@@ -15,8 +15,8 @@ android {
         applicationId = "com.curryplayer.quicksettingssoundprofile"
         minSdk = 24
         targetSdk = 37
-        versionCode = 12
-        versionName = "2.0.0"
+        versionCode = 13
+        versionName = "2.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -60,6 +60,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
     buildFeatures {
         compose = true
     }
@@ -77,6 +82,9 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.datastore.preferences)
     testImplementation(libs.junit)
+    testImplementation(libs.androidx.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core.ktx)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.models.IconTheme
@@ -31,14 +32,14 @@ import com.curryplayer.quicksettingssoundprofile.ui.theme.QuickSettingsSoundProf
  */
 @Composable
 fun RenderAddTileToStatusBarCard(
-    ctx: Context,
     iconTheme: IconTheme,
     onTileAdded: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val ctx = LocalContext.current
     SectionCard(modifier = modifier) {
         Text(
-            text = ctx.getString(R.string.tile_placement_manual),
+            text = stringResource(R.string.tile_placement_manual),
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.fillMaxWidth()
         )
@@ -51,7 +52,7 @@ fun RenderAddTileToStatusBarCard(
                 modifier = Modifier.align(Alignment.End),
             ) {
                 Text(
-                    text = ctx.getString(R.string.button_add_tile),
+                    text = stringResource(R.string.button_add_tile),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -65,7 +66,6 @@ fun RenderAddTileToStatusBarCard(
 private fun AddTileToStatusBarCardPreview() {
     QuickSettingsSoundProfileTheme {
         RenderAddTileToStatusBarCard(
-            ctx = LocalContext.current,
             iconTheme = IconTheme.VOLUME_DEFAULT,
             onTileAdded = {},
         )

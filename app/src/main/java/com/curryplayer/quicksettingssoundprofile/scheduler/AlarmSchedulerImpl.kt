@@ -5,10 +5,10 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
-import android.os.Build
 import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
 import com.curryplayer.quicksettingssoundprofile.models.AlarmItem
 import com.curryplayer.quicksettingssoundprofile.receivers.TimerExpiredReceiver
+import com.curryplayer.quicksettingssoundprofile.utils.PermissionUtils
 import kotlinx.coroutines.flow.first
 
 class AlarmSchedulerImpl(
@@ -44,20 +44,22 @@ class AlarmSchedulerImpl(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        alarmManager.let { am ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                if (am.canScheduleExactAlarms()) {
-                    am.setExactAndAllowWhileIdle(
-                        AlarmManager.RTC,
-                        endTime,
-                        pendingIntent
-                    )
-                } else {
-                    am.setAndAllowWhileIdle(AlarmManager.RTC, endTime, pendingIntent)
-                }
-            } else {
-                am.setExactAndAllowWhileIdle(AlarmManager.RTC, endTime, pendingIntent)
+        setAlarm(endTime, pendingIntent)
+    }
+
+    private fun setAlarm(endTime: Long, pendingIntent: PendingIntent) {
+        if (PermissionUtils.isScheduleExactAlarmsPermissionGranted(context)) {
+            try {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC,
+                    endTime,
+                    pendingIntent
+                )
+            } catch (_: SecurityException) {
+                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC, endTime, pendingIntent)
             }
+        } else {
+            alarmManager.setAndAllowWhileIdle(AlarmManager.RTC, endTime, pendingIntent)
         }
     }
 

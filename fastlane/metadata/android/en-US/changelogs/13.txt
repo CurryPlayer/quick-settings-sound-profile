@@ -1,0 +1,6 @@
+New:
+- Info card clarifying when mode icon changes are blocked due to prior mode changes in system settings (Android 15+)
+Improvements:
+- Refactored architecture to reduce unnecessary recompositions and improve performance
+- Improved translations for clearer phrasing
+- Updated dependencies

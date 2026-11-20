@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -21,31 +22,41 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.curryplayer.quicksettingssoundprofile.R
 import com.curryplayer.quicksettingssoundprofile.composables.RenderSettingsSwitchRow
-import com.curryplayer.quicksettingssoundprofile.data.DataStoreManager
+import com.curryplayer.quicksettingssoundprofile.data.rememberDataStoreManager
 import com.curryplayer.quicksettingssoundprofile.models.MuteDurationOption
 import com.curryplayer.quicksettingssoundprofile.utils.TimeUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun RenderTemporaryMuteSelection(
     scheduleExactAlarmsPermissionGranted: Boolean,
     selectedMode: Int,
-    previousRingerMode: Int,
-    savedMuteDurationMinutes: Int,
-    savedMuteDurationOption: MuteDurationOption,
-    savedCustomMuteDurationMinutes: Int,
-    onSaveMuteDuration: (minutes: Int) -> Unit,
-    onSaveMuteDurationOption: (MuteDurationOption) -> Unit,
-    onSaveCustomMuteDuration: (minutes: Int) -> Unit,
     onStartTimer: (minutes: Int) -> Unit,
     onCancelTimer: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val dataStoreManager = remember { DataStoreManager(context.applicationContext) }
+    val dataStoreManager = rememberDataStoreManager()
+    val scope = rememberCoroutineScope()
+
     val timerEndTime by dataStoreManager.timerEndTime.collectAsState(initial = 0L)
+    val previousRingerMode by dataStoreManager.previousRingerMode.collectAsState(initial = AudioManager.RINGER_MODE_NORMAL)
+    val savedMuteDurationMinutes by dataStoreManager.lastMuteDurationMinutes.collectAsState(initial = MuteDurationOption.MINUTES_60.minutes)
+    val savedMuteDurationOption by dataStoreManager.lastMuteDurationOption.collectAsState(initial = MuteDurationOption.MINUTES_60)
+    val savedCustomMuteDurationMinutes by dataStoreManager.customMuteDurationMinutes.collectAsState(initial = MuteDurationOption.CUSTOM.minutes)
+
+    val onSaveMuteDuration: (Int) -> Unit = { minutes ->
+        scope.launch { dataStoreManager.saveMuteDurationMinutes(minutes) }
+    }
+    val onSaveMuteDurationOption: (MuteDurationOption) -> Unit = { option ->
+        scope.launch { dataStoreManager.saveMuteDurationOption(option) }
+    }
+    val onSaveCustomMuteDuration: (Int) -> Unit = { minutes ->
+        scope.launch { dataStoreManager.saveCustomMuteDurationMinutes(minutes) }
+    }
 
     var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
